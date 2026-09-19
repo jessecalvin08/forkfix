@@ -9,7 +9,7 @@ RuleBranch (Nebius x NVIDIA hackathon, Coding & Agentic Engineering track, solo)
 ## Repo and hosting
 
 - Public repo: [github.com/jessecalvin08/rulebranch](https://github.com/jessecalvin08/rulebranch), branch `main`.
-- Live demo: [rulebranch.vercel.app](https://rulebranch.vercel.app/), the `frontend/` build deployed on Vercel as a static sample. It has no backend, makes no Token Factory calls, and must not claim a live Sandbox run. Frontend changes affect this public site, so keep them truthful.
+- Live demo: [rulebranch.vercel.app](https://rulebranch.vercel.app/), the `frontend/` build deployed on Vercel as a static sample. It has no backend, makes no Token Factory calls, and must not claim a live Sandbox run. Vercel project `jesse-dc66/rulebranch` is Git-connected: every push to `main` redeploys production, so pushing frontend changes publishes them immediately. Keep them truthful.
 
 ## Commands (Windows/PowerShell; a `backend/.venv` already exists)
 
