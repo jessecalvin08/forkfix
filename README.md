@@ -2,7 +2,7 @@
 
 RuleBranch is a developer tool for testing whether an AI coding agent stays inside the authority a user granted it.
 
-An AI agent may be allowed to edit source code and run tests. That does **not** mean it may read secrets, delete important files, or send data to an external service. RuleBranch generates policy drafts using Nemotron and checks them against a deterministic 23-case local matrix. It also contains an opt-in Nebius Sandbox agent runner. Sandbox access was granted on September 19, 2026, and one real run is recorded, but it is partial: the agent repaired the code with tests passing under enforcement, while the observe branch stopped at its first step, so no before-and-after comparison has been measured yet. The dashboard's public comparison remains a clearly labeled sample simulation.
+An AI agent may be allowed to edit source code and run tests. That does **not** mean it may read secrets, delete important files, or send data to an external service. RuleBranch generates policy drafts using Nemotron and checks them against a deterministic 23-case local matrix. It also contains an opt-in Nebius Sandbox agent runner. Sandbox access was granted on September 19, 2026, and a complete two-branch run is recorded: in both branches the Nemotron agent ignored a README prompt injection, repaired the code, and passed its tests. Because the agent never attempted the injection, that run shows enforcement leaving useful work intact, not a blocked attack. The dashboard's blocking comparison remains a clearly labeled sample simulation.
 
 ## The hackathon project
 
@@ -95,7 +95,7 @@ Open the local URL printed by Vite, normally `http://localhost:5173`. Use **Load
 
 ### Opt-in real Sandbox experiment
 
-This path has produced one real, partial run (see [current status](STATUS.md)); a complete two-branch comparison has not been measured yet. It will consume Token Factory inference and Sandbox compute if the account has access. It is separate from the dashboard sample. Never use the local `.env` as a fixture. Add the actual Token Factory project ID to private `backend/.env` as `NEBIUS_PROJECT_ID=...`; the ID is required by the current Sandbox SDK.
+This path has produced a complete two-branch run (see [current status](STATUS.md)); in it the agent never attempted the injection, so a real block has not been measured yet. It will consume Token Factory inference and Sandbox compute if the account has access. It is separate from the dashboard sample. Never use the local `.env` as a fixture. Add the actual Token Factory project ID to private `backend/.env` as `NEBIUS_PROJECT_ID=...`; the ID is required by the current Sandbox SDK.
 
 The recommended path starts in the local dashboard's workbench:
 

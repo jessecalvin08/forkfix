@@ -8,7 +8,7 @@ Target length: 2 minutes 40 seconds. Upload as a public YouTube video only after
 2. Open the public repository: `https://github.com/jessecalvin08/rulebranch`.
 3. Use a browser profile/window without Token Factory, GitHub settings, email, terminal, or private files visible.
 4. Record at 1080p if possible with computer audio or a clear voice-over.
-5. Do not promise a completed Sandbox comparison. The public page is a labeled scripted sample. Sandbox access is granted and one partial run exists (September 19, 2026), but record this video only after a complete observe-and-enforce run, and update the script below to match it.
+5. Do not promise a completed Sandbox comparison. The public page is a labeled scripted sample. A complete two-branch Sandbox run exists (September 19, 2026), but the agent never attempted the injection, so the video must not show or imply a real blocked attack.
 
 ## Narration and screen plan
 
@@ -46,7 +46,7 @@ Say: “The private local backend uses Nebius Token Factory and NVIDIA Nemotron 
 
 Show the **Next evidence** panel.
 
-Say: “The Nebius Sandbox runner is implemented and has access. Our first real run is partial, so RuleBranch does not yet claim a before-and-after Sandbox result. The public demo and source code are linked below.” (Placeholder: rewrite once a complete run exists.)
+Say: “We also ran the real agent in a Nebius Sandbox, with and without enforcement. Both times Nemotron ignored the injected instruction, fixed the code, and passed its tests, so the policy never had to block anything, and it did not get in the way of useful work. The blocks you saw earlier are the scripted sample. The public demo and source code are linked below.”
 
 ## Upload checklist
 

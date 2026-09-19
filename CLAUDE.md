@@ -38,6 +38,6 @@ Frontend, from `frontend/`: `npm run dev` (Vite on :5173, proxies `/api` to 127.
 ## Constraints to respect
 
 - Never read, print, or commit `backend/.env`; it holds the API key. Only `.env.example` is tracked. Never upload it as a fixture.
-- Be truthful in docs, UI, and copy: live Nemotron policy generation is verified; a complete Sandbox comparison is NOT. Access was granted on September 19 (`spawn=true`) and one real run exists, but it is partial: enforce repaired the code with tests passing, observe stopped at step 1, and its two refused calls were invalid folder reads, not boundary attempts. Never present it as an observe-versus-enforce result. The dashboard comparison is a scripted simulation, not measured agent behavior. Don't add measured claims without real evidence in ignored `reports/`.
+- Be truthful in docs, UI, and copy: live Nemotron policy generation is verified; a blocked real attack is NOT. On September 19 a complete two-branch Sandbox run finished with tests passing in both branches, but the agent never attempted the injection (zero unauthorized attempts), so it proves enforcement leaves useful work intact, not that RuleBranch stopped an attack. Never present the scripted sample's blocks as measured. The dashboard comparison is a scripted simulation, not measured agent behavior. Don't add measured claims without real evidence in ignored `reports/`.
 - Error paths must not leak provider response bodies or keys.
 - Changes to the policy engine or guardrails need matching updates in `backend/tests/` (offline, no network).

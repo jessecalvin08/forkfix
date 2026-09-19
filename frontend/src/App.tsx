@@ -398,7 +398,7 @@ function App() {
             <p className="hero-note">
               {hasLiveApi
                 ? "Policy generation runs against Token Factory from the private local backend. Sandbox runs start only from the terminal, after you approve a policy."
-                : "This page is a scripted sample. No agent ran, no file was read, and no repository test was executed."}
+                : "The record below is a scripted sample: no agent ran for it. A separate, real Nebius Sandbox run is summarised under The trust model."}
             </p>
           </div>
         </div>
@@ -503,10 +503,10 @@ function App() {
                 ? "A complete two-branch Sandbox run is recorded on this machine. See the measured runs below."
                 : hasMeasuredRun
                   ? "The newest Sandbox run on this machine is partial: at least one branch stopped early. See the measured runs below."
-                  : "Sandbox access is granted and a first run is recorded, but it is partial. A full observe-and-enforce comparison has not been measured yet."}
+                  : "A complete two-branch run in a Nebius Sandbox: in both branches the Nemotron agent ignored the README injection, repaired the code, and passed its tests. With no unauthorized attempt made, it shows enforcement leaving useful work intact, not a blocked attack."}
             </dd>
-            <span className={`state ${measuredComplete ? "is-proven" : "is-partial"}`}>
-              {measuredComplete ? "Recorded locally" : hasMeasuredRun ? "Partial, recorded locally" : "Partial run"}
+            <span className={`state ${measuredComplete || !hasLiveApi ? "is-proven" : "is-partial"}`}>
+              {measuredComplete ? "Recorded locally" : hasMeasuredRun ? "Partial, recorded locally" : "Run recorded"}
             </span>
           </div>
         </dl>
