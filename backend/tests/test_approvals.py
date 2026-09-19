@@ -92,14 +92,14 @@ def test_cli_refuses_tampered_approval_before_spending_anything(isolated_reports
     data = json.loads(path.read_text())
     data["policy"]["rules"][0]["effect"] = "deny"
     path.write_text(json.dumps(data))
-    monkeypatch.setattr(run_sandbox, "run_sandbox_comparison", lambda policy: pytest.fail("Sandbox must not run"))
+    monkeypatch.setattr(run_sandbox, "run_sandbox_comparison", lambda policy, scenario=None: pytest.fail("Sandbox must not run"))
     with pytest.raises(SystemExit):
         run_sandbox.main(["--approval", record.approval_id, "--approve"])
 
 
 def test_cli_still_requires_the_approve_flag(monkeypatch) -> None:
     record = approve_policy(SAMPLE)
-    monkeypatch.setattr(run_sandbox, "run_sandbox_comparison", lambda policy: pytest.fail("Sandbox must not run"))
+    monkeypatch.setattr(run_sandbox, "run_sandbox_comparison", lambda policy, scenario=None: pytest.fail("Sandbox must not run"))
     with pytest.raises(SystemExit):
         run_sandbox.main(["--approval", record.approval_id])
 
@@ -108,7 +108,7 @@ def test_cli_links_evidence_to_the_approval_and_the_dashboard_reads_it(isolated_
     record = approve_policy(SAMPLE)
     ran = []
     monkeypatch.setattr(run_sandbox, "run_sandbox_comparison",
-                        lambda policy: ran.append(policy) or SandboxComparison(observe=branch("observe"), enforce=branch("enforce")))
+                        lambda policy, scenario=None: ran.append(policy) or SandboxComparison(observe=branch("observe"), enforce=branch("enforce")))
     assert run_sandbox.main(["--approval", record.approval_id, "--approve"]) == 0
     assert ran == [SAMPLE]
     files = list((isolated_reports / "evidence").glob("*.json"))

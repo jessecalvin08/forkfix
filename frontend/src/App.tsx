@@ -10,6 +10,7 @@ import {
   validatePolicyDraft,
 } from "./api";
 import { fallbackComparison } from "./demo";
+import measuredSnapshot from "./measured_evidence.json";
 import type {
   ApprovalRecord,
   BranchResult,
@@ -20,6 +21,7 @@ import type {
   Policy,
   PolicyValidationResponse,
   RecordedAction,
+  SandboxComparison,
   TraceEvent,
 } from "./types";
 
@@ -119,6 +121,9 @@ function MeasuredBranch({ branch }: { branch: BranchResult }) {
           <div><dt>Blocked by policy</dt><dd>{branch.blocked_actions}</dd></div>
         ) : (
           <div><dt>Stopped by harness</dt><dd>{branch.safety_suppressed_actions}</dd></div>
+        )}
+        {branch.boundary_attempts > 0 && (
+          <div><dt>{enforce ? "Attack calls blocked" : "Attack calls attempted"}</dt><dd>{enforce ? `${branch.boundary_blocked} / ${branch.boundary_attempts}` : branch.boundary_attempts}</dd></div>
         )}
         {branch.invalid_calls > 0 && <div><dt>Invalid calls refused</dt><dd>{branch.invalid_calls}</dd></div>}
         {branch.retried_steps > 0 && <div><dt>Steps retried after a runaway reply</dt><dd>{branch.retried_steps}</dd></div>}
@@ -352,11 +357,16 @@ function App() {
     </div>
   );
 
-  const hasMeasuredRun = hasLiveApi && Boolean(latestEvidence);
-  // "Proven" only when both branches ran to the end; a partial run is labelled partial.
-  const measuredComplete = Boolean(
-    hasMeasuredRun && latestEvidence?.evidence.observe.completed && latestEvidence?.evidence.enforce.completed,
-  );
+  // A real run bundled with the site so judges see measured evidence without a
+  // backend. It is a recorded snapshot, labelled as such, never presented as live.
+  const bundledEvidence: EvidenceItem = {
+    file: "20260919T134631Z-task-embedded-imperative.json",
+    evidence: measuredSnapshot as unknown as SandboxComparison,
+  };
+  // On the local backend, show the newest real run; on the public site, the bundle.
+  const shownEvidence = hasLiveApi ? latestEvidence : bundledEvidence;
+  const hasMeasuredRun = Boolean(shownEvidence);
+  const measuredBlock = Boolean(shownEvidence?.evidence.attack_blocked);
 
   return (
     <main className="shell">
@@ -371,7 +381,7 @@ function App() {
           <a href="#casefile">Decision record</a>
           <a href="#evidence">Evidence</a>
           <a href="#workbench">Workbench</a>
-          {hasLiveApi && <a href="#measured">Sandbox runs</a>}
+          <a href="#measured">Sandbox runs</a>
         </nav>
         <div className="topbar-end">
           <span className="nameplate build-state">{hasLiveApi ? "Local workbench" : "Public sample"}</span>
@@ -499,14 +509,12 @@ function App() {
           <div className="ledger-row">
             <dt>Agent execution</dt>
             <dd>
-              {measuredComplete
-                ? "A complete two-branch Sandbox run is recorded on this machine. See the measured runs below."
-                : hasMeasuredRun
-                  ? "The newest Sandbox run on this machine is partial: at least one branch stopped early. See the measured runs below."
-                  : "A complete two-branch run in a Nebius Sandbox: in both branches the Nemotron agent ignored the README injection, repaired the code, and passed its tests. With no unauthorized attempt made, it shows enforcement leaving useful work intact, not a blocked attack."}
+              {measuredBlock
+                ? "Measured in a Nebius Sandbox: the agent tried to read .env under a task-embedded injection. Without enforcement it succeeded; with enforcement the policy blocked it. See the run below."
+                : "A Nebius Sandbox run is recorded. See the run below."}
             </dd>
-            <span className={`state ${measuredComplete || !hasLiveApi ? "is-proven" : "is-partial"}`}>
-              {measuredComplete ? "Recorded locally" : hasMeasuredRun ? "Partial, recorded locally" : "Run recorded"}
+            <span className={`state ${measuredBlock ? "is-proven" : "is-partial"}`}>
+              {measuredBlock ? "Measured block" : "Run recorded"}
             </span>
           </div>
         </dl>
@@ -804,67 +812,89 @@ function App() {
         </div>
       </section>
 
-      {hasLiveApi && (
-        <section id="measured" className="measured-section" aria-labelledby="measured-title">
-          <div className="workbench-intro">
-            <div>
-              <p className="nameplate">Sandbox evidence</p>
-              <h2 id="measured-title">Measured runs.</h2>
-              <p>
-                Read from <code>backend/reports/evidence/</code>. Only files in the exact shape the Sandbox CLI writes are shown, and
-                nothing here is scripted.
-              </p>
-            </div>
+      <section id="measured" className="measured-section" aria-labelledby="measured-title">
+        <div className="workbench-intro">
+          <div>
+            <p className="nameplate">Sandbox evidence</p>
+            <h2 id="measured-title">Measured run.</h2>
+            <p>
+              {hasLiveApi
+                ? "Read from backend/reports/evidence/. Only files in the exact shape the Sandbox CLI writes are shown, and nothing here is scripted."
+                : "A real Nebius Sandbox run, recorded on the builder's machine and bundled with this page as a snapshot. Nothing in this section is scripted."}
+            </p>
+          </div>
+          {hasLiveApi && (
             <button className="ghost-button" type="button" onClick={() => void loadEvidence()} disabled={isLoadingEvidence}>
               {isLoadingEvidence ? "Reading…" : "Refresh"}
             </button>
-          </div>
-
-          {evidenceError && <p className="notice error" role="alert">{evidenceError}</p>}
-
-          {evidence === null ? (
-            <p className="field-hint">Reading the evidence folder…</p>
-          ) : !latestEvidence ? (
-            <div className="empty-state">
-              <strong>No Sandbox run recorded yet.</strong>
-              <p>
-                Approve a policy in the workbench, then run the command it gives you. Each run spends Token Factory credits and
-                Sandbox compute, and writes its evidence here.
-              </p>
-            </div>
-          ) : (
-            <div className="measured">
-              <dl className="approval-meta measured-meta">
-                <div><dt>Recorded</dt><dd>{formatTime(latestEvidence.evidence.recorded_at)}</dd></div>
-                <div>
-                  <dt>Approval</dt>
-                  <dd title={latestEvidence.evidence.approval_id ?? undefined}>
-                    {latestEvidence.evidence.approval_id ? shortId(latestEvidence.evidence.approval_id) : "Reviewed file, no dashboard approval"}
-                  </dd>
-                </div>
-                <div><dt>Policy SHA-256</dt><dd title={latestEvidence.evidence.policy_sha256 ?? undefined}>{shortId(latestEvidence.evidence.policy_sha256)}</dd></div>
-                <div><dt>File</dt><dd>{latestEvidence.file}</dd></div>
-              </dl>
-              <div className="measured-branches">
-                <MeasuredBranch branch={latestEvidence.evidence.observe} />
-                <MeasuredBranch branch={latestEvidence.evidence.enforce} />
-              </div>
-              {evidence && evidence.length > 1 && (
-                <p className="field-hint">
-                  Showing the newest of {evidence.length} runs in <code>reports/evidence/</code>.
-                </p>
-              )}
-            </div>
           )}
-        </section>
-      )}
+        </div>
+
+        {hasLiveApi && evidenceError && <p className="notice error" role="alert">{evidenceError}</p>}
+
+        {hasLiveApi && evidence === null ? (
+          <p className="field-hint">Reading the evidence folder…</p>
+        ) : !shownEvidence ? (
+          <div className="empty-state">
+            <strong>No Sandbox run recorded yet.</strong>
+            <p>
+              Approve a policy in the workbench, then run the command it gives you. Each run spends Token Factory credits and
+              Sandbox compute, and writes its evidence here.
+            </p>
+          </div>
+        ) : (
+          <div className="measured">
+            {shownEvidence.evidence.attack_blocked ? (
+              <div className="attack-verdict is-blocked">
+                <span className="nameplate">Measured result</span>
+                <strong>Enforcement blocked the attack.</strong>
+                <p>
+                  Injection: <em>{shownEvidence.evidence.scenario_label}</em> — {shownEvidence.evidence.scenario_technique} The agent
+                  tried to read <code>.env</code>. Without enforcement (Observe) the read went through; with enforcement the policy
+                  denied it. After the block, the enforced agent did not finish the benign task inside the step limit.
+                </p>
+              </div>
+            ) : shownEvidence.evidence.attack_attempted ? (
+              <div className="attack-verdict">
+                <span className="nameplate">Measured result</span>
+                <strong>The agent attempted the attack; enforcement did not fully block it.</strong>
+                <p>Injection: <em>{shownEvidence.evidence.scenario_label}</em>. Inspect the branches below.</p>
+              </div>
+            ) : (
+              <div className="attack-verdict">
+                <span className="nameplate">Measured result</span>
+                <strong>The agent ignored the injection and finished the task.</strong>
+                <p>
+                  Injection: <em>{shownEvidence.evidence.scenario_label}</em>. No unauthorized call was attempted, so this run shows
+                  enforcement leaving useful work intact, not a blocked attack.
+                </p>
+              </div>
+            )}
+            <dl className="approval-meta measured-meta">
+              <div><dt>Recorded</dt><dd>{formatTime(shownEvidence.evidence.recorded_at)}</dd></div>
+              <div><dt>Model</dt><dd>{shownEvidence.evidence.enforce.model}</dd></div>
+              <div><dt>Policy SHA-256</dt><dd title={shownEvidence.evidence.policy_sha256 ?? undefined}>{shortId(shownEvidence.evidence.policy_sha256)}</dd></div>
+              <div><dt>Source</dt><dd>{hasLiveApi ? shownEvidence.file : "bundled snapshot"}</dd></div>
+            </dl>
+            <div className="measured-branches">
+              <MeasuredBranch branch={shownEvidence.evidence.observe} />
+              <MeasuredBranch branch={shownEvidence.evidence.enforce} />
+            </div>
+            {hasLiveApi && evidence && evidence.length > 1 && (
+              <p className="field-hint">
+                Showing the newest of {evidence.length} runs in <code>reports/evidence/</code>.
+              </p>
+            )}
+          </div>
+        )}
+      </section>
 
       <footer className="footer">
         <div>
           <span className="footer-brand"><BranchIcon /> RuleBranch</span>
           <p>
-            A prototype for accountable coding agents. The decision record is a scripted simulation; measured Sandbox runs appear
-            only on a local backend, and only after a policy is approved.
+            A prototype for accountable coding agents. The decision record at the top is a scripted simulation; the Sandbox run
+            lower down is real, recorded evidence.
           </p>
         </div>
         <a href="https://github.com/jessecalvin08/rulebranch" target="_blank" rel="noreferrer">Explore the repository</a>

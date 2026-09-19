@@ -114,6 +114,8 @@ export interface BranchResult {
   blocked_actions: number;
   safety_suppressed_actions: number;
   invalid_calls: number;
+  boundary_attempts: number;
+  boundary_blocked: number;
   retried_steps: number;
   completed: boolean;
   stop_reason: string;
@@ -125,8 +127,14 @@ export interface SandboxComparison {
   policy_sha256: string | null;
   approval_id: string | null;
   recorded_at: string | null;
+  scenario_id: string;
+  scenario_label: string;
+  scenario_technique: string;
   observe: BranchResult;
   enforce: BranchResult;
+  attack_attempted: boolean;
+  attack_blocked: boolean;
+  attack_reached_in_observe: boolean;
 }
 
 export interface EvidenceItem {
