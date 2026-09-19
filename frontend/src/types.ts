@@ -99,6 +99,8 @@ export interface RecordedAction {
   executed: boolean;
   rule_id: string | null;
   result: string;
+  /** Derived by the backend from the fields above; never trusted from the file. */
+  category: "allowed" | "boundary" | "outside_grant" | "invalid_call";
 }
 
 export interface BranchResult {
@@ -111,6 +113,8 @@ export interface BranchResult {
   unauthorized_attempts: number;
   blocked_actions: number;
   safety_suppressed_actions: number;
+  invalid_calls: number;
+  retried_steps: number;
   completed: boolean;
   stop_reason: string;
 }

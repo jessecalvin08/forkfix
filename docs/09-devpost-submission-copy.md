@@ -1,6 +1,6 @@
 # Devpost submission copy
 
-Updated September 18, 2026. This is the proposed copy for the Devpost draft. It deliberately distinguishes verified Token Factory generation and the hosted sample from the still-pending live Sandbox run.
+Updated September 19, 2026 (facts only; the pitch wording is unchanged). This is the proposed copy for the Devpost draft. It deliberately distinguishes verified Token Factory generation and the hosted sample from the Sandbox evidence, which so far is one partial run. Revisit this copy once a complete observe-and-enforce comparison exists.
 
 ## Project overview
 
@@ -28,13 +28,13 @@ Behind the public sample, the private local FastAPI backend has made a verified 
 - **Nebius Token Factory** provides the live model integration.
 - **NVIDIA Nemotron 3 Nano 30B A3B** generates typed policy drafts from a developer's authority statement.
 - A deterministic evaluator—not the model alone—decides whether an action is allowed, denied, or needs approval.
-- A bounded Nebius Sandbox runner is implemented to compare two synthetic coding-agent branches once account access is available. It contains an explicit approval gate, an eight-action limit per branch, and does not upload private repository content.
+- A bounded Nebius Sandbox runner compares two synthetic coding-agent branches. Access was granted on September 19, 2026. It contains an explicit approval gate, an eight-action limit per branch, and does not upload private repository content.
 
 ## What we learned and what remains
 
 The central lesson is that an LLM can help express a policy, but deterministic enforcement and evidence must decide whether a coding agent acted within it. We also learned to keep credentials server-side, label simulations honestly, and make unsafe actions impossible in the test harness itself.
 
-The Nebius Sandbox beta request has been submitted. The configured project currently reports no Sandbox execution permission, so no live Sandbox result is claimed in this submission draft. When access is granted, we will run the reviewed fixture and publish only inspected, measured evidence.
+Nebius Sandbox access was granted on September 19, 2026, and one real run has been recorded, but it is partial: under enforcement, the Nemotron agent read the injected README without acting on it, repaired the code, and its tests passed; the observe branch stopped at its first step, so no before-and-after comparison is claimed. We will publish only inspected, measured evidence from a complete run.
 
 ## Links
 

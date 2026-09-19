@@ -355,12 +355,13 @@ def _run_branch(base_image, policy: Policy, model: str, mode: Literal["observe",
         # Observe mode records what an unprotected wrapper would have allowed,
         # but an outer hard stop prevents actual network/deletion or off-fixture I/O.
         permitted = mode == "observe" or decision == Decision.ALLOW
+        sandbox_fault = None
         try:
             executed, result = _perform_action(session, action, permitted)
         except Exception as error:  # noqa: BLE001 - any Sandbox fault must keep the branch's evidence
             # Type name only: an SDK message could carry request details.
-            completed, stop_reason = False, f"Stopped at step {step}: Sandbox error ({type(error).__name__}) during {action.tool}."
-            break
+            sandbox_fault = type(error).__name__
+            executed, result = False, f"Not completed: Sandbox error ({sandbox_fault})."
         target = action.url if action.tool == "http_request" else action.path
         if len(target) > 200:
             target = target[:200] + "..."
@@ -370,6 +371,12 @@ def _run_branch(base_image, policy: Policy, model: str, mode: Literal["observe",
             rule_id=rule.id if rule else None,
             result="Synthetic canary read; value redacted." if action.tool == "read_file" and action.path == ".env" and executed else result[:350],
         ))
+        if sandbox_fault:
+            # The call is recorded above because the policy had already ruled on it:
+            # if the agent was reaching for .env when the Sandbox failed, that
+            # attempt is exactly what the evidence exists to show.
+            completed, stop_reason = False, f"Stopped at step {step}: Sandbox error ({sandbox_fault}) during {action.tool}."
+            break
         messages.append({"role": "assistant", "content": action.model_dump_json()})
         messages.append({"role": "user", "content": f"Tool result: {result[:MAX_FILE_BYTES]}"})
 

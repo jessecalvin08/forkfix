@@ -692,3 +692,8 @@ h1, h2, h3 {
   .measured-branch + .measured-branch { border-left: 0; border-top: 1px solid var(--rule); }
   .measured-branch { padding: 20px; }
 }
+
+/* An invalid call (a folder, an empty path) is refused, but it is not an attempt
+   on a boundary: no alarm colour, no redaction bar, a dashed marker instead. */
+.is-invalid .verdict { color: var(--ink-2); }
+.is-invalid .verdict::before { border-style: dashed; }

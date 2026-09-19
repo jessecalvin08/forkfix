@@ -2,7 +2,7 @@
 
 RuleBranch is a developer tool for testing whether an AI coding agent stays inside the authority a user granted it.
 
-An AI agent may be allowed to edit source code and run tests. That does **not** mean it may read secrets, delete important files, or send data to an external service. RuleBranch generates policy drafts using Nemotron and checks them against a deterministic 23-case local matrix. It also contains an opt-in Nebius Sandbox agent runner, but a live Sandbox execution has **not** been verified because the current account/project probe returned 403 and no execution permissions. The dashboard's comparison remains a clearly labeled sample simulation.
+An AI agent may be allowed to edit source code and run tests. That does **not** mean it may read secrets, delete important files, or send data to an external service. RuleBranch generates policy drafts using Nemotron and checks them against a deterministic 23-case local matrix. It also contains an opt-in Nebius Sandbox agent runner. Sandbox access was granted on September 19, 2026, and one real run is recorded, but it is partial: the agent repaired the code with tests passing under enforcement, while the observe branch stopped at its first step, so no before-and-after comparison has been measured yet. The dashboard's public comparison remains a clearly labeled sample simulation.
 
 ## The hackathon project
 
@@ -95,11 +95,11 @@ Open the local URL printed by Vite, normally `http://localhost:5173`. Use **Load
 
 ### Opt-in real Sandbox experiment
 
-This path is code-complete but **not verified live**. It will consume Token Factory inference and Sandbox compute if the account has access. It is separate from the dashboard sample. Never use the local `.env` as a fixture. Add the actual Token Factory project ID to private `backend/.env` as `NEBIUS_PROJECT_ID=...`; the ID is required by the current Sandbox SDK.
+This path has produced one real, partial run (see [current status](STATUS.md)); a complete two-branch comparison has not been measured yet. It will consume Token Factory inference and Sandbox compute if the account has access. It is separate from the dashboard sample. Never use the local `.env` as a fixture. Add the actual Token Factory project ID to private `backend/.env` as `NEBIUS_PROJECT_ID=...`; the ID is required by the current Sandbox SDK.
 
 The recommended path starts in the local dashboard's workbench:
 
-1. **Run the 18 local checks** on the sample rules or a draft you compiled.
+1. **Run the local checks** (currently 23) on the sample rules or a draft you compiled.
 2. **Approve this exact policy.** You tick an acknowledgement that you read every rule; the server re-runs the checks and records the approval in ignored `backend/reports/approvals/`, named by the policy's SHA-256. Approving runs nothing and spends nothing.
 3. **Run it from the terminal** with the command the dashboard shows, from `backend/`:
 
@@ -115,7 +115,7 @@ A policy file you reviewed by hand still works without the dashboard:
 .\.venv\Scripts\python.exe -m app.run_sandbox --reviewed-policy fixtures/sample_policy.json --approve --output reports/sandbox-comparison.json
 ```
 
-Either way, the command refuses to run without `--approve` and an 18/18 policy preflight. Only checked-in synthetic files plus a fake canary are uploaded. Network and delete requests are never executed, even in observe mode. Results are saved under ignored `reports/`; inspect them before publishing any measured claim. At present, a read-only SDK probe returned `spawn=false` and image listing returned HTTP 403, so this run cannot succeed until Nebius Sandbox access/project selection is resolved.
+Either way, the command refuses to run without `--approve` and a policy that passes every local check. Only checked-in synthetic files plus a fake canary are uploaded. Network and delete requests are never executed, even in observe mode. Results are saved under ignored `reports/`; inspect them before publishing any measured claim. A read-only SDK check confirmed Sandbox access (`spawn=true`) on September 19, 2026.
 
 For a fresh setup only, copy `backend/.env.example` to a private `backend/.env`, enter the key and chosen model there, and follow the [Nebius setup runbook](docs/06-nebius-setup.md). Jesse's local configuration is already working; do not overwrite it. Never commit `backend/.env`.
 

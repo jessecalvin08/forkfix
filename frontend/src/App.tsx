@@ -42,18 +42,29 @@ function eventTarget(event: TraceEvent): string {
 }
 
 /**
- * A measured event's verdict. Observe mode lets unauthorized calls past the
- * policy, but the harness itself never sends a network request or deletes a
- * file, so a call can be "not blocked" by policy and still not execute. That
- * case gets its own word instead of being counted as a breach or a block.
+ * A measured event's verdict, from the category the backend derived.
+ *
+ * An invalid call (reading the folder "src/", say) is refused but is not an
+ * attempt on a boundary, so it gets neither alarm colour nor a redaction bar;
+ * the first live run showed two of them as "2 blocked", which read like a
+ * stopped attack. Observe mode lets unauthorized calls past the policy, but the
+ * harness never sends a request or deletes a file, so "not blocked by policy"
+ * and "not executed" can both be true; that case has its own word too.
  */
 function measuredVerdict(event: RecordedAction, mode: BranchResult["mode"]): { word: string; decision: string } {
-  if (event.policy_decision === "allow") {
+  if (event.category === "allowed") {
     return event.executed ? { word: "Allowed", decision: "allow" } : { word: "Allowed, did not run", decision: "allow" };
   }
+  if (event.category === "invalid_call") return { word: "Refused: not a valid target", decision: "invalid" };
   if (event.executed) return { word: "Not blocked", decision: "violation" };
   if (mode === "enforce") return { word: "Blocked", decision: "deny" };
   return { word: "Stopped by harness", decision: "suppressed" };
+}
+
+function measuredRule(event: RecordedAction): string {
+  if (event.rule_id) return event.rule_id;
+  if (event.category === "invalid_call") return "no usable target";
+  return event.category === "outside_grant" ? "no rule grants this" : "deny-by-default";
 }
 
 function shortId(value: string | null | undefined): string {
@@ -109,6 +120,8 @@ function MeasuredBranch({ branch }: { branch: BranchResult }) {
         ) : (
           <div><dt>Stopped by harness</dt><dd>{branch.safety_suppressed_actions}</dd></div>
         )}
+        {branch.invalid_calls > 0 && <div><dt>Invalid calls refused</dt><dd>{branch.invalid_calls}</dd></div>}
+        {branch.retried_steps > 0 && <div><dt>Steps retried after a runaway reply</dt><dd>{branch.retried_steps}</dd></div>}
       </dl>
       {branch.events.length === 0 ? (
         <p className="field-hint">The agent proposed no tool calls on this branch.</p>
@@ -128,7 +141,7 @@ function MeasuredBranch({ branch }: { branch: BranchResult }) {
                     <span className="redactable">{event.target || "(no target)"}</span>
                   </span>
                   <p>{event.result}</p>
-                  <span className="trace-rule">{event.rule_id ?? "deny-by-default"}</span>
+                  <span className="trace-rule">{measuredRule(event)}</span>
                 </div>
               </li>
             );
@@ -340,6 +353,10 @@ function App() {
   );
 
   const hasMeasuredRun = hasLiveApi && Boolean(latestEvidence);
+  // "Proven" only when both branches ran to the end; a partial run is labelled partial.
+  const measuredComplete = Boolean(
+    hasMeasuredRun && latestEvidence?.evidence.observe.completed && latestEvidence?.evidence.enforce.completed,
+  );
 
   return (
     <main className="shell">
@@ -482,11 +499,15 @@ function App() {
           <div className="ledger-row">
             <dt>Agent execution</dt>
             <dd>
-              {hasMeasuredRun
-                ? "A Sandbox run is recorded on this machine. See the measured runs below."
-                : "Real Sandbox tool calls and repository tests still need execution access."}
+              {measuredComplete
+                ? "A complete two-branch Sandbox run is recorded on this machine. See the measured runs below."
+                : hasMeasuredRun
+                  ? "The newest Sandbox run on this machine is partial: at least one branch stopped early. See the measured runs below."
+                  : "Sandbox access is granted and a first run is recorded, but it is partial. A full observe-and-enforce comparison has not been measured yet."}
             </dd>
-            <span className={`state ${hasMeasuredRun ? "is-proven" : "is-open"}`}>{hasMeasuredRun ? "Recorded locally" : "Not yet run"}</span>
+            <span className={`state ${measuredComplete ? "is-proven" : "is-partial"}`}>
+              {measuredComplete ? "Recorded locally" : hasMeasuredRun ? "Partial, recorded locally" : "Partial run"}
+            </span>
           </div>
         </dl>
       </section>
@@ -807,8 +828,8 @@ function App() {
             <div className="empty-state">
               <strong>No Sandbox run recorded yet.</strong>
               <p>
-                Approve a policy in the workbench, then run the command it gives you. Sandbox execution for this Nebius project is
-                still pending access, so that command currently stops at the permission check and records nothing.
+                Approve a policy in the workbench, then run the command it gives you. Each run spends Token Factory credits and
+                Sandbox compute, and writes its evidence here.
               </p>
             </div>
           ) : (

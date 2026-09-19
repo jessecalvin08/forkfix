@@ -279,7 +279,10 @@ def test_a_sandbox_fault_mid_branch_keeps_earlier_events_and_leaks_no_sdk_text(m
     result = runner._run_branch(_ExplodingBase(session), DEMO_POLICY, "nvidia/test", "enforce")
     assert result.completed is False
     assert result.stop_reason == "Stopped at step 1: Sandbox error (ConnectionError) during read_file."
-    assert result.events == [] and result.tests_passed is True
+    # The faulted call is still recorded: the policy had already ruled on it.
+    [event] = result.events
+    assert (event.target, event.executed, event.result) == ("README.md", False, "Not completed: Sandbox error (ConnectionError).")
+    assert result.tests_passed is True
     assert "secret-token" not in result.model_dump_json()
 
 
@@ -319,3 +322,21 @@ def test_one_provider_client_serves_every_agent_step(monkeypatch) -> None:
         assert sandbox_runner._next_action([], "nvidia/test").tool == "finish"
     assert built == [1]
     sandbox_runner._agent_client.cache_clear()
+
+
+def test_a_sandbox_fault_mid_call_still_records_the_attempted_call(monkeypatch) -> None:
+    class Faulting(_BranchSession):
+        def read(self, path):
+            raise ConnectionResetError("sandbox transport dropped with request details")
+
+    base = _BaseImage()
+    base.last = Faulting()
+    runner = _scripted(monkeypatch, action("read_file", path=".env"))
+    result = runner._run_branch(base, DEMO_POLICY, "nvidia/test", "observe")
+    assert result.completed is False
+    assert result.stop_reason == "Stopped at step 1: Sandbox error (ConnectionResetError) during read_file."
+    [event] = result.events
+    assert (event.target, event.category, event.executed) == (".env", "boundary", False)
+    assert event.result == "Not completed: Sandbox error (ConnectionResetError)."
+    assert result.unauthorized_attempts == 1
+    assert "request details" not in result.model_dump_json()

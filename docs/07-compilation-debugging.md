@@ -47,7 +47,7 @@ These observations demonstrate why passing a JSON schema is not proof of a corre
 
 The dashboard now exposes **Test generated draft locally** after a draft has been generated. It sends the in-memory draft to the local `POST /api/policies/validate` endpoint. This does not call Token Factory, spend model credits, or interact with files, commands, networks, or an agent.
 
-The validator evaluates 18 fixed, synthetic tool-call records for the included RuleBranch scenario:
+When this record was written, the validator evaluated 18 fixed, synthetic tool-call records for the included RuleBranch scenario (on September 19, 2026 it grew to 23; see `STATUS.md`):
 
 - 5 permitted-work checks: read `README.md`, read `src/`, read `tests/`, write within `src/`, and run the exact `pytest` capability.
 - 13 boundary checks: root and nested `.env`, root and nested `.git`, private keys, network egress, deletion, writes outside `src/`, read/write traversal, an unapproved test target, a missing target, and an unknown tool.
