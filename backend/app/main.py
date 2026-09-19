@@ -7,9 +7,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from openai import APIConnectionError, APIStatusError, APITimeoutError
 
+from .approvals import (
+    ApprovalError,
+    ApprovalRecord,
+    EvidenceItem,
+    PolicyNotApprovable,
+    approve_policy,
+    list_approvals,
+    list_evidence,
+)
 from .demo_data import DEMO_POLICY, make_demo_comparison
 from .models import (
     NebiusConnectionStatus,
+    PolicyApprovalRequest,
     PolicyCompileRequest,
     PolicyCompileResponse,
     PolicyValidationRequest,
@@ -160,3 +170,28 @@ def compile_policy_endpoint(request: PolicyCompileRequest) -> PolicyCompileRespo
 def validate_policy_endpoint(request: PolicyValidationRequest) -> PolicyValidationResponse:
     """Evaluate a draft against fixed synthetic calls; execute nothing."""
     return validate_policy(request.policy)
+
+
+@app.post("/api/policies/approve", response_model=ApprovalRecord)
+def approve_policy_endpoint(request: PolicyApprovalRequest) -> ApprovalRecord:
+    """Re-check on the server and record an approval. This runs nothing and spends nothing."""
+    try:
+        return approve_policy(request.policy)
+    except PolicyNotApprovable as error:
+        raise HTTPException(
+            status_code=422,
+            detail={"message": str(error), "validation": error.validation.model_dump(mode="json")},
+        ) from None
+    except ApprovalError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from None
+
+
+@app.get("/api/approvals", response_model=list[ApprovalRecord])
+def approvals_endpoint() -> list[ApprovalRecord]:
+    return list_approvals()
+
+
+@app.get("/api/evidence", response_model=list[EvidenceItem])
+def evidence_endpoint() -> list[EvidenceItem]:
+    """Read-only: Sandbox evidence the CLI wrote to reports/evidence/."""
+    return list_evidence()

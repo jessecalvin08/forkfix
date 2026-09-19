@@ -607,3 +607,88 @@ h1, h2, h3 {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+ * Review and approval. The one place the page uses numbered markers, because
+ * this is a real sequence: each step unlocks the next, and order is the point.
+ * ----------------------------------------------------------------------- */
+.review { margin-top: 28px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.review-steps { display: grid; gap: 0; margin: 14px 0 0; padding: 0; list-style: none; }
+.review-step { position: relative; padding: 16px 0 18px 36px; border-bottom: 1px solid var(--rule-soft); }
+.review-step:last-child { border-bottom: 0; }
+.review-step > p { margin: 8px 0 12px; color: var(--ink-2); font-size: 12px; line-height: 1.55; }
+.review-step > p:last-child { margin-bottom: 0; }
+.step-head { display: flex; align-items: center; gap: 12px; margin-left: -36px; }
+.step-head strong { font-size: 13px; }
+.step-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--ink-3);
+  border-radius: 50%;
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.review-step.is-done .step-num { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.review-step.is-failed .step-num { border-color: var(--alarm); color: var(--alarm); }
+.review-step.is-locked .step-head strong,
+.review-step.is-locked > p { color: var(--ink-3); }
+.review-step .validation { margin-top: 12px; }
+
+.ack { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0 12px; font-size: 12px; line-height: 1.5; cursor: pointer; }
+.ack input { flex: none; width: 16px; height: 16px; margin: 1px 0 0; accent-color: var(--ink); cursor: inherit; }
+.ack:has(input:disabled) { color: var(--ink-3); cursor: not-allowed; }
+
+.approval { display: grid; justify-items: start; gap: 12px; margin-top: 10px; }
+.approval > p { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.55; }
+.approval-meta { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 0; }
+.approval-meta dt { color: var(--ink-3); font-size: 10px; font-weight: 600; font-variation-settings: "wdth" 80; letter-spacing: 0.12em; text-transform: uppercase; }
+.approval-meta dd { margin: 4px 0 0; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.command {
+  width: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.7;
+  /* Wrap rather than scroll: the full approval ID should be readable in place,
+     so it can be checked against the ID shown above it. */
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* --------------------------------------------------------------------------
+ * Measured Sandbox runs (local backend only). Same verdict vocabulary and the
+ * same redaction as the scripted record, so real evidence reads the same way.
+ * ----------------------------------------------------------------------- */
+.measured-section { max-width: calc(var(--content) + 48px); margin: 0 auto; padding: 0 24px 104px; }
+.workbench-intro p code,
+.field-hint code { font-family: var(--mono); font-size: 0.92em; }
+.empty-state { padding: 28px; border: 1px dashed var(--ink-3); border-radius: 6px; background: var(--card); }
+.empty-state strong { font-size: 15px; }
+.empty-state p { margin: 8px 0 0; max-width: 70ch; color: var(--ink-2); font-size: 13px; line-height: 1.6; }
+.measured { display: grid; gap: 20px; }
+.measured-meta { padding: 16px 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); }
+.measured-branches { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ink); border-radius: 6px; background: var(--card); }
+.measured-branch { min-width: 0; padding: 24px; }
+.measured-branch + .measured-branch { border-left: 1px solid var(--rule); }
+.measured-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.measured-head h3 { margin: 8px 0 0; font-size: 17px; }
+.verdict.is-passed { color: var(--ink); }
+.verdict.is-passed::before { background: currentColor; }
+.verdict.is-failed { color: var(--ink-2); }
+.is-suppressed .verdict { color: var(--ink-2); }
+.is-suppressed .verdict::before { border-style: dashed; }
+
+@media (max-width: 820px) {
+  .measured-section { padding: 0 20px 80px; }
+  .measured-branches { grid-template-columns: 1fr; }
+  .measured-branch + .measured-branch { border-left: 0; border-top: 1px solid var(--rule); }
+  .measured-branch { padding: 20px; }
+}

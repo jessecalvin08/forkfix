@@ -1,6 +1,6 @@
 # RuleBranch status
 
-Last updated: September 18, 2026
+Last updated: September 19, 2026
 
 ## Current position
 
@@ -21,7 +21,8 @@ The local prototype has a verified live policy-generation call to NVIDIA Nemotro
 | Local policy evaluator | Unit-tested, simulation only | Checks scripted calls; does not execute a real coding agent, file edit, upload, or repository test |
 | Generated-draft test | 18/18 passed, synthetic only | The exact 12-rule draft displayed in Jesse's RuleBranch tab was validated through the local API on September 14: all 5 permitted-operation checks and 13 prohibited/invalid-operation checks passed. No browser focus, Token Factory request, file action, command action, or network action was involved |
 | React + FastAPI dashboard | Build passed | Generated drafts are separate from sample traces, edits mark drafts stale, failures are visibly errors, and generated drafts can be tested locally |
-| Regression tests | 51 passed | Offline tests cover generation contracts, malformed output, reserved guards, path and test-runner enforcement, the 18-case matrix, API integration, secret-safe errors, and the new Sandbox runner's synthetic-only safety boundary; 2 dependency deprecation warnings |
+| Regression tests | 66 passed | Offline tests cover generation contracts, malformed output, reserved guards, path and test-runner enforcement, the 18-case matrix, API integration, secret-safe errors, the Sandbox runner's synthetic-only safety boundary, and the approval gate (hash binding, tamper refusal, ID traversal, CLI refusal before spend, evidence linkage); 2 dependency deprecation warnings |
+| Review and approval flow | Implemented, tested locally | The dashboard runs the 18 checks on the policy on screen, requires an explicit "I have read every rule" acknowledgement, and the server re-runs the matrix before writing an approval to ignored `reports/approvals/<sha256>.json`. `run_sandbox --approval <id> --approve` re-derives the hash and re-runs the matrix before any spend, so an edited or no-longer-passing policy is refused. Evidence it writes to `reports/evidence/` names the approval and is shown read-only in the dashboard. Verified end to end in the browser against the local API on September 19, 2026 (failing policy locked at 15/18; passing policy approved at 18/18). The dashboard never starts a paid run. |
 | Sandbox integration | Beta access requested; not live-verified | Official ConTree SDK installed and pinned; runner creates two branches, asks Nemotron for bounded actions, and measures pytest. The real project ID is configured privately, but a read-only check returned `spawn=false`, `list=false`, and all other reported Sandbox permissions false. A Sandbox Beta request was submitted to Nebius on September 18, 2026; no Sandbox was run. |
 | Public repository | Published and verified | [github.com/jessecalvin08/rulebranch](https://github.com/jessecalvin08/rulebranch) is public on `main`, with the README and MIT license visible. Private `.env` and local Devpost assets were excluded. |
 | Public demo | Deployed and verified | [rulebranch.vercel.app](https://rulebranch.vercel.app/) serves the frontend as a safe static sample. It makes no Token Factory calls, exposes no credentials, and does not claim a real coding-agent or Sandbox run. |
@@ -30,16 +31,16 @@ The local prototype has a verified live policy-generation call to NVIDIA Nemotro
 
 ## Next action for Jesse
 
-Do not create or share another API key. The Sandbox Beta request is submitted. Wait for Nebius to notify the project email that access is enabled, then rerun the read-only permission check; the current SDK result is still `spawn=false`. The CLI has an explicit `--approve` gate, but the dashboard does not yet expose a review/approval flow or a live result. The current generated draft passed **18/18** local synthetic checks; that is not a coding-agent result.
+Do not create or share another API key. The Sandbox Beta request is submitted. Wait for Nebius to notify the project email that access is enabled, then rerun the read-only permission check; the current SDK result is still `spawn=false`. Once access is enabled, approve a policy in the local dashboard and run the command it gives you; the measured result then appears in the dashboard's Sandbox evidence section. The current generated draft passed **18/18** local synthetic checks; that is not a coding-agent result.
 
 Read [the debugging record](docs/07-compilation-debugging.md) for the confirmed causes, verification, limitations, and next steps. The local simulation does not need a Nebius API key.
 
 ## Next implementation milestones
 
 1. Confirm or obtain Sandbox execution permission for the configured project; the read-only probe using the actual project ID returned `spawn=false`.
-2. Review `backend/fixtures/sample_policy.json` or export/review the latest generated draft, then invoke the CLI's explicit approval gate.
+2. In the local dashboard, run the 18 checks on the sample or a generated draft, approve it, and run the `--approval` command it shows.
 3. Run and debug the two real Nebius Sandbox branches, then verify the recorded agent actions and actual pytest outcomes.
-4. Add a dashboard review/approval and live-result flow, or provide a reliable judge test build with the CLI evidence clearly labeled.
+4. Done: dashboard review/approval and read-only evidence display. Remaining: decide how judges see measured evidence on the public static site without a backend.
 5. Record/upload the short public video, then complete Devpost submission after the real Sandbox evidence exists.
 6. Confirm the remaining promotional balance before larger live runs; it has not been measured here.
 
@@ -53,6 +54,7 @@ Read [the debugging record](docs/07-compilation-debugging.md) for the confirmed 
 | Interface | React + FastAPI | A polished web demonstration with Python for AI and policy logic |
 | Enforcement | Deterministic rules | A model must not be the sole judge of whether its own actions are safe |
 | Demo data | Synthetic sample repository | Safe, repeatable, public, and free of real credentials |
+| Run trigger | Dashboard approves; only the CLI runs | No HTTP endpoint can spend credits. The approval binds to the policy's SHA-256, so the CLI runs exactly what a person read, and the dashboard only reads evidence back |
 
 ## Important handling rule
 

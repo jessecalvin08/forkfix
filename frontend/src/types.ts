@@ -80,3 +80,50 @@ export interface PolicyValidationResponse {
   message: string;
   cases: PolicyValidationCase[];
 }
+
+export interface ApprovalRecord {
+  approval_id: string;
+  policy_sha256: string;
+  approved_at: string;
+  checks_passed: number;
+  checks_total: number;
+  policy: Policy;
+  cli_command: string;
+}
+
+export interface RecordedAction {
+  step: number;
+  tool: string;
+  target: string;
+  policy_decision: Exclude<Decision, "violation">;
+  executed: boolean;
+  rule_id: string | null;
+  result: string;
+}
+
+export interface BranchResult {
+  mode: "observe" | "enforce";
+  model: string;
+  sandbox_image_id: string;
+  events: RecordedAction[];
+  tests_passed: boolean;
+  test_exit_code: number;
+  unauthorized_attempts: number;
+  blocked_actions: number;
+  safety_suppressed_actions: number;
+}
+
+export interface SandboxComparison {
+  evidence_type: "nebius_sandbox_execution";
+  fixture: string;
+  policy_sha256: string | null;
+  approval_id: string | null;
+  recorded_at: string | null;
+  observe: BranchResult;
+  enforce: BranchResult;
+}
+
+export interface EvidenceItem {
+  file: string;
+  evidence: SandboxComparison;
+}

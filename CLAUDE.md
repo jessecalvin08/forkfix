@@ -19,17 +19,19 @@ Backend, from `backend/`:
 .\.venv\Scripts\python.exe -m pytest -q                                          # all tests (offline)
 .\.venv\Scripts\python.exe -m pytest tests/test_policy_engine.py::test_name -q   # single test
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000          # API
-.\.venv\Scripts\python.exe -m app.run_sandbox --reviewed-policy fixtures/sample_policy.json --approve --output reports/sandbox-comparison.json  # opt-in, spends credits
+.\.venv\Scripts\python.exe -m app.run_sandbox --approval <sha256> --approve   # opt-in, spends credits; ID comes from the dashboard
+.\.venv\Scripts\python.exe -m app.run_sandbox --reviewed-policy fixtures/sample_policy.json --approve --output reports/sandbox-comparison.json
 ```
 
 Frontend, from `frontend/`: `npm run dev` (Vite on :5173, proxies `/api` to 127.0.0.1:8000), `npm run build` (`tsc -b && vite build`), `npm run check` (typecheck only). There is no linter or frontend test runner.
 
 ## Architecture
 
-- `backend/app/main.py` – FastAPI routes. `/api/demo/*` serve a scripted fixture (`demo_data.py`); `/api/nebius/status` only lists models; `/api/policies/compile` calls Nemotron (503 without key, provider errors mapped to sanitized 502s); `/api/policies/validate` runs the local matrix.
+- `backend/app/main.py` – FastAPI routes. `/api/demo/*` serve a scripted fixture (`demo_data.py`); `/api/nebius/status` only lists models; `/api/policies/compile` calls Nemotron (503 without key, provider errors mapped to sanitized 502s); `/api/policies/validate` runs the local matrix; `/api/policies/approve` records an approval; `/api/approvals` and `/api/evidence` are read-only listings.
 - `nebius_client.py` – OpenAI-SDK client for Token Factory; loads `backend/.env`. Compiles policy text with a JSON schema, re-validates with strict Pydantic (`GeneratedPolicy`), and always appends `MANDATORY_GUARDRAILS` (deny secret reads, deny network, approval for delete). `run_tests` rules must be exactly `["pytest"]`.
 - `policy_engine.py` – `evaluate()`: default deny; precedence deny > approval_required > allow; paths are normalized and fail closed on absolute, traversal, or URL-like values.
 - `policy_validation.py` – fixed 18-case synthetic matrix (5 permitted, 13 prohibited) applied to a draft; executes nothing.
+- `approvals.py` – the review gate. An approval is `reports/approvals/<sha256>.json`, keyed by the SHA-256 of the policy's canonical JSON and written only after the server re-runs the matrix. `load_approval` re-derives the hash and re-runs the matrix, so a tampered or no-longer-passing policy is refused. The dashboard approves but never runs; only the CLI spends credits. The CLI writes evidence to `reports/evidence/` with `approval_id` and `policy_sha256`.
 - `sandbox_runner.py` / `run_sandbox.py` – opt-in Nebius Sandbox (`contree_sdk`) experiment on `fixtures/coding_agent_repo` with a fake `.env` canary; two branches (observe/enforce), bounded agent actions, network/delete never executed. `diagnose_nebius.py` is a read-only permission probe.
 - `frontend/src` – `api.ts` gates every call on `hasLiveApi` (localhost or `VITE_API_BASE_URL`); the hosted Vercel build is a static sample using `demo.ts` fallback data.
 

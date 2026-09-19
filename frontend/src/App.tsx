@@ -1,8 +1,27 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { compilePolicyWithNebius, fetchDemoComparison, fetchNebiusConnectionStatus, hasLiveApi, validatePolicyDraft } from "./api";
+import {
+  approvePolicy,
+  compilePolicyWithNebius,
+  fetchDemoComparison,
+  fetchEvidence,
+  fetchNebiusConnectionStatus,
+  hasLiveApi,
+  validatePolicyDraft,
+} from "./api";
 import { fallbackComparison } from "./demo";
-import type { Decision, DemoComparison, NebiusConnectionStatus, Policy, PolicyValidationResponse, TraceEvent } from "./types";
+import type {
+  ApprovalRecord,
+  BranchResult,
+  Decision,
+  DemoComparison,
+  EvidenceItem,
+  NebiusConnectionStatus,
+  Policy,
+  PolicyValidationResponse,
+  RecordedAction,
+  TraceEvent,
+} from "./types";
 
 /** The two policy modes are stored under the data's own keys; the UI names them Observe and Enforce. */
 type RunKey = "baseline" | "repair";
@@ -23,6 +42,31 @@ function eventTarget(event: TraceEvent): string {
 }
 
 /**
+ * A measured event's verdict. Observe mode lets unauthorized calls past the
+ * policy, but the harness itself never sends a network request or deletes a
+ * file, so a call can be "not blocked" by policy and still not execute. That
+ * case gets its own word instead of being counted as a breach or a block.
+ */
+function measuredVerdict(event: RecordedAction, mode: BranchResult["mode"]): { word: string; decision: string } {
+  if (event.policy_decision === "allow") {
+    return event.executed ? { word: "Allowed", decision: "allow" } : { word: "Allowed, did not run", decision: "allow" };
+  }
+  if (event.executed) return { word: "Not blocked", decision: "violation" };
+  if (mode === "enforce") return { word: "Blocked", decision: "deny" };
+  return { word: "Stopped by harness", decision: "suppressed" };
+}
+
+function shortId(value: string | null | undefined): string {
+  return value ? value.slice(0, 12) : "—";
+}
+
+function formatTime(value: string | null | undefined): string {
+  if (!value) return "Time not recorded";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
+
+/**
  * The mark is the product in a glyph: a spine of permitted commits, a branch
  * reaching out, and the redaction bar that stops it.
  */
@@ -37,6 +81,58 @@ function BranchIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function MeasuredBranch({ branch }: { branch: BranchResult }) {
+  const enforce = branch.mode === "enforce";
+  return (
+    <article className="measured-branch">
+      <div className="measured-head">
+        <div>
+          <p className="nameplate">{enforce ? "Enforce" : "Observe"}</p>
+          <h3>{enforce ? "Policy applied" : "Recorded, not stopped"}</h3>
+        </div>
+        {/* A failing test is not an attack reaching anything, so it stays ink; the word carries it. */}
+        <span className={`verdict ${branch.tests_passed ? "is-passed" : "is-failed"}`}>
+          {branch.tests_passed ? "Tests passed" : `Tests failed (exit ${branch.test_exit_code})`}
+        </span>
+      </div>
+      <dl className="metrics">
+        <div><dt>Unauthorized attempts</dt><dd>{branch.unauthorized_attempts}</dd></div>
+        {enforce ? (
+          <div><dt>Blocked by policy</dt><dd>{branch.blocked_actions}</dd></div>
+        ) : (
+          <div><dt>Stopped by harness</dt><dd>{branch.safety_suppressed_actions}</dd></div>
+        )}
+      </dl>
+      {branch.events.length === 0 ? (
+        <p className="field-hint">The agent proposed no tool calls on this branch.</p>
+      ) : (
+        <ol className={`trace ${enforce ? "is-enforcing" : ""}`}>
+          {branch.events.map((event) => {
+            const verdict = measuredVerdict(event, branch.mode);
+            return (
+              <li key={event.step} className={`trace-event is-${verdict.decision}`}>
+                <span className="trace-seq">{String(event.step).padStart(2, "0")}</span>
+                <div className="trace-body">
+                  <div className="trace-top">
+                    <code>{event.tool}</code>
+                    <span className="verdict">{verdict.word}</span>
+                  </div>
+                  <span className="trace-target">
+                    <span className="redactable">{event.target || "(no target)"}</span>
+                  </span>
+                  <p>{event.result}</p>
+                  <span className="trace-rule">{event.rule_id ?? "deny-by-default"}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      <p className="trace-foot">{branch.model} · sandbox {shortId(branch.sandbox_image_id)}</p>
+    </article>
+  );
+}
+
 function App() {
   const [comparison, setComparison] = useState<DemoComparison>(fallbackComparison);
   const [mode, setMode] = useState<RunKey>("baseline");
@@ -46,18 +142,56 @@ function App() {
   const [isCheckingNebius, setIsCheckingNebius] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
   const [compileNotice, setCompileNotice] = useState<{ kind: "error" | "success"; text: string } | null>(null);
-  const [compiledDraft, setCompiledDraft] = useState<{
-    policy: Policy;
-    sourceText: string;
-    validation?: PolicyValidationResponse;
-  } | null>(null);
+  const [compiledDraft, setCompiledDraft] = useState<{ policy: Policy; sourceText: string } | null>(null);
   const [policyText, setPolicyText] = useState(defaultPolicyText);
+
+  // A review belongs to the exact policy JSON it was made on. When the displayed
+  // policy changes, the stored review simply stops matching; nothing is reset by hand.
+  const [review, setReview] = useState<{
+    policyKey: string;
+    validation: PolicyValidationResponse;
+    approval?: ApprovalRecord;
+  } | null>(null);
+  const [acknowledgedKey, setAcknowledgedKey] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const [evidence, setEvidence] = useState<EvidenceItem[] | null>(null);
+  const [evidenceError, setEvidenceError] = useState<string | null>(null);
+  const [isLoadingEvidence, setIsLoadingEvidence] = useState(false);
 
   const activeRun = comparison[mode];
   const enforcing = mode === "repair";
   const draftIsStale = compiledDraft !== null && compiledDraft.sourceText !== policyText;
   const displayedPolicy = compiledDraft?.policy ?? comparison.policy;
   const policyJson = useMemo(() => JSON.stringify(displayedPolicy, null, 2), [displayedPolicy]);
+
+  const canReview = hasLiveApi && !draftIsStale && !isCompiling;
+  const currentReview = canReview && review?.policyKey === policyJson ? review : null;
+  const checksPassed = currentReview?.validation.passed === true;
+  const approval = currentReview?.approval ?? null;
+  const acknowledged = acknowledgedKey === policyJson;
+  const latestEvidence = evidence?.[0] ?? null;
+
+  const loadEvidence = useCallback(async () => {
+    if (!hasLiveApi) return;
+    setIsLoadingEvidence(true);
+    setEvidenceError(null);
+    try {
+      setEvidence(await fetchEvidence());
+    } catch (error) {
+      setEvidence([]);
+      setEvidenceError(error instanceof Error ? error.message : "RuleBranch could not read the Sandbox evidence folder.");
+    } finally {
+      setIsLoadingEvidence(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadEvidence();
+  }, [loadEvidence]);
 
   async function loadLocalRun() {
     setComparison(fallbackComparison);
@@ -123,7 +257,7 @@ function App() {
       setCompiledDraft({ policy: result.policy, sourceText: policyText });
       setCompileNotice({
         kind: "success",
-        text: `Policy draft generated by ${result.model} (${result.response_mode}). Review its rules below. It has not been applied or tested; the sample comparison stays unchanged.`,
+        text: `Policy draft generated by ${result.model} (${result.response_mode}). Review its rules below before approving it. The scripted record stays unchanged.`,
       });
     } catch (error) {
       setCompileNotice({
@@ -135,17 +269,43 @@ function App() {
     }
   }
 
-  async function testGeneratedDraft() {
-    if (!compiledDraft || draftIsStale) return;
-    setCompileNotice(null);
+  async function runChecks() {
+    if (!canReview) return;
+    const policyKey = policyJson;
+    setIsChecking(true);
+    setReviewError(null);
     try {
-      const validation = await validatePolicyDraft(compiledDraft.policy);
-      setCompiledDraft({ ...compiledDraft, validation });
+      const validation = await validatePolicyDraft(displayedPolicy);
+      setReview({ policyKey, validation });
     } catch (error) {
-      setCompileNotice({
-        kind: "error",
-        text: error instanceof Error ? error.message : "RuleBranch could not test the generated draft.",
-      });
+      setReviewError(error instanceof Error ? error.message : "RuleBranch could not run the local checks.");
+    } finally {
+      setIsChecking(false);
+    }
+  }
+
+  async function approveCurrentPolicy() {
+    if (!currentReview || !checksPassed || !acknowledged) return;
+    const reviewed = currentReview;
+    setIsApproving(true);
+    setReviewError(null);
+    try {
+      const record = await approvePolicy(displayedPolicy);
+      setReview({ ...reviewed, approval: record });
+      setCopied(false);
+    } catch (error) {
+      setReviewError(error instanceof Error ? error.message : "RuleBranch could not record the approval.");
+    } finally {
+      setIsApproving(false);
+    }
+  }
+
+  async function copyCommand(command: string) {
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopied(true);
+    } catch {
+      setReviewError("The browser blocked copying. Select the command and copy it by hand.");
     }
   }
 
@@ -172,6 +332,8 @@ function App() {
     </div>
   );
 
+  const hasMeasuredRun = hasLiveApi && Boolean(latestEvidence);
+
   return (
     <main className="shell">
       <a className="skip-link" href="#casefile">Skip to the decision record</a>
@@ -185,6 +347,7 @@ function App() {
           <a href="#casefile">Decision record</a>
           <a href="#evidence">Evidence</a>
           <a href="#workbench">Workbench</a>
+          {hasLiveApi && <a href="#measured">Sandbox runs</a>}
         </nav>
         <div className="topbar-end">
           <span className="nameplate build-state">{hasLiveApi ? "Local workbench" : "Public sample"}</span>
@@ -210,7 +373,7 @@ function App() {
             <a className="solid-button" href="#casefile">Read the decision record</a>
             <p className="hero-note">
               {hasLiveApi
-                ? "Policy generation runs against Token Factory from the private local backend. Agent execution in a Sandbox is still pending access."
+                ? "Policy generation runs against Token Factory from the private local backend. Sandbox runs start only from the terminal, after you approve a policy."
                 : "This page is a scripted sample. No agent ran, no file was read, and no repository test was executed."}
             </p>
           </div>
@@ -300,14 +463,23 @@ function App() {
             <span className="state is-proven">Implemented</span>
           </div>
           <div className="ledger-row">
+            <dt>Human approval</dt>
+            <dd>A policy that passes all 18 checks is approved under its SHA-256; the Sandbox CLI refuses anything else.</dd>
+            <span className="state is-proven">Implemented</span>
+          </div>
+          <div className="ledger-row">
             <dt>Branch comparison</dt>
             <dd>The before-and-after record on this page is fixed, synthetic, and scripted.</dd>
             <span className="state is-partial">Sample only</span>
           </div>
           <div className="ledger-row">
             <dt>Agent execution</dt>
-            <dd>Real Sandbox tool calls and repository tests still need execution access.</dd>
-            <span className="state is-open">Not yet run</span>
+            <dd>
+              {hasMeasuredRun
+                ? "A Sandbox run is recorded on this machine. See the measured runs below."
+                : "Real Sandbox tool calls and repository tests still need execution access."}
+            </dd>
+            <span className={`state ${hasMeasuredRun ? "is-proven" : "is-open"}`}>{hasMeasuredRun ? "Recorded locally" : "Not yet run"}</span>
           </div>
         </dl>
       </section>
@@ -349,8 +521,8 @@ function App() {
         <div className="workbench-intro">
           <div>
             <p className="nameplate">Workbench</p>
-            <h2 id="workbench-title">Inspect the decision trace.</h2>
-            <p>Edit the authority on the left. Compiling a draft needs the private local backend; the record stays scripted either way.</p>
+            <h2 id="workbench-title">Review a policy, then approve it.</h2>
+            <p>Draft or pick the rules on the left, prove them against the 18 checks, and approve the exact version you read. The record in the middle stays scripted either way.</p>
           </div>
           <button className="ghost-button" type="button" onClick={loadLocalRun} disabled={isLoading}>
             {isLoading ? "Loading sample…" : "Reset sample"}
@@ -364,18 +536,20 @@ function App() {
                 <p className="nameplate">Authority</p>
                 <h3>Policy under review</h3>
               </div>
-              <span className={`status-pill ${compiledDraft?.validation?.passed ? "is-passed" : ""}`}>
+              <span className={`status-pill ${checksPassed ? "is-passed" : ""}`}>
                 {isCompiling
                   ? "Generating"
                   : draftIsStale
                     ? "Out of date"
-                    : compiledDraft?.validation?.passed
-                      ? "Checks passed"
-                      : compiledDraft?.validation
-                        ? "Review failed"
-                        : compiledDraft
-                          ? "Needs review"
-                          : "Sample"}
+                    : approval
+                      ? "Approved"
+                      : checksPassed
+                        ? "Checks passed"
+                        : currentReview
+                          ? "Review failed"
+                          : compiledDraft
+                            ? "Needs review"
+                            : "Sample"}
               </span>
             </div>
             <label className="field-label" htmlFor="policy-text">Plain-language boundary</label>
@@ -404,11 +578,6 @@ function App() {
               >
                 {isCompiling ? "Generating policy…" : hasLiveApi ? "Compile with Token Factory" : "Compile: local only"}
               </button>
-              {compiledDraft && (
-                <button className="ghost-button" type="button" onClick={testGeneratedDraft} disabled={draftIsStale || isCompiling}>
-                  Test this draft locally
-                </button>
-              )}
             </div>
             {compileNotice && (
               <p className={`notice ${compileNotice.kind}`} role={compileNotice.kind === "error" ? "alert" : "status"}>
@@ -417,42 +586,14 @@ function App() {
             )}
             {draftIsStale && (
               <p className="notice stale" role="status">
-                You changed the instructions. The draft below came from the previous text and needs generating again.
+                You changed the instructions. The draft below came from the previous text; generate it again before reviewing it.
               </p>
-            )}
-            {compiledDraft?.validation && (
-              <section className={`validation ${compiledDraft.validation.passed ? "is-passed" : "is-failed"}`} aria-live="polite">
-                <span className="nameplate">Local synthetic checks</span>
-                <strong>{compiledDraft.validation.passed_checks}/{compiledDraft.validation.total_checks} passed</strong>
-                <p>{compiledDraft.validation.message}</p>
-                <details open={!compiledDraft.validation.passed}>
-                  <summary>View all check results</summary>
-                  <ul>
-                    {compiledDraft.validation.cases.map((testCase) => (
-                      <li key={testCase.id} className={testCase.passed ? "is-passed" : "is-failed"}>
-                        <span aria-hidden="true">{testCase.passed ? "▪" : "×"}</span>
-                        <div>
-                          <strong>{testCase.label}</strong>
-                          <small>
-                            Expected {testCase.expected}; got {testCase.actual}
-                            {testCase.rule_id ? ` · ${testCase.rule_id}` : " · deny by default"}
-                          </small>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              </section>
             )}
             <p className="field-hint">
               {compiledDraft
-                ? "Generated draft rules, awaiting your review. They are not applied to the record."
-                : "These rules belong to the built-in sample. A successful compilation creates a separate draft."}
+                ? "Generated draft rules. These are what you review and approve below; they do not change the scripted record."
+                : "The built-in sample rules. You can review and approve them, or compile your own draft first."}
             </p>
-            <details className="json-details">
-              <summary>{compiledDraft ? "View generated draft JSON" : "View sample policy JSON"}</summary>
-              <pre>{policyJson}</pre>
-            </details>
             <div className="rules" aria-label={compiledDraft ? "Generated draft rules" : "Sample policy rules"}>
               {displayedPolicy.rules.map((rule) => (
                 <div key={rule.id} className={`rule is-${rule.effect}`}>
@@ -464,6 +605,104 @@ function App() {
                 </div>
               ))}
             </div>
+            <details className="json-details">
+              <summary>{compiledDraft ? "View generated draft JSON" : "View sample policy JSON"}</summary>
+              <pre>{policyJson}</pre>
+            </details>
+
+            <section className="review" aria-labelledby="review-title">
+              <p className="nameplate" id="review-title">Review and approve</p>
+              {!hasLiveApi && (
+                <p className="field-hint">Review and approval need the private local backend. This public page only shows the steps.</p>
+              )}
+              <ol className="review-steps">
+                <li className={`review-step ${checksPassed ? "is-done" : currentReview ? "is-failed" : ""}`}>
+                  <div className="step-head">
+                    <span className="step-num" aria-hidden="true">1</span>
+                    <strong>Run the 18 local checks</strong>
+                  </div>
+                  <p>Confirms these rules allow the coding task and block every listed boundary. Nothing is executed.</p>
+                  <button className="ghost-button" type="button" onClick={runChecks} disabled={!canReview || isChecking}>
+                    {isChecking ? "Checking…" : currentReview ? "Run the checks again" : "Run the checks"}
+                  </button>
+                  {currentReview && (
+                    <div className={`validation ${checksPassed ? "is-passed" : "is-failed"}`} aria-live="polite">
+                      <strong>{currentReview.validation.passed_checks}/{currentReview.validation.total_checks} passed</strong>
+                      <p>{currentReview.validation.message}</p>
+                      <details open={!checksPassed}>
+                        <summary>View all check results</summary>
+                        <ul>
+                          {currentReview.validation.cases.map((testCase) => (
+                            <li key={testCase.id} className={testCase.passed ? "is-passed" : "is-failed"}>
+                              <span aria-hidden="true">{testCase.passed ? "▪" : "×"}</span>
+                              <div>
+                                <strong>{testCase.label}</strong>
+                                <small>
+                                  Expected {testCase.expected}; got {testCase.actual}
+                                  {testCase.rule_id ? ` · ${testCase.rule_id}` : " · deny by default"}
+                                </small>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    </div>
+                  )}
+                </li>
+
+                <li className={`review-step ${approval ? "is-done" : checksPassed ? "" : "is-locked"}`}>
+                  <div className="step-head">
+                    <span className="step-num" aria-hidden="true">2</span>
+                    <strong>Approve this exact policy</strong>
+                  </div>
+                  <label className="ack">
+                    <input
+                      type="checkbox"
+                      checked={acknowledged}
+                      disabled={!checksPassed || Boolean(approval)}
+                      onChange={(event) => setAcknowledgedKey(event.target.checked ? policyJson : null)}
+                    />
+                    <span>I have read every rule above, and this is the authority I intend to grant.</span>
+                  </label>
+                  <button
+                    className="solid-button"
+                    type="button"
+                    onClick={approveCurrentPolicy}
+                    disabled={!checksPassed || !acknowledged || isApproving || Boolean(approval)}
+                  >
+                    {isApproving ? "Approving…" : approval ? "Approved" : "Approve policy"}
+                  </button>
+                  <p>The server runs the checks again and records the approval under the policy&rsquo;s SHA-256. Approving runs nothing and spends nothing.</p>
+                </li>
+
+                <li className={`review-step ${approval ? "" : "is-locked"}`}>
+                  <div className="step-head">
+                    <span className="step-num" aria-hidden="true">3</span>
+                    <strong>Run it from the terminal</strong>
+                  </div>
+                  {approval ? (
+                    <div className="approval">
+                      <dl className="approval-meta">
+                        <div><dt>Approval</dt><dd title={approval.approval_id}>{shortId(approval.approval_id)}</dd></div>
+                        <div><dt>Approved</dt><dd>{formatTime(approval.approved_at)}</dd></div>
+                        <div><dt>Checks</dt><dd>{approval.checks_passed}/{approval.checks_total}</dd></div>
+                      </dl>
+                      <pre className="command">{`cd backend\n${approval.cli_command}`}</pre>
+                      <button className="ghost-button" type="button" onClick={() => copyCommand(approval.cli_command)}>
+                        {copied ? "Copied" : "Copy command"}
+                      </button>
+                      <p>
+                        This runs the approved policy in a Nebius Sandbox and uses Token Factory credits and Sandbox compute. The
+                        CLI checks the hash first, so if any rule changes, this approval no longer applies.
+                      </p>
+                    </div>
+                  ) : (
+                    <p>Once the policy is approved, RuleBranch gives you the one command that runs exactly this policy.</p>
+                  )}
+                </li>
+              </ol>
+              {reviewError && <p className="notice error" role="alert">{reviewError}</p>}
+            </section>
           </aside>
 
           <section className="panel trace-panel" aria-labelledby="trace-title">
@@ -476,7 +715,7 @@ function App() {
             </div>
             <p className="notice">
               Scripted example calls checked against the sample policy. No agent, upload, source edit, or repository test was
-              executed. Compiling a draft does not change this record.
+              executed. Compiling or approving a policy does not change this record.
             </p>
             <ol className={`trace ${enforcing ? "is-enforcing" : ""}`}>
               {activeRun.trace.map((event) => (
@@ -531,16 +770,74 @@ function App() {
             </dl>
             <div className="next-proof">
               <span className="nameplate">Next evidence</span>
-              <p>Run a coding agent and the repository's tests in a Nebius Sandbox, then publish the measured result.</p>
+              <p>Approve a policy, run it in a Nebius Sandbox from the terminal, and the measured result appears below this workbench.</p>
             </div>
           </aside>
         </div>
       </section>
 
+      {hasLiveApi && (
+        <section id="measured" className="measured-section" aria-labelledby="measured-title">
+          <div className="workbench-intro">
+            <div>
+              <p className="nameplate">Sandbox evidence</p>
+              <h2 id="measured-title">Measured runs.</h2>
+              <p>
+                Read from <code>backend/reports/evidence/</code>. Only files in the exact shape the Sandbox CLI writes are shown, and
+                nothing here is scripted.
+              </p>
+            </div>
+            <button className="ghost-button" type="button" onClick={() => void loadEvidence()} disabled={isLoadingEvidence}>
+              {isLoadingEvidence ? "Reading…" : "Refresh"}
+            </button>
+          </div>
+
+          {evidenceError && <p className="notice error" role="alert">{evidenceError}</p>}
+
+          {evidence === null ? (
+            <p className="field-hint">Reading the evidence folder…</p>
+          ) : !latestEvidence ? (
+            <div className="empty-state">
+              <strong>No Sandbox run recorded yet.</strong>
+              <p>
+                Approve a policy in the workbench, then run the command it gives you. Sandbox execution for this Nebius project is
+                still pending access, so that command currently stops at the permission check and records nothing.
+              </p>
+            </div>
+          ) : (
+            <div className="measured">
+              <dl className="approval-meta measured-meta">
+                <div><dt>Recorded</dt><dd>{formatTime(latestEvidence.evidence.recorded_at)}</dd></div>
+                <div>
+                  <dt>Approval</dt>
+                  <dd title={latestEvidence.evidence.approval_id ?? undefined}>
+                    {latestEvidence.evidence.approval_id ? shortId(latestEvidence.evidence.approval_id) : "Reviewed file, no dashboard approval"}
+                  </dd>
+                </div>
+                <div><dt>Policy SHA-256</dt><dd title={latestEvidence.evidence.policy_sha256 ?? undefined}>{shortId(latestEvidence.evidence.policy_sha256)}</dd></div>
+                <div><dt>File</dt><dd>{latestEvidence.file}</dd></div>
+              </dl>
+              <div className="measured-branches">
+                <MeasuredBranch branch={latestEvidence.evidence.observe} />
+                <MeasuredBranch branch={latestEvidence.evidence.enforce} />
+              </div>
+              {evidence && evidence.length > 1 && (
+                <p className="field-hint">
+                  Showing the newest of {evidence.length} runs in <code>reports/evidence/</code>.
+                </p>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
       <footer className="footer">
         <div>
           <span className="footer-brand"><BranchIcon /> RuleBranch</span>
-          <p>A prototype for accountable coding agents. Every record on this page is a simulation; Sandbox execution is pending access.</p>
+          <p>
+            A prototype for accountable coding agents. The decision record is a scripted simulation; measured Sandbox runs appear
+            only on a local backend, and only after a policy is approved.
+          </p>
         </div>
         <a href="https://github.com/jessecalvin08/rulebranch" target="_blank" rel="noreferrer">Explore the repository</a>
       </footer>

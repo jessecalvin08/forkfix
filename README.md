@@ -95,13 +95,27 @@ Open the local URL printed by Vite, normally `http://localhost:5173`. Use **Load
 
 ### Opt-in real Sandbox experiment
 
-This path is code-complete but **not verified live**. It will consume Token Factory inference and Sandbox compute if the account has access. It is separate from the dashboard sample. Review `backend/fixtures/sample_policy.json` first; never use the local `.env` as a fixture. Add the actual Token Factory project ID to private `backend/.env` as `NEBIUS_PROJECT_ID=...`; the ID is required by the current Sandbox SDK. Then, from `backend/`:
+This path is code-complete but **not verified live**. It will consume Token Factory inference and Sandbox compute if the account has access. It is separate from the dashboard sample. Never use the local `.env` as a fixture. Add the actual Token Factory project ID to private `backend/.env` as `NEBIUS_PROJECT_ID=...`; the ID is required by the current Sandbox SDK.
+
+The recommended path starts in the local dashboard's workbench:
+
+1. **Run the 18 local checks** on the sample rules or a draft you compiled.
+2. **Approve this exact policy.** You tick an acknowledgement that you read every rule; the server re-runs the checks and records the approval in ignored `backend/reports/approvals/`, named by the policy's SHA-256. Approving runs nothing and spends nothing.
+3. **Run it from the terminal** with the command the dashboard shows, from `backend/`:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.run_sandbox --approval <64-character approval ID> --approve
+```
+
+The CLI re-derives the hash and re-runs the checks before spending anything, so an approval whose policy was edited, or that no longer passes, is refused. Its evidence goes to ignored `backend/reports/evidence/`, names the approval, and appears read-only in the dashboard's Sandbox evidence section. The dashboard itself can never start a paid run.
+
+A policy file you reviewed by hand still works without the dashboard:
 
 ```powershell
 .\.venv\Scripts\python.exe -m app.run_sandbox --reviewed-policy fixtures/sample_policy.json --approve --output reports/sandbox-comparison.json
 ```
 
-The command refuses to run without `--approve` and an 18/18 policy preflight. Only checked-in synthetic files plus a fake canary are uploaded. Network and delete requests are never executed, even in observe mode. Results are saved under ignored `reports/`; inspect them before publishing any measured claim. At present, a read-only SDK probe returned `spawn=false` and image listing returned HTTP 403, so this run cannot succeed until Nebius Sandbox access/project selection is resolved.
+Either way, the command refuses to run without `--approve` and an 18/18 policy preflight. Only checked-in synthetic files plus a fake canary are uploaded. Network and delete requests are never executed, even in observe mode. Results are saved under ignored `reports/`; inspect them before publishing any measured claim. At present, a read-only SDK probe returned `spawn=false` and image listing returned HTTP 403, so this run cannot succeed until Nebius Sandbox access/project selection is resolved.
 
 For a fresh setup only, copy `backend/.env.example` to a private `backend/.env`, enter the key and chosen model there, and follow the [Nebius setup runbook](docs/06-nebius-setup.md). Jesse's local configuration is already working; do not overwrite it. Never commit `backend/.env`.
 

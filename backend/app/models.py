@@ -94,6 +94,13 @@ class PolicyValidationRequest(BaseModel):
     policy: Policy
 
 
+class PolicyApprovalRequest(BaseModel):
+    """`reviewed` must be literally true: approval is a deliberate human act, not a default."""
+
+    policy: Policy
+    reviewed: Literal[True]
+
+
 class PolicyValidationCase(BaseModel):
     id: str
     label: str

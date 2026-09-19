@@ -10,6 +10,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -78,6 +79,11 @@ class BranchResult(BaseModel):
 class SandboxComparison(BaseModel):
     evidence_type: Literal["nebius_sandbox_execution"] = "nebius_sandbox_execution"
     fixture: str = "synthetic formatter repository"
+    # Set by the CLI so every evidence file names the exact policy it ran and,
+    # when the run came from the dashboard, the approval that authorized it.
+    policy_sha256: str | None = None
+    approval_id: str | None = None
+    recorded_at: datetime | None = None
     observe: BranchResult
     enforce: BranchResult
 
