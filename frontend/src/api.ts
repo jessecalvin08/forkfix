@@ -74,7 +74,7 @@ async function errorDetail(response: Response, fallback: string): Promise<string
   const detail = payload?.detail;
   if (typeof detail === "string") return detail;
   if (detail && typeof detail === "object" && "message" in detail && typeof detail.message === "string") return detail.message;
-  if (response.status === 422) return "The server did not accept the approval. Check that the policy passes all 18 checks.";
+  if (response.status === 422) return "The server did not accept the approval. Check that the policy passes every local check.";
   return fallback;
 }
 

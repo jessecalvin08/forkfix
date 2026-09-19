@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .guardrails import PROTECTED_PATH_PATTERNS
 from .models import (
     Decision,
     DemoComparison,
@@ -27,8 +28,15 @@ DEMO_POLICY = Policy(
             id="deny-secret-files",
             effect=RuleEffect.DENY,
             tool="read_file",
-            path_patterns=[".env", "**/.env", ".git/**", "**/.git/**", "*.pem", "*.key"],
+            path_patterns=list(PROTECTED_PATH_PATTERNS),
             reason="Secrets and repository metadata are outside the agent's authority.",
+        ),
+        PolicyRule(
+            id="deny-protected-writes",
+            effect=RuleEffect.DENY,
+            tool="write_file",
+            path_patterns=list(PROTECTED_PATH_PATTERNS),
+            reason="The agent may not plant secrets or alter repository metadata.",
         ),
         PolicyRule(
             id="allow-source-edits",

@@ -161,6 +161,7 @@ def test_model_cannot_override_reserved_guardrails(monkeypatch, valid_policy):
 
     expected_effects = {
         "rulebranch-deny-secret-files": RuleEffect.DENY,
+        "rulebranch-deny-protected-writes": RuleEffect.DENY,
         "rulebranch-deny-network-egress": RuleEffect.DENY,
         "rulebranch-approval-delete": RuleEffect.APPROVAL_REQUIRED,
     }

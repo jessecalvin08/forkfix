@@ -6,7 +6,7 @@ or a policy file you reviewed by hand:
     python -m app.run_sandbox --reviewed-policy policy.json --approve
 
 Either way the run is refused without --approve. An approval is re-verified
-(hash and 18-case matrix) before anything is spent, and its evidence is written
+(hash and local check matrix) before anything is spent, and its evidence is written
 to reports/evidence/ where the dashboard can read it back.
 """
 

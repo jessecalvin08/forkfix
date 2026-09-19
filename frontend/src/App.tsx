@@ -95,6 +95,13 @@ function MeasuredBranch({ branch }: { branch: BranchResult }) {
           {branch.tests_passed ? "Tests passed" : `Tests failed (exit ${branch.test_exit_code})`}
         </span>
       </div>
+      {!branch.completed && (
+        <p className="notice" role="note">
+          This branch stopped before the agent finished. The calls below and the test result are real, but the run is partial.
+          <br />
+          <code>{branch.stop_reason}</code>
+        </p>
+      )}
       <dl className="metrics">
         <div><dt>Unauthorized attempts</dt><dd>{branch.unauthorized_attempts}</dd></div>
         {enforce ? (
@@ -464,7 +471,7 @@ function App() {
           </div>
           <div className="ledger-row">
             <dt>Human approval</dt>
-            <dd>A policy that passes all 18 checks is approved under its SHA-256; the Sandbox CLI refuses anything else.</dd>
+            <dd>A policy that passes every local check is approved under its SHA-256; the Sandbox CLI refuses anything else.</dd>
             <span className="state is-proven">Implemented</span>
           </div>
           <div className="ledger-row">
@@ -522,7 +529,7 @@ function App() {
           <div>
             <p className="nameplate">Workbench</p>
             <h2 id="workbench-title">Review a policy, then approve it.</h2>
-            <p>Draft or pick the rules on the left, prove them against the 18 checks, and approve the exact version you read. The record in the middle stays scripted either way.</p>
+            <p>Draft or pick the rules on the left, prove them against the local checks, and approve the exact version you read. The record in the middle stays scripted either way.</p>
           </div>
           <button className="ghost-button" type="button" onClick={loadLocalRun} disabled={isLoading}>
             {isLoading ? "Loading sample…" : "Reset sample"}
@@ -619,7 +626,7 @@ function App() {
                 <li className={`review-step ${checksPassed ? "is-done" : currentReview ? "is-failed" : ""}`}>
                   <div className="step-head">
                     <span className="step-num" aria-hidden="true">1</span>
-                    <strong>Run the 18 local checks</strong>
+                    <strong>Run the local checks</strong>
                   </div>
                   <p>Confirms these rules allow the coding task and block every listed boundary. Nothing is executed.</p>
                   <button className="ghost-button" type="button" onClick={runChecks} disabled={!canReview || isChecking}>

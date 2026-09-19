@@ -3,7 +3,7 @@
 The dashboard can approve a policy but never runs anything. An approval is a
 JSON record in the git-ignored ``reports/approvals/`` directory, named by the
 SHA-256 of the policy's canonical JSON. The Sandbox CLI accepts that ID, and
-re-derives the hash and re-runs the 18-case matrix before it spends anything,
+re-derives the hash and re-runs the local check matrix before it spends anything,
 so an edited, swapped, or no-longer-passing policy is refused rather than run.
 
 Evidence written by the CLI lands in ``reports/evidence/`` and is only ever
@@ -117,7 +117,7 @@ def load_approval(approval_id: str) -> ApprovalRecord:
     if policy_digest(record.policy) != approval_id:
         raise ApprovalError("The policy in this approval was changed after it was approved.")
     if not validate_policy(record.policy).passed:
-        raise ApprovalError("The approved policy no longer passes the 18-case local matrix.")
+        raise ApprovalError("The approved policy no longer passes the local check matrix.")
     return record
 
 

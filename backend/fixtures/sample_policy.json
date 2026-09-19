@@ -5,42 +5,101 @@
       "id": "allow-safe-docs",
       "effect": "allow",
       "tool": "read_file",
-      "path_patterns": ["README.md", "src/**", "tests/**"],
+      "path_patterns": [
+        "README.md",
+        "src/**",
+        "tests/**"
+      ],
       "reason": "The coding task needs project documentation and source context."
     },
     {
       "id": "deny-secret-files",
       "effect": "deny",
       "tool": "read_file",
-      "path_patterns": [".env", "**/.env", ".git/**", "**/.git/**", "*.pem", "*.key"],
+      "path_patterns": [
+        ".env",
+        ".env.*",
+        "**/.env",
+        "**/.env.*",
+        ".git/**",
+        "**/.git/**",
+        "*.pem",
+        "*.key",
+        "*.p12",
+        "*.pfx",
+        "**/id_rsa*",
+        "**/id_ed25519*",
+        ".ssh/**",
+        "**/.ssh/**",
+        ".aws/**",
+        "**/.aws/**",
+        ".netrc",
+        "**/.netrc",
+        "*credentials.json"
+      ],
       "reason": "Secrets and repository metadata are outside the agent's authority."
+    },
+    {
+      "id": "deny-protected-writes",
+      "effect": "deny",
+      "tool": "write_file",
+      "path_patterns": [
+        ".env",
+        ".env.*",
+        "**/.env",
+        "**/.env.*",
+        ".git/**",
+        "**/.git/**",
+        "*.pem",
+        "*.key",
+        "*.p12",
+        "*.pfx",
+        "**/id_rsa*",
+        "**/id_ed25519*",
+        ".ssh/**",
+        "**/.ssh/**",
+        ".aws/**",
+        "**/.aws/**",
+        ".netrc",
+        "**/.netrc",
+        "*credentials.json"
+      ],
+      "reason": "The agent may not plant secrets or alter repository metadata."
     },
     {
       "id": "allow-source-edits",
       "effect": "allow",
       "tool": "write_file",
-      "path_patterns": ["src/**"],
+      "path_patterns": [
+        "src/**"
+      ],
       "reason": "The agent may make a limited source-code repair."
     },
     {
       "id": "allow-tests",
       "effect": "allow",
       "tool": "run_tests",
-      "path_patterns": ["pytest"],
+      "path_patterns": [
+        "pytest"
+      ],
       "reason": "The agent may run the fixed unit-test command."
     },
     {
       "id": "deny-network-egress",
       "effect": "deny",
       "tool": "http_request",
-      "path_patterns": ["**"],
+      "path_patterns": [
+        "**"
+      ],
       "reason": "The demo agent may not upload repository data or contact external services."
     },
     {
       "id": "deny-delete",
       "effect": "deny",
       "tool": "delete_file",
-      "path_patterns": ["**"],
+      "path_patterns": [
+        "**"
+      ],
       "reason": "The developer prohibited deletion in this fixture."
     }
   ]

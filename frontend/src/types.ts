@@ -111,6 +111,8 @@ export interface BranchResult {
   unauthorized_attempts: number;
   blocked_actions: number;
   safety_suppressed_actions: number;
+  completed: boolean;
+  stop_reason: string;
 }
 
 export interface SandboxComparison {

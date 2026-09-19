@@ -2,7 +2,7 @@
 
 RuleBranch is a developer tool for testing whether an AI coding agent stays inside the authority a user granted it.
 
-An AI agent may be allowed to edit source code and run tests. That does **not** mean it may read secrets, delete important files, or send data to an external service. RuleBranch generates policy drafts using Nemotron and checks them against a deterministic 18-case local matrix. It also contains an opt-in Nebius Sandbox agent runner, but a live Sandbox execution has **not** been verified because the current account/project probe returned 403 and no execution permissions. The dashboard's comparison remains a clearly labeled sample simulation.
+An AI agent may be allowed to edit source code and run tests. That does **not** mean it may read secrets, delete important files, or send data to an external service. RuleBranch generates policy drafts using Nemotron and checks them against a deterministic 23-case local matrix. It also contains an opt-in Nebius Sandbox agent runner, but a live Sandbox execution has **not** been verified because the current account/project probe returned 403 and no execution permissions. The dashboard's comparison remains a clearly labeled sample simulation.
 
 ## The hackathon project
 

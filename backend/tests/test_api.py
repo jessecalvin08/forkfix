@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from app import nebius_client
 from app.main import app
+from app.policy_validation import VALIDATION_FIXTURES
 
 
 client = TestClient(app)
@@ -42,6 +43,6 @@ def test_policy_validation_endpoint_runs_fixed_local_checks() -> None:
     }})
     payload = response.json()
     assert response.status_code == 200
-    assert payload["total_checks"] == 18
+    assert payload["total_checks"] == len(VALIDATION_FIXTURES)
     assert payload["passed"] is False
     assert "not executed" in payload["message"]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fnmatch import fnmatch
+from fnmatch import fnmatchcase
 from typing import Any
 
 from .models import Decision, Policy, PolicyRule, RuleEffect, ToolCall
@@ -33,12 +33,16 @@ def _normalise_pattern(value: Any) -> str | None:
 
 
 def _path_matches(pattern: str, path: str) -> bool:
-    """Support simple repository-relative policy globs for the MVP."""
+    """Support simple repository-relative policy globs for the MVP.
+
+    ``fnmatchcase`` keeps the answer identical on every operating system;
+    ``fnmatch`` would fold case on Windows only.
+    """
     if pattern == "**":
         return True
-    if fnmatch(path, pattern):
+    if fnmatchcase(path, pattern):
         return True
-    return pattern.startswith("**/") and fnmatch(path, pattern[3:])
+    return pattern.startswith("**/") and fnmatchcase(path, pattern[3:])
 
 
 def _rule_matches(rule: PolicyRule, call: ToolCall) -> bool:
@@ -62,6 +66,13 @@ def _rule_matches(rule: PolicyRule, call: ToolCall) -> bool:
     # other than the validated Token Factory compiler.
     if call.tool == "run_tests":
         return target == "pytest" and patterns == ["pytest"]
+    # Allow rules match exactly: `SRC/x` is a different path on a case-sensitive
+    # filesystem, so it must not inherit `src/**`. Deny and approval rules fold
+    # case so `.ENV` or `.Git/config` cannot slip past a restriction on a
+    # case-insensitive filesystem. Both directions fail closed.
+    if rule.effect != RuleEffect.ALLOW:
+        target = target.lower()
+        patterns = [pattern.lower() for pattern in patterns]
     return any(_path_matches(pattern, target) for pattern in patterns)
 
 

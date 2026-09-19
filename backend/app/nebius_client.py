@@ -15,7 +15,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from .models import Policy, PolicyRule, RuleEffect
+from .guardrails import MANDATORY_GUARDRAILS
+from .models import Policy
 
 
 TOKEN_FACTORY_BASE_URL = "https://api.tokenfactory.nebius.com/v1/"
@@ -45,31 +46,6 @@ POLICY_SCHEMA: dict[str, Any] = {
     },
     "required": ["version", "rules"],
 }
-
-MANDATORY_GUARDRAILS = [
-    PolicyRule(
-        id="rulebranch-deny-secret-files",
-        effect=RuleEffect.DENY,
-        tool="read_file",
-        path_patterns=[".env", "**/.env", ".git/**", "**/.git/**", "*.pem", "*.key"],
-        reason="Secrets and repository metadata are outside the coding agent's authority.",
-    ),
-    PolicyRule(
-        id="rulebranch-deny-network-egress",
-        effect=RuleEffect.DENY,
-        tool="http_request",
-        path_patterns=["**"],
-        reason="The coding-agent fixture has no authority to send network requests.",
-    ),
-    PolicyRule(
-        id="rulebranch-approval-delete",
-        effect=RuleEffect.APPROVAL_REQUIRED,
-        tool="delete_file",
-        path_patterns=["**"],
-        reason="Destructive file actions require a developer approval checkpoint.",
-    ),
-]
-
 
 class NebiusConfigurationError(RuntimeError):
     """Raised when local Nebius configuration has not been completed."""

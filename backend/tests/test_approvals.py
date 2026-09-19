@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from app import approvals, run_sandbox
 from app.approvals import ApprovalError, approve_policy, load_approval, policy_digest
 from app.main import app
+from app.policy_validation import VALIDATION_FIXTURES
 from app.models import Decision, Policy
 from app.sandbox_runner import BranchResult, RecordedAction, SandboxComparison
 
@@ -42,7 +43,7 @@ def test_digest_ignores_key_order_but_not_content() -> None:
 def test_approval_is_written_under_its_hash_and_reloads(isolated_reports) -> None:
     record = approve_policy(SAMPLE)
     assert record.approval_id == policy_digest(SAMPLE)
-    assert (record.checks_passed, record.checks_total) == (18, 18)
+    assert (record.checks_passed, record.checks_total) == (len(VALIDATION_FIXTURES),) * 2
     assert record.approval_id in record.cli_command and "--approve" in record.cli_command
     assert (isolated_reports / "approvals" / f"{record.approval_id}.json").is_file()
     assert load_approval(record.approval_id).policy == SAMPLE
