@@ -29,7 +29,10 @@ From `backend/`:
 .\.venv\Scripts\python.exe -m forkfix.benchmark --size 40 --seed 0      # re-derive the benchmark list
 .\.venv\Scripts\python.exe -m feasibility.check_access                    # free: token limits, models
 .\.venv\Scripts\python.exe -m forkfix.report                             # free: results/benchmark.json
+.\.venv\Scripts\python.exe -m forkfix.viewer_data                        # free: frontend/public/runs/
 ```
+
+From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + build).
 
 ## Architecture
 
@@ -61,7 +64,11 @@ From `backend/`:
 - `tests/fakes.py`: `FakeWorkspace`, `FakeAgent`, `FakeJudge` for fully offline tests.
 - `forkfix/report.py` aggregates the newest report per benchmark task (written after
   `benchmark_tasks.json`) into tracked `results/benchmark.json`, with McNemar p-values and a list-price
-  cost estimate.
+  cost estimate; `forkfix/viewer_data.py` exports the same reports' trees for the viewer.
+- `frontend/`: Vite + React static run viewer (results, then a per-task tree over agent steps with
+  each branch's events, judge score, patch and hidden-test grade). Visual system carried over from
+  RuleBranch: graphite on bone paper, and `--fix` green is the only colour, reserved for patches that
+  passed the hidden tests and the route to them.
 
 ## Constraints to respect
 

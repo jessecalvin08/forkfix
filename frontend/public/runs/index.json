@@ -1,0 +1,1124 @@
+{
+ "tasks": 40,
+ "totals": {
+  "branching": {
+   "solved": 7,
+   "any_candidate": 8,
+   "tokens": 35320665,
+   "sandbox_runs": 2453,
+   "estimated_usd": 4.35
+  },
+  "linear": {
+   "solved": 2,
+   "any_candidate": 2,
+   "tokens": 13744265,
+   "sandbox_runs": 484,
+   "estimated_usd": 1.35
+  },
+  "matched": {
+   "solved": 3,
+   "any_candidate": 5,
+   "tokens": 36225975,
+   "sandbox_runs": 2347,
+   "estimated_usd": 3.89
+  }
+ },
+ "comparisons": {
+  "branching_vs_linear": {
+   "only_branching": 5,
+   "only_linear": 0,
+   "mcnemar_p": 0.062
+  },
+  "branching_vs_matched": {
+   "only_branching": 5,
+   "only_matched": 1,
+   "mcnemar_p": 0.219
+  }
+ },
+ "benchmark": {
+  "seed": 0,
+  "created": "2026-09-25"
+ },
+ "rows": [
+  {
+   "task": "astropy__astropy-12907",
+   "repo": "astropy/astropy",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 274725,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 1246053,
+     "forks": 7,
+     "branches": 21
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1277054,
+     "forks": 0,
+     "branches": 7
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-22711",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 116694,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 105334,
+     "forks": 3,
+     "branches": 10
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 134270,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-23562",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 254505,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 154880,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 167857,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-23563",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 638889,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1369937,
+     "forks": 8,
+     "branches": 23
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1403160,
+     "forks": 0,
+     "branches": 9
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-23913",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 93093,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 645309,
+     "forks": 6,
+     "branches": 19
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 669581,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-23964",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 41903,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 300382,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 326492,
+     "forks": 0,
+     "branches": 7
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-23987",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 241928,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 376042,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 378546,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-25311",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 680596,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": true,
+     "tokens": 2143765,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 2187941,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-25332",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 309538,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1145114,
+     "forks": 7,
+     "branches": 20
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1161016,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "matplotlib__matplotlib-25433",
+   "repo": "matplotlib/matplotlib",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 759858,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 565418,
+     "forks": 1,
+     "branches": 4
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 583443,
+     "forks": 0,
+     "branches": 7
+    }
+   }
+  },
+  {
+   "task": "mwaskom__seaborn-3010",
+   "repo": "mwaskom/seaborn",
+   "modes": {
+    "linear": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 30290,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 530568,
+     "forks": 5,
+     "branches": 15
+    },
+    "matched": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 549631,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "mwaskom__seaborn-3190",
+   "repo": "mwaskom/seaborn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 25418,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 787297,
+     "forks": 7,
+     "branches": 22
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": true,
+     "tokens": 815503,
+     "forks": 0,
+     "branches": 11
+    }
+   }
+  },
+  {
+   "task": "pallets__flask-5063",
+   "repo": "pallets/flask",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 201163,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 606418,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 657177,
+     "forks": 0,
+     "branches": 6
+    }
+   }
+  },
+  {
+   "task": "psf__requests-2148",
+   "repo": "psf/requests",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 211779,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 805167,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 815643,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "pydata__xarray-3364",
+   "repo": "pydata/xarray",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 421868,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1713478,
+     "forks": 7,
+     "branches": 22
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1767893,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "pylint-dev__pylint-5859",
+   "repo": "pylint-dev/pylint",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 220256,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1643196,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1656130,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "pylint-dev__pylint-7114",
+   "repo": "pylint-dev/pylint",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 461170,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1538265,
+     "forks": 7,
+     "branches": 21
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1559158,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "pytest-dev__pytest-11148",
+   "repo": "pytest-dev/pytest",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 52372,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 979474,
+     "forks": 4,
+     "branches": 12
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 992602,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "pytest-dev__pytest-5103",
+   "repo": "pytest-dev/pytest",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 269465,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 51969,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 73086,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "pytest-dev__pytest-5413",
+   "repo": "pytest-dev/pytest",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 161442,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 2008154,
+     "forks": 6,
+     "branches": 19
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 2052240,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "pytest-dev__pytest-7220",
+   "repo": "pytest-dev/pytest",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 138471,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1502950,
+     "forks": 5,
+     "branches": 15
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1512549,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "pytest-dev__pytest-7490",
+   "repo": "pytest-dev/pytest",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 588182,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 683881,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 714472,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "pytest-dev__pytest-8906",
+   "repo": "pytest-dev/pytest",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 405512,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 814292,
+     "forks": 5,
+     "branches": 15
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 839312,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-10949",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 396406,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1570613,
+     "forks": 6,
+     "branches": 17
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1582666,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-11040",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 495683,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 196538,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 226709,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-12471",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 321969,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 940712,
+     "forks": 5,
+     "branches": 16
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 957469,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-13142",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 419300,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 53310,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 61769,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-13496",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 558310,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 525917,
+     "forks": 6,
+     "branches": 18
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": true,
+     "tokens": 543244,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-13497",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 163958,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 409521,
+     "forks": 3,
+     "branches": 9
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 417884,
+     "forks": 0,
+     "branches": 9
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-14092",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 742037,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1164774,
+     "forks": 7,
+     "branches": 20
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1201787,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-14894",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 236879,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1093196,
+     "forks": 6,
+     "branches": 19
+    },
+    "matched": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 1136684,
+     "forks": 0,
+     "branches": 11
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-14983",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 268715,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 249310,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 270314,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  },
+  {
+   "task": "scikit-learn__scikit-learn-15512",
+   "repo": "scikit-learn/scikit-learn",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 264342,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 2148470,
+     "forks": 5,
+     "branches": 15
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 2196912,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-10325",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 681921,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 914841,
+     "forks": 6,
+     "branches": 18
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 926917,
+     "forks": 0,
+     "branches": 8
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-7738",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 201614,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1342905,
+     "forks": 5,
+     "branches": 15
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 1356444,
+     "forks": 0,
+     "branches": 9
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-8282",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 445984,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 722714,
+     "forks": 5,
+     "branches": 15
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 734705,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-8435",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 843166,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 825815,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 853823,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-8627",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 72115,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 586408,
+     "forks": 1,
+     "branches": 4
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 586797,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-8721",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 418008,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": true,
+     "any_candidate": true,
+     "tokens": 692778,
+     "forks": 2,
+     "branches": 7
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 699674,
+     "forks": 0,
+     "branches": 5
+    }
+   }
+  },
+  {
+   "task": "sphinx-doc__sphinx-8801",
+   "repo": "sphinx-doc/sphinx",
+   "modes": {
+    "linear": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 614741,
+     "forks": 0,
+     "branches": 1
+    },
+    "branching": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 165500,
+     "forks": 0,
+     "branches": 1
+    },
+    "matched": {
+     "solved": false,
+     "any_candidate": false,
+     "tokens": 177421,
+     "forks": 0,
+     "branches": 4
+    }
+   }
+  }
+ ]
+}
