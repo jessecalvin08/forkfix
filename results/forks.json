@@ -1,0 +1,685 @@
+{
+  "tasks": 40,
+  "tasks_with_forks": 32,
+  "forks": 165,
+  "divergent_forks": 101,
+  "decisive_forks": 25,
+  "decisive_where_own_action_failed": 10,
+  "branching_wins": 7,
+  "wins_where_own_path_also_passed": 3,
+  "wins_needing_an_alternative": [
+    "astropy__astropy-12907",
+    "matplotlib__matplotlib-23964",
+    "psf__requests-2148",
+    "sphinx-doc__sphinx-10325"
+  ],
+  "per_task": {
+    "astropy__astropy-12907": {
+      "branching_solved": true,
+      "linear_solved": false,
+      "forks": 7,
+      "divergent_forks": 5,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 9,
+          "children": {
+            "0.0": "none",
+            "0.1": "passed",
+            "0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        },
+        {
+          "node": "0.1",
+          "step": 11,
+          "children": {
+            "0.1.0": "passed",
+            "0.1.1": "failed",
+            "0.1.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.1.0",
+          "step": 14,
+          "children": {
+            "0.1.0.0": "none",
+            "0.1.0.1": "passed",
+            "0.1.0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        },
+        {
+          "node": "0.1.2",
+          "step": 14,
+          "children": {
+            "0.1.2.0": "passed",
+            "0.1.2.1": "passed",
+            "0.1.2.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        }
+      ],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-22711": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 3,
+      "divergent_forks": 2,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-23562": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-23563": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 8,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-23913": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 6,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-23964": {
+      "branching_solved": true,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 3,
+          "children": {
+            "0.0": "none",
+            "0.1": "failed",
+            "0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        },
+        {
+          "node": "0.2",
+          "step": 4,
+          "children": {
+            "0.2.0": "none",
+            "0.2.1": "passed",
+            "0.2.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        }
+      ],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-23987": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-25311": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 13,
+          "children": {
+            "0.0": "passed",
+            "0.1": "none",
+            "0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.0",
+          "step": 24,
+          "children": {
+            "0.0.0": "passed",
+            "0.0.1": "none",
+            "0.0.2": "failed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.0.0",
+          "step": 26,
+          "children": {
+            "0.0.0.0": "none",
+            "0.0.0.1": "failed",
+            "0.0.0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        }
+      ],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-25332": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 7,
+      "divergent_forks": 3,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "matplotlib__matplotlib-25433": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 1,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "mwaskom__seaborn-3010": {
+      "branching_solved": true,
+      "linear_solved": true,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 1,
+          "children": {
+            "0.0": "passed",
+            "0.1": "none",
+            "0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.2",
+          "step": 2,
+          "children": {
+            "0.2.0": "passed",
+            "0.2.1": "none",
+            "0.2.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.0",
+          "step": 5,
+          "children": {
+            "0.0.0": "passed",
+            "0.0.1": "none",
+            "0.0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.2.0",
+          "step": 5,
+          "children": {
+            "0.2.0.0": "none",
+            "0.2.0.1": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        }
+      ],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": true
+    },
+    "mwaskom__seaborn-3190": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 7,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "pallets__flask-5063": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 2,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "psf__requests-2148": {
+      "branching_solved": true,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 2,
+          "children": {
+            "0.0": "none",
+            "0.1": "passed",
+            "0.2": "failed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        },
+        {
+          "node": "0.1",
+          "step": 7,
+          "children": {
+            "0.1.0": "passed",
+            "0.1.1": "none",
+            "0.1.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.1.0",
+          "step": 9,
+          "children": {
+            "0.1.0.0": "none",
+            "0.1.0.1": "none",
+            "0.1.0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        }
+      ],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "pydata__xarray-3364": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 7,
+      "divergent_forks": 5,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "pylint-dev__pylint-5859": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "pylint-dev__pylint-7114": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 7,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "pytest-dev__pytest-11148": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 4,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "pytest-dev__pytest-5103": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "pytest-dev__pytest-5413": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 6,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "pytest-dev__pytest-7220": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 5,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "pytest-dev__pytest-7490": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "pytest-dev__pytest-8906": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-10949": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 6,
+      "divergent_forks": 3,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-11040": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-12471": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-13142": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-13496": {
+      "branching_solved": true,
+      "linear_solved": true,
+      "forks": 6,
+      "divergent_forks": 5,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 6,
+          "children": {
+            "0.0": "passed",
+            "0.1": "none",
+            "0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.0",
+          "step": 7,
+          "children": {
+            "0.0.0": "passed",
+            "0.0.1": "none",
+            "0.0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.2.0",
+          "step": 8,
+          "children": {
+            "0.2.0.0": "passed",
+            "0.2.0.1": "none",
+            "0.2.0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.2.1",
+          "step": 9,
+          "children": {
+            "0.2.1.0": "passed",
+            "0.2.1.1": "passed",
+            "0.2.1.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        },
+        {
+          "node": "0.0.0",
+          "step": 9,
+          "children": {
+            "0.0.0.0": "passed",
+            "0.0.0.1": "none",
+            "0.0.0.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        }
+      ],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": true
+    },
+    "scikit-learn__scikit-learn-13497": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 3,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-14092": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 7,
+      "divergent_forks": 5,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-14894": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 6,
+      "divergent_forks": 3,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-14983": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "scikit-learn__scikit-learn-15512": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 5,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "sphinx-doc__sphinx-10325": {
+      "branching_solved": true,
+      "linear_solved": false,
+      "forks": 6,
+      "divergent_forks": 6,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 6,
+          "children": {
+            "0.0": "failed",
+            "0.1": "none",
+            "0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        },
+        {
+          "node": "0.2",
+          "step": 10,
+          "children": {
+            "0.2.0": "failed",
+            "0.2.1": "passed",
+            "0.2.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": false
+        },
+        {
+          "node": "0.2.1",
+          "step": 12,
+          "children": {
+            "0.2.1.0": "passed",
+            "0.2.1.1": "none",
+            "0.2.1.2": "none"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        }
+      ],
+      "own_path_leaf": "0.0.0",
+      "own_path_passed": false
+    },
+    "sphinx-doc__sphinx-7738": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 4,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "sphinx-doc__sphinx-8282": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 5,
+      "divergent_forks": 3,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0.0.0",
+      "own_path_passed": false
+    },
+    "sphinx-doc__sphinx-8435": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    },
+    "sphinx-doc__sphinx-8627": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 1,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0.0",
+      "own_path_passed": false
+    },
+    "sphinx-doc__sphinx-8721": {
+      "branching_solved": true,
+      "linear_solved": false,
+      "forks": 2,
+      "divergent_forks": 1,
+      "decisive_forks": [
+        {
+          "node": "0",
+          "step": 5,
+          "children": {
+            "0.0": "passed",
+            "0.1": "none",
+            "0.2": "passed"
+          },
+          "divergent": true,
+          "decisive": true,
+          "own_action_passed": true
+        }
+      ],
+      "own_path_leaf": "0.0",
+      "own_path_passed": true
+    },
+    "sphinx-doc__sphinx-8801": {
+      "branching_solved": false,
+      "linear_solved": false,
+      "forks": 0,
+      "divergent_forks": 0,
+      "decisive_forks": [],
+      "own_path_leaf": "0",
+      "own_path_passed": false
+    }
+  }
+}

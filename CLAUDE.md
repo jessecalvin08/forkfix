@@ -30,6 +30,7 @@ From `backend/`:
 .\.venv\Scripts\python.exe -m feasibility.check_access                    # free: token limits, models
 .\.venv\Scripts\python.exe -m forkfix.report                             # free: results/benchmark.json
 .\.venv\Scripts\python.exe -m forkfix.viewer_data                        # free: frontend/public/runs/
+.\.venv\Scripts\python.exe -m forkfix.forks                              # free: results/forks.json
 ```
 
 From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + build).

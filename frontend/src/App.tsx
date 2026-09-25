@@ -208,6 +208,8 @@ function Results({ index, onOpen }: { index: RunIndex; onOpen: (task: string) =>
           </div>
         </div>
 
+        <ForkFindings index={index} onOpen={onOpen} />
+
         <div className="paired">
           <p className="nameplate">Every task any mode solved</p>
           <div className="table-scroll">
@@ -250,6 +252,33 @@ function Results({ index, onOpen }: { index: RunIndex; onOpen: (task: string) =>
         </div>
       </div>
     </section>
+  );
+}
+
+function ForkFindings({ index, onOpen }: { index: RunIndex; onOpen: (task: string) => void }) {
+  const f = index.forks;
+  const needed = f.wins_needing_an_alternative;
+  return (
+    <div className="fork-findings">
+      <p className="nameplate">Where the forks mattered</p>
+      <p>
+        Branching forked {f.forks} times across {f.tasks_with_forks} tasks, and at {f.divergent_forks} of those
+        forks the sibling branches ended differently. At {f.decisive_forks}, one branch reached a passing patch
+        and a sibling did not; at {f.decisive_where_own_action_failed} of these, the passing branch started from a
+        sampled alternative rather than the agent's own next action.
+      </p>
+      <p>
+        Following the agent's own action at every fork approximates what it would have done without forking. That
+        path reached a passing patch in {f.wins_where_own_path_also_passed} of the {f.branching_wins} tasks
+        branching solved. In the other {needed.length}, the fix came from an alternative:{" "}
+        {needed.map((task, i) => (
+          <span key={task}>
+            <button className="text-button mono" onClick={() => onOpen(task)}>{shortTask(task)}</button>
+            {i < needed.length - 1 ? ", " : "."}
+          </span>
+        ))}
+      </p>
+    </div>
   );
 }
 

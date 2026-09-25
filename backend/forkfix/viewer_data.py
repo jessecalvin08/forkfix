@@ -15,6 +15,7 @@ from pathlib import Path
 
 from .benchmark import OUTPUT as BENCHMARK_FILE
 from .config import REPORTS
+from .forks import summarise
 from .report import build, latest_reports
 from .tasks import load_tasks
 
@@ -114,6 +115,7 @@ def main() -> None:
 
     index = {k: result[k] for k in ("tasks", "totals", "comparisons")}
     index["benchmark"] = {"seed": benchmark["seed"], "created": benchmark["created"]}
+    index["forks"] = {k: v for k, v in summarise(records, tasks).items() if k != "per_task"}
     index["rows"] = index_rows
     (OUTPUT / "index.json").write_text(json.dumps(index, indent=1) + "\n", encoding="utf-8")
     size = sum(p.stat().st_size for p in OUTPUT.glob("*.json"))
