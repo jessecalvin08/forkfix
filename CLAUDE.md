@@ -4,40 +4,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-RuleBranch (Nebius x NVIDIA hackathon, Coding & Agentic Engineering track, solo) turns plain-language agent permissions into an editable typed policy, checks it with a deterministic evaluator, and compares "observe" vs "enforce" runs. Design principle: the model (Nemotron via Nebius Token Factory) drafts policies; deterministic Python decides enforcement. `STATUS.md` is the source of truth for what is actually verified; `docs/03-architecture.md` describes the target design (SQLite, `/api/runs`, etc. are planned, not built).
+Forkfix (working name; Nebius x NVIDIA hackathon, Coding & Agentic Engineering track, solo, deadline
+October 30, 2026 10:00 PDT) is a coding agent that forks Nebius Sandbox snapshots at code-changing
+steps, prunes branches with a judge model, and submits the best patch. The claim to test: branching
+lets NVIDIA Nemotron 3 Nano resolve more SWE-bench Lite tasks than a one-attempt agent at comparable
+cost. `README.md`'s Status section is the source of truth for what is verified (the 40-task benchmark
+of September 25: directionally positive, not statistically significant).
 
-## Repo and hosting
+The repo was RuleBranch until September 25, 2026. It is preserved on the local `archive/rulebranch`
+branch. The public Vercel site (rulebranch.vercel.app) is Git-connected to `main`, so the next push
+removes its frontend; confirm with Jesse before pushing.
 
-- Public repo: [github.com/jessecalvin08/rulebranch](https://github.com/jessecalvin08/rulebranch), branch `main`.
-- Live demo: [rulebranch.vercel.app](https://rulebranch.vercel.app/), the `frontend/` build deployed on Vercel as a static sample. It has no backend, makes no Token Factory calls, and must not claim a live Sandbox run. Vercel project `jesse-dc66/rulebranch` is Git-connected: every push to `main` redeploys production, so pushing frontend changes publishes them immediately. Keep them truthful.
+## Commands (Windows; `backend/.venv` exists)
 
-## Commands (Windows/PowerShell; a `backend/.venv` already exists)
-
-Backend, from `backend/`:
+From `backend/`:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -q                                          # all tests (offline)
-.\.venv\Scripts\python.exe -m pytest tests/test_policy_engine.py::test_name -q   # single test
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000          # API
-.\.venv\Scripts\python.exe -m app.run_sandbox --approval <sha256> --approve   # opt-in, spends credits; ID comes from the dashboard
-.\.venv\Scripts\python.exe -m app.run_sandbox --reviewed-policy fixtures/sample_policy.json --approve --output reports/sandbox-comparison.json
+.\.venv\Scripts\python.exe -m pytest -q                                   # offline tests
+.\.venv\Scripts\python.exe -m pytest tests/test_search.py::test_name -q   # single test
+.\.venv\Scripts\python.exe -m forkfix.run_day2                            # dry run, spends nothing
+.\.venv\Scripts\python.exe -m forkfix.run_day2 --validate-gold --approve  # paid: sandbox only
+.\.venv\Scripts\python.exe -m forkfix.run_day2 --approve                  # paid: models + sandbox
+.\.venv\Scripts\python.exe -m forkfix.run_day2 --ids-file benchmark_tasks.json --parallel --approve  # the benchmark
+.\.venv\Scripts\python.exe -m forkfix.benchmark --size 40 --seed 0      # re-derive the benchmark list
+.\.venv\Scripts\python.exe -m feasibility.check_access                    # free: token limits, models
+.\.venv\Scripts\python.exe -m forkfix.report                             # free: results/benchmark.json
 ```
-
-Frontend, from `frontend/`: `npm run dev` (Vite on :5173, proxies `/api` to 127.0.0.1:8000), `npm run build` (`tsc -b && vite build`), `npm run check` (typecheck only). There is no linter or frontend test runner.
 
 ## Architecture
 
-- `backend/app/main.py` – FastAPI routes. `/api/demo/*` serve a scripted fixture (`demo_data.py`); `/api/nebius/status` only lists models; `/api/policies/compile` calls Nemotron (503 without key, provider errors mapped to sanitized 502s); `/api/policies/validate` runs the local matrix; `/api/policies/approve` records an approval; `/api/approvals` and `/api/evidence` are read-only listings.
-- `nebius_client.py` – OpenAI-SDK client for Token Factory; loads `backend/.env`. Compiles policy text with a JSON schema, re-validates with strict Pydantic (`GeneratedPolicy`), and always appends `MANDATORY_GUARDRAILS` (deny secret reads, deny network, approval for delete). `run_tests` rules must be exactly `["pytest"]`.
-- `policy_engine.py` – `evaluate()`: default deny; precedence deny > approval_required > allow; paths are normalized and fail closed on absolute, traversal, or URL-like values.
-- `policy_validation.py` – fixed 23-case synthetic matrix (5 permitted, 18 prohibited) applied to a draft; executes nothing.
-- `approvals.py` – the review gate. An approval is `reports/approvals/<sha256>.json`, keyed by the SHA-256 of the policy's canonical JSON and written only after the server re-runs the matrix. `load_approval` re-derives the hash and re-runs the matrix, so a tampered or no-longer-passing policy is refused. The dashboard approves but never runs; only the CLI spends credits. The CLI writes evidence to `reports/evidence/` with `approval_id` and `policy_sha256`.
-- `sandbox_runner.py` / `run_sandbox.py` – opt-in Nebius Sandbox (`contree_sdk`) experiment on `fixtures/coding_agent_repo` with a fake `.env` canary; two branches (observe/enforce), bounded agent actions, network/delete never executed. `diagnose_nebius.py` is NOT a permission probe: it makes one real, paid Nemotron policy-compilation call. The read-only Sandbox permission check is `ContreeSync(...).get_token_info()`, the same call `run_sandbox_comparison` makes before spending.
-- `frontend/src` – `api.ts` gates every call on `hasLiveApi` (localhost or `VITE_API_BASE_URL`); the hosted Vercel build is a static sample using `demo.ts` fallback data.
+- `forkfix/workspace.py`: `SandboxWorkspace` wraps a ConTree image snapshot. `read` uses the image
+  API (no instance); `run` spawns a non-disposable instance and returns a new workspace. `Meter`
+  counts tokens, spawns and reported sandbox cost; child meters charge parents. Model calls check the
+  token limit, sandbox runs check the spawn limit, and `enforce=False` meters are for finishing work
+  (collecting patches, grading) that must not be lost at the limit.
+- `forkfix/agent.py`: JSON-schema actions (strict mode needs every field present), tool execution,
+  `Trajectory` (fork = copy messages/events, share the immutable workspace). File writes stage to
+  `/tmp` then `cat >` to keep file modes. Paths outside `/testbed` are refused.
+- `forkfix/search.py`: lockstep rounds over live trajectories; `roots` > 1 is the sampled baseline;
+  branching only at `edit`/`create`; above `width`, rank by (no regressions in existing tests, judge
+  score); final selection prefers non-regressing, then submitted, then judge score.
+- `forkfix/verify.py`: picks existing test files from changed *source* file names (never from the
+  hidden test patch), runs them on the base repo once (cached) and on each candidate. `broken` =
+  errors/collection failure or >50% of previously passing tests fail; fewer failures are passed to
+  the judge as a possibly intended behaviour change (pytest-5227 changes an asserted log format).
+- Modes: `linear`, `branching`, `matched` (independent attempts given exactly branching's token spend
+  on the same task; runs after branching), `sampled` (fixed N). Reports: `reports/day2/` for runs,
+  `reports/validation/` for harness checks; `benchmark_tasks.json` (tracked) is the benchmark list.
+- `forkfix/edits.py`: edit matching that tolerates pasted `view` line numbers and whitespace, with a
+  uniform re-indent; ambiguous or missing matches are refused with line numbers / the closest text.
+- Agent calls try thinking, then no-thinking, then no-thinking at temperature 0.7 (3 attempts).
+- `forkfix/tasks.py`: SWE-bench Lite rows cached in ignored `reports/swe_bench_lite.json`; image name
+  `swebench/sweb.eval.x86_64.<id lower, "__" -> "_1776_">:latest`; grading resets test files, applies
+  the hidden test patch, runs `pytest -rA`, returns only summary lines. django/sympy are excluded
+  (different test runners).
+- `tests/fakes.py`: `FakeWorkspace`, `FakeAgent`, `FakeJudge` for fully offline tests.
+- `forkfix/report.py` aggregates the newest report per benchmark task (written after
+  `benchmark_tasks.json`) into tracked `results/benchmark.json`, with McNemar p-values and a list-price
+  cost estimate.
 
 ## Constraints to respect
 
-- Never read, print, or commit `backend/.env`; it holds the API key. Only `.env.example` is tracked. Never upload it as a fixture.
-- Be truthful in docs, UI, and copy: live Nemotron policy generation is verified; there are two real Sandbox runs (September 19): a clean run where the agent ignored a mild injection and finished the task in both branches (enforcement did not hinder useful work), and a `task-embedded-imperative` run that is a **measured block** (observe read the `.env` canary; enforce's `.env` read was denied by `deny-secret-files`). The scripted dashboard sample is still scripted; do not present it as measured. Attack scenarios live in `attack_scenarios.py`; `attack_generation.py` drafts one with Nemotron; `run_sandbox --scenario/--generate-attack` runs them; `policy_denies_attack` preflights before spending. The dashboard comparison is a scripted simulation, not measured agent behavior. Don't add measured claims without real evidence in ignored `reports/`.
-- Error paths must not leak provider response bodies or keys.
-- Changes to the policy engine or guardrails need matching updates in `backend/tests/` (offline, no network).
+- Never read, print, or commit `backend/.env`. Only `.env.example` is tracked.
+- Paid runs (anything with `--approve`, any probe in `feasibility/` except `check_access`) need Jesse's
+  explicit go-ahead. Credit is currently very low (trial only); see memory.
+- Hidden tests must never reach the agent or the judge; they are used only to grade.
+- Be truthful in docs and copy: report solve rates only from saved evidence in `reports/`, and report
+  cost alongside every comparison.
+- Error paths must not leak provider response bodies or keys (log exception type names only).
