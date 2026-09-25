@@ -51,6 +51,18 @@ with a fixed seed, proportionally by repository: `backend/benchmark_tasks.json`.
 Earlier infrastructure checks (September 24): 16 Sandbox forks run in parallel with isolation intact,
 and each task's official SWE-bench image grades correctly (unfixed fails, reference fix passes).
 
+## Run viewer
+
+`frontend/` is a static page that replays every benchmark run: the results table, then each task's
+tree in all three modes, with every branch's actions, judge score, existing-test check, patch and
+hidden-test grade. Its data (`frontend/public/runs/`, tracked) is exported from the same reports as
+`results/benchmark.json`:
+
+```powershell
+cd backend; .\.venv\Scripts\python.exe -m forkfix.report; .\.venv\Scripts\python.exe -m forkfix.viewer_data
+cd ..\frontend; npm install; npm run dev    # http://localhost:5173
+```
+
 ## How it works
 
 | Piece | File | Role |
@@ -64,7 +76,7 @@ and each task's official SWE-bench image grades correctly (unfixed fails, refere
 | Judge | `backend/forkfix/judge.py` | Nemotron 3 Super scores diffs from what the agent could see; never the hidden tests |
 | Tasks | `backend/forkfix/tasks.py` | SWE-bench Lite loading and hidden-test grading (pytest-based repositories) |
 | Driver | `backend/forkfix/run_day2.py` | Runs both modes on the same tasks and grades every candidate |
-| Results | `backend/forkfix/report.py` | Aggregates saved reports into `results/benchmark.json` |
+| Results | `backend/forkfix/report.py`, `viewer_data.py` | Aggregate saved reports into `results/benchmark.json` and the viewer's data |
 
 ## Run it
 
