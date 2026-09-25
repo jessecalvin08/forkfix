@@ -83,5 +83,16 @@ export interface RunIndex {
     branching_vs_matched: { only_branching: number; only_matched: number; mcnemar_p: number };
   };
   benchmark: { seed: number; created: string };
+  /** From forkfix.forks: what the forks did in the branching runs. */
+  forks: {
+    tasks_with_forks: number;
+    forks: number;
+    divergent_forks: number;
+    decisive_forks: number;
+    decisive_where_own_action_failed: number;
+    branching_wins: number;
+    wins_where_own_path_also_passed: number;
+    wins_needing_an_alternative: string[];
+  };
   rows: IndexRow[];
 }

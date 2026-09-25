@@ -26,6 +26,12 @@ reports are in the git-ignored `backend/reports/day2/`.
   **Directionally positive, not statistically significant at 40 tasks.**
 - Every branching win came from a forked branch (2-7 fork points per task), and matched attempts
   spent at least as many tokens as branching on every task.
+- What the forks did (`python -m forkfix.forks` → [`results/forks.json`](results/forks.json)): 165
+  fork points in 32 tasks; at 101 the sibling branches ended differently, and at 25 one branch
+  reached a passing patch while a sibling did not (at 10 of those the passing branch started from a
+  sampled alternative, not the agent's own action). Following the agent's own action at every fork
+  reached a passing patch in only 3 of the 7 tasks branching solved; that path matches the separate
+  one-attempt run's outcome on 6 of the 7, so it is a fair stand-in for "no forking".
 - Absolute solve rates are low: Nemotron 3 Nano (3B active parameters) fails most tasks in every mode.
   The claim is the relative gain at equal cost, not a leaderboard score.
 - Selection is still a weakness: on 1 task branching and on 2 tasks matched attempts had a correct

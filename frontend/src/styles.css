@@ -155,6 +155,12 @@ thead .num { font-family: var(--display); }
 .findings p:not(.nameplate) { margin: 10px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
 .findings strong { color: var(--ink); font-weight: 600; }
 
+.fork-findings {
+  max-width: 78ch; margin-top: 48px; padding: 20px 22px;
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink); background: var(--card);
+}
+.fork-findings p:not(.nameplate) { margin: 10px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.65; }
+.fork-findings .text-button { font-size: 13px; }
 .paired { margin-top: 56px; }
 .paired-table { margin-top: 12px; min-width: 620px; }
 .paired-table th[scope="row"] { font-weight: 400; font-size: 13px; }

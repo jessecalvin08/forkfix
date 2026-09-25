@@ -39,6 +39,22 @@
   "seed": 0,
   "created": "2026-09-25"
  },
+ "forks": {
+  "tasks": 40,
+  "tasks_with_forks": 32,
+  "forks": 165,
+  "divergent_forks": 101,
+  "decisive_forks": 25,
+  "decisive_where_own_action_failed": 10,
+  "branching_wins": 7,
+  "wins_where_own_path_also_passed": 3,
+  "wins_needing_an_alternative": [
+   "astropy__astropy-12907",
+   "matplotlib__matplotlib-23964",
+   "psf__requests-2148",
+   "sphinx-doc__sphinx-10325"
+  ]
+ },
  "rows": [
   {
    "task": "astropy__astropy-12907",
