@@ -82,7 +82,8 @@ export interface RunIndex {
     branching_vs_linear: { only_branching: number; only_linear: number; mcnemar_p: number };
     branching_vs_matched: { only_branching: number; only_matched: number; mcnemar_p: number };
   };
-  benchmark: { seed: number; created: string };
+  /** One task list, or several pooled non-overlapping ones (each with its own seed and date). */
+  benchmark: { seed: number; created: string } | { sources: { file: string; seed: number; created: string }[] };
   /** From forkfix.forks: what the forks did in the branching runs. */
   forks: {
     tasks_with_forks: number;
