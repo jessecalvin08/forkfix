@@ -75,6 +75,9 @@ also a real limitation: on several tasks a correct candidate existed but was not
 
 ## Links to fill before submission
 
-- Public repository: update the repository name/link after the GitHub rename decision.
-- Working demo: add after deciding whether to replace the existing RuleBranch Vercel site.
+- Public repository: https://github.com/jessecalvin08/forkfix (renamed from `rulebranch` on
+  September 28, 2026; GitHub redirects the old URL).
+- Working demo: the run viewer is now on `main`, so it will deploy to the existing Vercel site once
+  Vercel rebuilds. The URL is still `rulebranch.vercel.app` unless the Vercel project itself is
+  renamed (a separate step, not done here).
 - Demo video: add after recording the saved-run viewer.

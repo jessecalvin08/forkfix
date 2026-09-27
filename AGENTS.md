@@ -4,17 +4,20 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 ## Project
 
-Forkfix (working name; Nebius x NVIDIA hackathon, Coding & Agentic Engineering track, solo, deadline
-October 30, 2026 10:00 PDT) is a coding agent that forks Nebius Sandbox snapshots at code-changing
-steps, prunes branches with a judge model, and submits the best patch. The claim to test: branching
-lets NVIDIA Nemotron 3 Nano resolve more SWE-bench Lite tasks than a one-attempt agent at comparable
-cost. `README.md`'s Status section is the source of truth for what is verified (the full 79-task
-benchmark, September 25-27: branching beats one attempt significantly, p = 0.003; beats matched
-attempts directionally, p = 0.092, short of the 0.05 threshold).
+Forkfix (Nebius x NVIDIA hackathon, Coding & Agentic Engineering track, solo, deadline October 30,
+2026 10:00 PDT) is a coding agent that forks Nebius Sandbox snapshots at code-changing steps, prunes
+branches with a judge model, and submits the best patch. The claim to test: branching lets NVIDIA
+Nemotron 3 Nano resolve more SWE-bench Lite tasks than a one-attempt agent at comparable cost.
+`README.md`'s Status section is the source of truth for what is verified (the full 79-task benchmark,
+September 25-27: branching beats one attempt significantly, p = 0.003; beats matched attempts
+directionally, p = 0.092, short of the 0.05 threshold).
 
-The repo was RuleBranch until September 25, 2026. It is preserved on the local `archive/rulebranch`
-branch. The public Vercel site (rulebranch.vercel.app) is Git-connected to `main`, so the next push
-removes its frontend; confirm with Jesse before pushing.
+The repository was RuleBranch (a permission-policy checker for coding agents) until September 25,
+2026, and was itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 28,
+2026, when `main` was pushed with the Forkfix content, replacing RuleBranch on the public Vercel
+site. RuleBranch is preserved on the local `archive/rulebranch` branch and in the git history before
+the switch. The Vercel project's own name and domain (as of the rename, still `rulebranch.vercel.app`)
+are not changed by a GitHub rename; only Jesse can rename the Vercel project itself.
 
 ## Commands (Windows; `backend/.venv` exists)
 

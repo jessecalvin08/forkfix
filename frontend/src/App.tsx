@@ -5,7 +5,7 @@ import TreeView from "./TreeView";
 import { defaultNode, fmtTokens, shortTask } from "./tree";
 import { MODES, MODE_LABEL, type IndexRow, type ModeName, type RunIndex, type TaskRun } from "./types";
 
-const REPO_URL = "https://github.com/jessecalvin08/rulebranch";
+const REPO_URL = "https://github.com/jessecalvin08/forkfix";
 
 interface Route {
   task: string;
