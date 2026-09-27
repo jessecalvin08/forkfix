@@ -31,7 +31,19 @@ From `backend/`:
 .\.venv\Scripts\python.exe -m forkfix.report                             # free: results/benchmark.json
 .\.venv\Scripts\python.exe -m forkfix.viewer_data                        # free: frontend/public/runs/
 .\.venv\Scripts\python.exe -m forkfix.forks                              # free: results/forks.json
+.\.venv\Scripts\python.exe -m forkfix.benchmark --rest                  # free: benchmark_tasks_ext.json (other 39)
+.\.venv\Scripts\python.exe -m forkfix.run_day2 --ids-file benchmark_tasks_ext.json --modes linear,branching,matched --parallel --max-tokens 100000000 --max-spawns 7000 --approve  # paid: the extension
+.\.venv\Scripts\python.exe -m forkfix.report --tasks-file benchmark_tasks_ext.json --modes linear,branching,matched --out ..\results\benchmark_ext.json
 ```
+
+The previous session found no working direct NVIDIA endpoint for the benchmark's agent model
+(2026-09-27): build.nvidia.com retired
+`nemotron-3-nano-30b-a3b` (HTTP 410) and its listed `nemotron-nano-3-30b-a3b` returns 404; other
+30B-A3B models there are different models, and its free queue took 308 s for one call. These are
+historical probe results, not a current provider guarantee. OpenRouter still lists the original Nano
+as free, with an unpaid account limited to 50 requests/day. Before buying credits, check the
+hackathon resources and Nebius Builders Program for the separately advertised $25 grant. Never
+assume it is unclaimed or launch paid runs without explicit approval.
 
 From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + build).
 

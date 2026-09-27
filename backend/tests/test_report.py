@@ -44,3 +44,50 @@ def test_cost_estimate_splits_each_model_like_the_mode_and_refuses_unknown_model
     assert estimate_usd({**spend, "tokens_by_model": {"other/model": 4_000_000}}) is None
     result = build({"t1": {"modes": {"branching": mode(True)}}}, ["t1"])
     assert result["totals"]["branching"]["estimated_usd"] is None
+
+
+def test_extension_combination_requires_the_same_modes_on_every_task():
+    records = {
+        "original": {"modes": {"linear": mode(False), "branching": mode(True), "matched": mode(False)}},
+        "extension": {"modes": {"branching": mode(False), "matched": mode(True)}},
+        "incomplete": {"modes": {"branching": mode(True)}},
+    }
+    result = build(records, list(records), ["branching", "matched"])
+    assert result["tasks"] == 2
+    assert result["invalid"] == ["incomplete"]
+    assert set(result["totals"]) == {"branching", "matched"}
+    assert result["comparisons"]["branching_vs_matched"] == {
+        "only_branching": 1, "only_matched": 1, "mcnemar_p": 1.0,
+    }
+    assert build(records, list(records))["invalid"] == ["extension", "incomplete"]
+
+
+def test_combined_cli_preserves_each_lists_report_cutoff(tmp_path, monkeypatch):
+    import argparse
+    import json
+    import os
+    import pytest
+    import forkfix.report as report
+
+    folder = tmp_path / "day2"
+    folder.mkdir()
+    first, extension = tmp_path / "first.json", tmp_path / "extension.json"
+    for path, task, cutoff in ((first, "original", 100), (extension, "new", 200)):
+        path.write_text(json.dumps({"tasks": [task], "seed": 0, "created": "2026-09-27"}))
+        os.utime(path, (cutoff, cutoff))
+        record_path = folder / f"20260927-{task}.json"
+        record_path.write_text(json.dumps({"instance_id": task, "modes": {
+            "branching": mode(True), "matched": mode(False),
+        }}))
+        os.utime(record_path, (150, 150))
+    monkeypatch.setattr(report, "REPORTS", tmp_path)
+    output = tmp_path / "combined.json"
+    args = argparse.Namespace(tasks_file=[str(first), str(extension)], out=str(output),
+                              since_benchmark_file=True, modes="branching,matched")
+    report.main(args)
+    result = json.loads(output.read_text())
+    assert result["tasks"] == 1 and result["invalid"] == ["new"]
+    assert [s["file"] for s in result["benchmark"]["sources"]] == ["first.json", "extension.json"]
+    args.tasks_file = [str(first), str(first)]
+    with pytest.raises(SystemExit, match="non-overlapping"):
+        report.main(args)

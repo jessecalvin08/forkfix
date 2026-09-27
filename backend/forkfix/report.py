@@ -24,7 +24,6 @@ PRICES = {
     "nvidia/nemotron-3-super-120b-a12b": (0.30, 0.90),
 }
 
-
 def mcnemar_exact(only_a: int, only_b: int) -> float:
     """Two-sided exact McNemar p-value for paired solved/unsolved outcomes."""
     n = only_a + only_b
@@ -68,9 +67,12 @@ def valid(record: dict) -> bool:
     return all("error" not in m and not m.get("infra_stops") for m in record["modes"].values())
 
 
-def build(records: dict[str, dict], tasks: list[str]) -> dict:
-    modes = sorted({m for r in records.values() for m in r["modes"]})
-    rows, invalid = [], [t for t in tasks if t not in records or not valid(records[t])]
+def build(records: dict[str, dict], tasks: list[str], modes: list[str] | None = None) -> dict:
+    modes = sorted(set(modes) if modes is not None else
+                   {m for t in tasks if t in records for m in records[t]["modes"]})
+    rows, invalid = [], [t for t in tasks if t not in records or
+                        any(m not in records[t]["modes"] for m in modes) or
+                        not valid({"modes": {m: records[t]["modes"][m] for m in modes}})]
     for task in tasks:
         if task in invalid:
             continue
@@ -118,19 +120,32 @@ def build(records: dict[str, dict], tasks: list[str]) -> dict:
 
 
 def main(args: argparse.Namespace) -> None:
-    benchmark = json.loads(BENCHMARK_FILE.read_text(encoding="utf-8"))
-    since = BENCHMARK_FILE.stat().st_mtime if args.since_benchmark_file else 0.0
-    records = latest_reports(REPORTS / "day2", benchmark["tasks"], since)
-    result = build(records, benchmark["tasks"])
-    result["benchmark"] = {"seed": benchmark["seed"], "created": benchmark["created"]}
-    RESULTS.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    tasks_files = [Path(p) for p in args.tasks_file] if args.tasks_file else [BENCHMARK_FILE]
+    out = Path(args.out) if args.out else RESULTS
+    tasks, records, sources = [], {}, []
+    for tasks_file in tasks_files:
+        benchmark = json.loads(tasks_file.read_text(encoding="utf-8"))
+        if len(set(benchmark["tasks"])) != len(benchmark["tasks"]) or set(tasks) & set(benchmark["tasks"]):
+            raise SystemExit("task lists must contain unique, non-overlapping tasks")
+        since = tasks_file.stat().st_mtime if args.since_benchmark_file else 0.0
+        records.update(latest_reports(REPORTS / "day2", benchmark["tasks"], since))
+        tasks.extend(benchmark["tasks"])
+        sources.append({"file": tasks_file.name, "seed": benchmark["seed"], "created": benchmark["created"]})
+    modes = args.modes.split(",") if args.modes else None
+    result = build(records, tasks, modes)
+    result["benchmark"] = ({k: sources[0][k] for k in ("seed", "created")} if len(sources) == 1
+                           else {"sources": sources})
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: result[k] for k in ("tasks", "invalid", "totals", "comparisons")}, indent=2))
-    print(f"wrote {RESULTS}")
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--all-reports", dest="since_benchmark_file", action="store_false",
-                        help="also use reports older than benchmark_tasks.json")
+                        help="also use reports older than the tasks file")
+    parser.add_argument("--tasks-file", nargs="+", help="one or more non-overlapping task lists (default: benchmark_tasks.json)")
+    parser.add_argument("--modes", help="comma-separated modes required for every task, e.g. branching,matched")
+    parser.add_argument("--out", help="where to write (default: results/benchmark.json)")
     main(parser.parse_args())

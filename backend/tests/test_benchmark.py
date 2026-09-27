@@ -1,6 +1,6 @@
 import json
 
-from forkfix.benchmark import allocate, eligible, latest_validations, repo_of, select
+from forkfix.benchmark import allocate, eligible, latest_validations, repo_of, rest, select
 
 
 def validation(ok=True, seconds=10.0):
@@ -39,3 +39,7 @@ def test_the_newest_validation_per_task_wins(tmp_path):
     (tmp_path / "20260925T020000Z-a__a-1.json").write_text(json.dumps(newer))
     (tmp_path / "20260925T020000Z-summary.json").write_text("{}")
     assert latest_validations(tmp_path)["a__a-1"]["harness_ok"] is True
+
+
+def test_rest_takes_every_eligible_task_the_first_list_did_not():
+    assert rest(["a-1", "b-2", "c-3", "a-4"], ["b-2"]) == ["a-1", "a-4", "c-3"]
