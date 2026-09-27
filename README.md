@@ -1,4 +1,4 @@
-# Forkfix (working name)
+# Forkfix
 
 A coding agent that searches over **checkpointed sandbox states** instead of making one attempt.
 Every agent action runs in a Nebius Sandbox snapshot, so a trajectory can be forked at any step for
@@ -138,8 +138,10 @@ The saved-run viewer and offline development need no model credits.
 
 ## History
 
-This repository previously held RuleBranch, a permission-policy checker for coding agents. It is
-preserved on the local `archive/rulebranch` branch and in the git history before this change.
+This repository previously held RuleBranch, a permission-policy checker for coding agents, and was
+itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 28, 2026.
+RuleBranch is preserved on the local `archive/rulebranch` branch and in the git history before the
+switch to Forkfix.
 
 ## License
 
