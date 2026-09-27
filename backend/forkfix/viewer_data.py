@@ -6,10 +6,12 @@ one file per task with every mode's tree, the agent's action summaries, judge sc
 candidate's patch and hidden-test counts. Free: reads saved reports only.
 
     .\\.venv\\Scripts\\python.exe -m forkfix.viewer_data
+    .\\.venv\\Scripts\\python.exe -m forkfix.viewer_data --tasks-file benchmark_tasks.json benchmark_tasks_ext.json
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -80,10 +82,16 @@ def fork_points(mode: dict) -> int:
     return sum(n["stop"] == "branched" for n in mode["nodes"])
 
 
-def main() -> None:
-    benchmark = json.loads(BENCHMARK_FILE.read_text(encoding="utf-8"))
-    tasks = benchmark["tasks"]
-    records = latest_reports(REPORTS / "day2", tasks, BENCHMARK_FILE.stat().st_mtime)
+def main(args: argparse.Namespace) -> None:
+    tasks_files = [Path(p) for p in args.tasks_file] if args.tasks_file else [BENCHMARK_FILE]
+    tasks, records, sources = [], {}, []
+    for tasks_file in tasks_files:
+        benchmark = json.loads(tasks_file.read_text(encoding="utf-8"))
+        if len(set(benchmark["tasks"])) != len(benchmark["tasks"]) or set(tasks) & set(benchmark["tasks"]):
+            raise SystemExit("task lists must contain unique, non-overlapping tasks")
+        records.update(latest_reports(REPORTS / "day2", benchmark["tasks"], tasks_file.stat().st_mtime))
+        tasks.extend(benchmark["tasks"])
+        sources.append({"file": tasks_file.name, "seed": benchmark["seed"], "created": benchmark["created"]})
     result = build(records, tasks)
     if result["invalid"]:
         raise SystemExit(f"refusing to export with invalid tasks: {result['invalid']}")
@@ -114,7 +122,7 @@ def main() -> None:
         })
 
     index = {k: result[k] for k in ("tasks", "totals", "comparisons")}
-    index["benchmark"] = {"seed": benchmark["seed"], "created": benchmark["created"]}
+    index["benchmark"] = sources[0] if len(sources) == 1 else {"sources": sources}
     index["forks"] = {k: v for k, v in summarise(records, tasks).items() if k != "per_task"}
     index["rows"] = index_rows
     (OUTPUT / "index.json").write_text(json.dumps(index, indent=1) + "\n", encoding="utf-8")
@@ -123,4 +131,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tasks-file", nargs="+",
+                        help="one or more non-overlapping task lists (default: benchmark_tasks.json)")
+    main(parser.parse_args())

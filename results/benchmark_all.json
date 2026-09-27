@@ -1,0 +1,2188 @@
+{
+  "tasks": 79,
+  "invalid": [],
+  "totals": {
+    "branching": {
+      "solved": 15,
+      "any_candidate": 18,
+      "tokens": 81041092,
+      "sandbox_runs": 5164,
+      "estimated_usd": 9.83
+    },
+    "linear": {
+      "solved": 4,
+      "any_candidate": 4,
+      "tokens": 24011070,
+      "sandbox_runs": 879,
+      "estimated_usd": 2.49
+    },
+    "matched": {
+      "solved": 8,
+      "any_candidate": 15,
+      "tokens": 80448826,
+      "sandbox_runs": 4974,
+      "estimated_usd": 8.52
+    }
+  },
+  "comparisons": {
+    "branching_vs_linear": {
+      "only_branching": 12,
+      "only_linear": 1,
+      "mcnemar_p": 0.003
+    },
+    "branching_vs_matched": {
+      "only_branching": 10,
+      "only_matched": 3,
+      "mcnemar_p": 0.092
+    }
+  },
+  "rows": [
+    {
+      "task": "astropy__astropy-12907",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 1246053,
+        "sandbox_runs": 90,
+        "attempts": 1,
+        "estimated_usd": 0.1426
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 274725,
+        "sandbox_runs": 3,
+        "attempts": 1,
+        "estimated_usd": 0.0394
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1277054,
+        "sandbox_runs": 54,
+        "attempts": 7,
+        "estimated_usd": 0.1482
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-22711",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 105334,
+        "sandbox_runs": 40,
+        "attempts": 1,
+        "estimated_usd": 0.0288
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 116694,
+        "sandbox_runs": 9,
+        "attempts": 1,
+        "estimated_usd": 0.0078
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 134270,
+        "sandbox_runs": 34,
+        "attempts": 5,
+        "estimated_usd": 0.0181
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-23562",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 154880,
+        "sandbox_runs": 19,
+        "attempts": 1,
+        "estimated_usd": 0.0104
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 254505,
+        "sandbox_runs": 9,
+        "attempts": 1,
+        "estimated_usd": 0.0407
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 167857,
+        "sandbox_runs": 14,
+        "attempts": 5,
+        "estimated_usd": 0.0267
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-23563",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1369937,
+        "sandbox_runs": 103,
+        "attempts": 1,
+        "estimated_usd": 0.1926
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 638889,
+        "sandbox_runs": 19,
+        "attempts": 1,
+        "estimated_usd": 0.0549
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1403160,
+        "sandbox_runs": 88,
+        "attempts": 9,
+        "estimated_usd": 0.1544
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-23913",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 645309,
+        "sandbox_runs": 85,
+        "attempts": 1,
+        "estimated_usd": 0.061
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 93093,
+        "sandbox_runs": 7,
+        "attempts": 1,
+        "estimated_usd": 0.0157
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 669581,
+        "sandbox_runs": 31,
+        "attempts": 4,
+        "estimated_usd": 0.0846
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-23964",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 300382,
+        "sandbox_runs": 72,
+        "attempts": 1,
+        "estimated_usd": 0.0452
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 41903,
+        "sandbox_runs": 3,
+        "attempts": 1,
+        "estimated_usd": 0.0054
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 326492,
+        "sandbox_runs": 52,
+        "attempts": 7,
+        "estimated_usd": 0.0331
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-23987",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 376042,
+        "sandbox_runs": 58,
+        "attempts": 1,
+        "estimated_usd": 0.076
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 241928,
+        "sandbox_runs": 16,
+        "attempts": 1,
+        "estimated_usd": 0.0156
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 378546,
+        "sandbox_runs": 37,
+        "attempts": 5,
+        "estimated_usd": 0.0436
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-25311",
+      "branching": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 2143765,
+        "sandbox_runs": 108,
+        "attempts": 1,
+        "estimated_usd": 0.2393
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 680596,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0598
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2187941,
+        "sandbox_runs": 102,
+        "attempts": 8,
+        "estimated_usd": 0.2616
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-25332",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1145114,
+        "sandbox_runs": 76,
+        "attempts": 1,
+        "estimated_usd": 0.1225
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 309538,
+        "sandbox_runs": 16,
+        "attempts": 1,
+        "estimated_usd": 0.0319
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1161016,
+        "sandbox_runs": 65,
+        "attempts": 4,
+        "estimated_usd": 0.1062
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-25433",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 565418,
+        "sandbox_runs": 23,
+        "attempts": 1,
+        "estimated_usd": 0.0536
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 759858,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0535
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 583443,
+        "sandbox_runs": 63,
+        "attempts": 7,
+        "estimated_usd": 0.0562
+      }
+    },
+    {
+      "task": "mwaskom__seaborn-3010",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 530568,
+        "sandbox_runs": 110,
+        "attempts": 1,
+        "estimated_usd": 0.0588
+      },
+      "linear": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 30290,
+        "sandbox_runs": 2,
+        "attempts": 1,
+        "estimated_usd": 0.0039
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 549631,
+        "sandbox_runs": 65,
+        "attempts": 8,
+        "estimated_usd": 0.0655
+      }
+    },
+    {
+      "task": "mwaskom__seaborn-3190",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 787297,
+        "sandbox_runs": 132,
+        "attempts": 1,
+        "estimated_usd": 0.1186
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 25418,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.0031
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 815503,
+        "sandbox_runs": 112,
+        "attempts": 11,
+        "estimated_usd": 0.0966
+      }
+    },
+    {
+      "task": "pallets__flask-5063",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 606418,
+        "sandbox_runs": 32,
+        "attempts": 1,
+        "estimated_usd": 0.095
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 201163,
+        "sandbox_runs": 8,
+        "attempts": 1,
+        "estimated_usd": 0.0248
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 657177,
+        "sandbox_runs": 31,
+        "attempts": 6,
+        "estimated_usd": 0.1092
+      }
+    },
+    {
+      "task": "psf__requests-2148",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 805167,
+        "sandbox_runs": 75,
+        "attempts": 1,
+        "estimated_usd": 0.1369
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 211779,
+        "sandbox_runs": 6,
+        "attempts": 1,
+        "estimated_usd": 0.0297
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 815643,
+        "sandbox_runs": 49,
+        "attempts": 4,
+        "estimated_usd": 0.074
+      }
+    },
+    {
+      "task": "pydata__xarray-3364",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1713478,
+        "sandbox_runs": 100,
+        "attempts": 1,
+        "estimated_usd": 0.2225
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 421868,
+        "sandbox_runs": 19,
+        "attempts": 1,
+        "estimated_usd": 0.0432
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1767893,
+        "sandbox_runs": 50,
+        "attempts": 4,
+        "estimated_usd": 0.1759
+      }
+    },
+    {
+      "task": "pylint-dev__pylint-5859",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1643196,
+        "sandbox_runs": 86,
+        "attempts": 1,
+        "estimated_usd": 0.1636
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 220256,
+        "sandbox_runs": 11,
+        "attempts": 1,
+        "estimated_usd": 0.0292
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1656130,
+        "sandbox_runs": 48,
+        "attempts": 8,
+        "estimated_usd": 0.2081
+      }
+    },
+    {
+      "task": "pylint-dev__pylint-7114",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1538265,
+        "sandbox_runs": 58,
+        "attempts": 1,
+        "estimated_usd": 0.2385
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 461170,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0674
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1559158,
+        "sandbox_runs": 106,
+        "attempts": 8,
+        "estimated_usd": 0.178
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-11148",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 979474,
+        "sandbox_runs": 48,
+        "attempts": 1,
+        "estimated_usd": 0.162
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 52372,
+        "sandbox_runs": 8,
+        "attempts": 1,
+        "estimated_usd": 0.0082
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 992602,
+        "sandbox_runs": 89,
+        "attempts": 4,
+        "estimated_usd": 0.094
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-5103",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 51969,
+        "sandbox_runs": 1,
+        "attempts": 1,
+        "estimated_usd": 0.012
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 269465,
+        "sandbox_runs": 5,
+        "attempts": 1,
+        "estimated_usd": 0.0425
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 73086,
+        "sandbox_runs": 14,
+        "attempts": 4,
+        "estimated_usd": 0.0119
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-5413",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2008154,
+        "sandbox_runs": 67,
+        "attempts": 1,
+        "estimated_usd": 0.1876
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 161442,
+        "sandbox_runs": 8,
+        "attempts": 1,
+        "estimated_usd": 0.0209
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2052240,
+        "sandbox_runs": 101,
+        "attempts": 8,
+        "estimated_usd": 0.1756
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-7220",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1502950,
+        "sandbox_runs": 65,
+        "attempts": 1,
+        "estimated_usd": 0.1929
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 138471,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0123
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1512549,
+        "sandbox_runs": 183,
+        "attempts": 8,
+        "estimated_usd": 0.1377
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-7490",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 683881,
+        "sandbox_runs": 17,
+        "attempts": 1,
+        "estimated_usd": 0.0832
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 588182,
+        "sandbox_runs": 17,
+        "attempts": 1,
+        "estimated_usd": 0.051
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 714472,
+        "sandbox_runs": 34,
+        "attempts": 4,
+        "estimated_usd": 0.0563
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-8906",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 814292,
+        "sandbox_runs": 52,
+        "attempts": 1,
+        "estimated_usd": 0.1194
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 405512,
+        "sandbox_runs": 6,
+        "attempts": 1,
+        "estimated_usd": 0.0571
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 839312,
+        "sandbox_runs": 37,
+        "attempts": 5,
+        "estimated_usd": 0.0907
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-10949",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1570613,
+        "sandbox_runs": 76,
+        "attempts": 1,
+        "estimated_usd": 0.221
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 396406,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.0378
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1582666,
+        "sandbox_runs": 88,
+        "attempts": 8,
+        "estimated_usd": 0.1257
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-11040",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 196538,
+        "sandbox_runs": 16,
+        "attempts": 1,
+        "estimated_usd": 0.0131
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 495683,
+        "sandbox_runs": 15,
+        "attempts": 1,
+        "estimated_usd": 0.0465
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 226709,
+        "sandbox_runs": 20,
+        "attempts": 4,
+        "estimated_usd": 0.0266
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-12471",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 940712,
+        "sandbox_runs": 78,
+        "attempts": 1,
+        "estimated_usd": 0.1592
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 321969,
+        "sandbox_runs": 11,
+        "attempts": 1,
+        "estimated_usd": 0.0224
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 957469,
+        "sandbox_runs": 77,
+        "attempts": 8,
+        "estimated_usd": 0.0951
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13142",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 53310,
+        "sandbox_runs": 1,
+        "attempts": 1,
+        "estimated_usd": 0.012
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 419300,
+        "sandbox_runs": 22,
+        "attempts": 1,
+        "estimated_usd": 0.0265
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 61769,
+        "sandbox_runs": 19,
+        "attempts": 4,
+        "estimated_usd": 0.0042
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13496",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 525917,
+        "sandbox_runs": 71,
+        "attempts": 1,
+        "estimated_usd": 0.0784
+      },
+      "linear": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 558310,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0588
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 543244,
+        "sandbox_runs": 33,
+        "attempts": 5,
+        "estimated_usd": 0.0698
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13497",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 409521,
+        "sandbox_runs": 41,
+        "attempts": 1,
+        "estimated_usd": 0.0471
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 163958,
+        "sandbox_runs": 11,
+        "attempts": 1,
+        "estimated_usd": 0.0121
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 417884,
+        "sandbox_runs": 63,
+        "attempts": 9,
+        "estimated_usd": 0.0532
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-14092",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1164774,
+        "sandbox_runs": 93,
+        "attempts": 1,
+        "estimated_usd": 0.1696
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 742037,
+        "sandbox_runs": 17,
+        "attempts": 1,
+        "estimated_usd": 0.07
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1201787,
+        "sandbox_runs": 39,
+        "attempts": 5,
+        "estimated_usd": 0.1137
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-14894",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1093196,
+        "sandbox_runs": 133,
+        "attempts": 1,
+        "estimated_usd": 0.1426
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 236879,
+        "sandbox_runs": 14,
+        "attempts": 1,
+        "estimated_usd": 0.0197
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 1136684,
+        "sandbox_runs": 91,
+        "attempts": 11,
+        "estimated_usd": 0.1563
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-14983",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 249310,
+        "sandbox_runs": 16,
+        "attempts": 1,
+        "estimated_usd": 0.0173
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 268715,
+        "sandbox_runs": 14,
+        "attempts": 1,
+        "estimated_usd": 0.0183
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 270314,
+        "sandbox_runs": 18,
+        "attempts": 4,
+        "estimated_usd": 0.0279
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-15512",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2148470,
+        "sandbox_runs": 86,
+        "attempts": 1,
+        "estimated_usd": 0.1976
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 264342,
+        "sandbox_runs": 13,
+        "attempts": 1,
+        "estimated_usd": 0.0352
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2196912,
+        "sandbox_runs": 93,
+        "attempts": 8,
+        "estimated_usd": 0.2214
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-10325",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 914841,
+        "sandbox_runs": 53,
+        "attempts": 1,
+        "estimated_usd": 0.1163
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 681921,
+        "sandbox_runs": 16,
+        "attempts": 1,
+        "estimated_usd": 0.067
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 926917,
+        "sandbox_runs": 55,
+        "attempts": 8,
+        "estimated_usd": 0.1182
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-7738",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1342905,
+        "sandbox_runs": 80,
+        "attempts": 1,
+        "estimated_usd": 0.1147
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 201614,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0202
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1356444,
+        "sandbox_runs": 92,
+        "attempts": 9,
+        "estimated_usd": 0.15
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8282",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 722714,
+        "sandbox_runs": 60,
+        "attempts": 1,
+        "estimated_usd": 0.0905
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 445984,
+        "sandbox_runs": 25,
+        "attempts": 1,
+        "estimated_usd": 0.0433
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 734705,
+        "sandbox_runs": 46,
+        "attempts": 5,
+        "estimated_usd": 0.0698
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8435",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 825815,
+        "sandbox_runs": 20,
+        "attempts": 1,
+        "estimated_usd": 0.0743
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 843166,
+        "sandbox_runs": 17,
+        "attempts": 1,
+        "estimated_usd": 0.0549
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 853823,
+        "sandbox_runs": 46,
+        "attempts": 5,
+        "estimated_usd": 0.0724
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8627",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 586408,
+        "sandbox_runs": 30,
+        "attempts": 1,
+        "estimated_usd": 0.0614
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 72115,
+        "sandbox_runs": 5,
+        "attempts": 1,
+        "estimated_usd": 0.0111
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 586797,
+        "sandbox_runs": 56,
+        "attempts": 5,
+        "estimated_usd": 0.07
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8721",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 692778,
+        "sandbox_runs": 57,
+        "attempts": 1,
+        "estimated_usd": 0.0576
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 418008,
+        "sandbox_runs": 2,
+        "attempts": 1,
+        "estimated_usd": 0.0492
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 699674,
+        "sandbox_runs": 32,
+        "attempts": 5,
+        "estimated_usd": 0.087
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8801",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 165500,
+        "sandbox_runs": 25,
+        "attempts": 1,
+        "estimated_usd": 0.0111
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 614741,
+        "sandbox_runs": 26,
+        "attempts": 1,
+        "estimated_usd": 0.0382
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 177421,
+        "sandbox_runs": 20,
+        "attempts": 4,
+        "estimated_usd": 0.0265
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-18869",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 796070,
+        "sandbox_runs": 81,
+        "attempts": 1,
+        "estimated_usd": 0.1479
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 285268,
+        "sandbox_runs": 22,
+        "attempts": 1,
+        "estimated_usd": 0.0181
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 839634,
+        "sandbox_runs": 87,
+        "attempts": 12,
+        "estimated_usd": 0.1058
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-22835",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1215141,
+        "sandbox_runs": 65,
+        "attempts": 1,
+        "estimated_usd": 0.1396
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 154116,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0114
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1240570,
+        "sandbox_runs": 45,
+        "attempts": 6,
+        "estimated_usd": 0.1283
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-23476",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2467233,
+        "sandbox_runs": 76,
+        "attempts": 1,
+        "estimated_usd": 0.3773
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 341961,
+        "sandbox_runs": 14,
+        "attempts": 1,
+        "estimated_usd": 0.0499
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2518937,
+        "sandbox_runs": 105,
+        "attempts": 8,
+        "estimated_usd": 0.2401
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-24265",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 572546,
+        "sandbox_runs": 90,
+        "attempts": 1,
+        "estimated_usd": 0.0483
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 321784,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0396
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 577533,
+        "sandbox_runs": 70,
+        "attempts": 9,
+        "estimated_usd": 0.0868
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-24970",
+      "branching": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 1230057,
+        "sandbox_runs": 90,
+        "attempts": 1,
+        "estimated_usd": 0.151
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 95296,
+        "sandbox_runs": 6,
+        "attempts": 1,
+        "estimated_usd": 0.0126
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 1260214,
+        "sandbox_runs": 102,
+        "attempts": 11,
+        "estimated_usd": 0.1571
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-25079",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2274453,
+        "sandbox_runs": 98,
+        "attempts": 1,
+        "estimated_usd": 0.2483
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 294817,
+        "sandbox_runs": 3,
+        "attempts": 1,
+        "estimated_usd": 0.0238
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2345850,
+        "sandbox_runs": 109,
+        "attempts": 9,
+        "estimated_usd": 0.2237
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-25498",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 517755,
+        "sandbox_runs": 71,
+        "attempts": 1,
+        "estimated_usd": 0.0533
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 236993,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0181
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 531283,
+        "sandbox_runs": 31,
+        "attempts": 4,
+        "estimated_usd": 0.0691
+      }
+    },
+    {
+      "task": "matplotlib__matplotlib-26020",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1210638,
+        "sandbox_runs": 85,
+        "attempts": 1,
+        "estimated_usd": 0.143
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 167443,
+        "sandbox_runs": 8,
+        "attempts": 1,
+        "estimated_usd": 0.0143
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1226224,
+        "sandbox_runs": 61,
+        "attempts": 7,
+        "estimated_usd": 0.1039
+      }
+    },
+    {
+      "task": "mwaskom__seaborn-2848",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1516273,
+        "sandbox_runs": 60,
+        "attempts": 1,
+        "estimated_usd": 0.189
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 696462,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0698
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1563761,
+        "sandbox_runs": 66,
+        "attempts": 7,
+        "estimated_usd": 0.1409
+      }
+    },
+    {
+      "task": "mwaskom__seaborn-3407",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1090548,
+        "sandbox_runs": 84,
+        "attempts": 1,
+        "estimated_usd": 0.1325
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 535183,
+        "sandbox_runs": 3,
+        "attempts": 1,
+        "estimated_usd": 0.0866
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1139984,
+        "sandbox_runs": 40,
+        "attempts": 5,
+        "estimated_usd": 0.1284
+      }
+    },
+    {
+      "task": "pydata__xarray-4248",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1558715,
+        "sandbox_runs": 40,
+        "attempts": 1,
+        "estimated_usd": 0.1521
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 129266,
+        "sandbox_runs": 10,
+        "attempts": 1,
+        "estimated_usd": 0.0103
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1568156,
+        "sandbox_runs": 88,
+        "attempts": 8,
+        "estimated_usd": 0.1707
+      }
+    },
+    {
+      "task": "pydata__xarray-5131",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 1856969,
+        "sandbox_runs": 38,
+        "attempts": 1,
+        "estimated_usd": 0.258
+      },
+      "linear": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 115870,
+        "sandbox_runs": 6,
+        "attempts": 1,
+        "estimated_usd": 0.0164
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 1896214,
+        "sandbox_runs": 85,
+        "attempts": 12,
+        "estimated_usd": 0.2344
+      }
+    },
+    {
+      "task": "pylint-dev__pylint-6506",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 699105,
+        "sandbox_runs": 70,
+        "attempts": 1,
+        "estimated_usd": 0.0719
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 40916,
+        "sandbox_runs": 8,
+        "attempts": 1,
+        "estimated_usd": 0.0028
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 739272,
+        "sandbox_runs": 62,
+        "attempts": 7,
+        "estimated_usd": 0.0859
+      }
+    },
+    {
+      "task": "pylint-dev__pylint-7228",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2337315,
+        "sandbox_runs": 105,
+        "attempts": 1,
+        "estimated_usd": 0.3281
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 662109,
+        "sandbox_runs": 22,
+        "attempts": 1,
+        "estimated_usd": 0.0798
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2388293,
+        "sandbox_runs": 108,
+        "attempts": 9,
+        "estimated_usd": 0.2865
+      }
+    },
+    {
+      "task": "pylint-dev__pylint-7993",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1633953,
+        "sandbox_runs": 68,
+        "attempts": 1,
+        "estimated_usd": 0.1728
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 79136,
+        "sandbox_runs": 10,
+        "attempts": 1,
+        "estimated_usd": 0.0101
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1703688,
+        "sandbox_runs": 135,
+        "attempts": 10,
+        "estimated_usd": 0.1969
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-11143",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 663323,
+        "sandbox_runs": 76,
+        "attempts": 1,
+        "estimated_usd": 0.1124
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 29057,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.003
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 696873,
+        "sandbox_runs": 61,
+        "attempts": 8,
+        "estimated_usd": 0.0659
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-5221",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1054715,
+        "sandbox_runs": 48,
+        "attempts": 1,
+        "estimated_usd": 0.0939
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 231184,
+        "sandbox_runs": 20,
+        "attempts": 1,
+        "estimated_usd": 0.0396
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1107497,
+        "sandbox_runs": 60,
+        "attempts": 4,
+        "estimated_usd": 0.1146
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-5495",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 568756,
+        "sandbox_runs": 74,
+        "attempts": 1,
+        "estimated_usd": 0.0847
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 163291,
+        "sandbox_runs": 18,
+        "attempts": 1,
+        "estimated_usd": 0.0111
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 582326,
+        "sandbox_runs": 61,
+        "attempts": 6,
+        "estimated_usd": 0.0615
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-6116",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 833240,
+        "sandbox_runs": 76,
+        "attempts": 1,
+        "estimated_usd": 0.1063
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 131267,
+        "sandbox_runs": 10,
+        "attempts": 1,
+        "estimated_usd": 0.0091
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 860595,
+        "sandbox_runs": 124,
+        "attempts": 15,
+        "estimated_usd": 0.1061
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-7168",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1421218,
+        "sandbox_runs": 123,
+        "attempts": 1,
+        "estimated_usd": 0.2055
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 219221,
+        "sandbox_runs": 23,
+        "attempts": 1,
+        "estimated_usd": 0.0179
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1484072,
+        "sandbox_runs": 55,
+        "attempts": 4,
+        "estimated_usd": 0.1481
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-8365",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 933482,
+        "sandbox_runs": 131,
+        "attempts": 1,
+        "estimated_usd": 0.0841
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 94264,
+        "sandbox_runs": 6,
+        "attempts": 1,
+        "estimated_usd": 0.0138
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 963973,
+        "sandbox_runs": 92,
+        "attempts": 10,
+        "estimated_usd": 0.1078
+      }
+    },
+    {
+      "task": "pytest-dev__pytest-9359",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2598527,
+        "sandbox_runs": 61,
+        "attempts": 1,
+        "estimated_usd": 0.2316
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 675607,
+        "sandbox_runs": 11,
+        "attempts": 1,
+        "estimated_usd": 0.059
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2624447,
+        "sandbox_runs": 131,
+        "attempts": 10,
+        "estimated_usd": 0.2479
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-10297",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 606270,
+        "sandbox_runs": 60,
+        "attempts": 1,
+        "estimated_usd": 0.0443
+      },
+      "linear": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 238705,
+        "sandbox_runs": 14,
+        "attempts": 1,
+        "estimated_usd": 0.0234
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 622007,
+        "sandbox_runs": 32,
+        "attempts": 5,
+        "estimated_usd": 0.0834
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-10508",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 725067,
+        "sandbox_runs": 45,
+        "attempts": 1,
+        "estimated_usd": 0.1052
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 26525,
+        "sandbox_runs": 6,
+        "attempts": 1,
+        "estimated_usd": 0.0024
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 757877,
+        "sandbox_runs": 81,
+        "attempts": 9,
+        "estimated_usd": 0.0757
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-11281",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 1107362,
+        "sandbox_runs": 39,
+        "attempts": 1,
+        "estimated_usd": 0.1451
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 639914,
+        "sandbox_runs": 3,
+        "attempts": 1,
+        "estimated_usd": 0.0851
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 1123995,
+        "sandbox_runs": 37,
+        "attempts": 6,
+        "estimated_usd": 0.1264
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13241",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 348423,
+        "sandbox_runs": 74,
+        "attempts": 1,
+        "estimated_usd": 0.0421
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 160216,
+        "sandbox_runs": 15,
+        "attempts": 1,
+        "estimated_usd": 0.0111
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 379456,
+        "sandbox_runs": 43,
+        "attempts": 4,
+        "estimated_usd": 0.0341
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13439",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 341450,
+        "sandbox_runs": 70,
+        "attempts": 1,
+        "estimated_usd": 0.0529
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 76090,
+        "sandbox_runs": 5,
+        "attempts": 1,
+        "estimated_usd": 0.0132
+      },
+      "matched": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 375865,
+        "sandbox_runs": 30,
+        "attempts": 4,
+        "estimated_usd": 0.0374
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13584",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 875336,
+        "sandbox_runs": 66,
+        "attempts": 1,
+        "estimated_usd": 0.1242
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 283393,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.0474
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 920824,
+        "sandbox_runs": 52,
+        "attempts": 6,
+        "estimated_usd": 0.0969
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-13779",
+      "branching": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 583378,
+        "sandbox_runs": 78,
+        "attempts": 1,
+        "estimated_usd": 0.0945
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 87327,
+        "sandbox_runs": 7,
+        "attempts": 1,
+        "estimated_usd": 0.0095
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 595328,
+        "sandbox_runs": 66,
+        "attempts": 9,
+        "estimated_usd": 0.0645
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-14087",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1353729,
+        "sandbox_runs": 84,
+        "attempts": 1,
+        "estimated_usd": 0.2059
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 757046,
+        "sandbox_runs": 14,
+        "attempts": 1,
+        "estimated_usd": 0.069
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1408450,
+        "sandbox_runs": 92,
+        "attempts": 8,
+        "estimated_usd": 0.1387
+      }
+    },
+    {
+      "task": "scikit-learn__scikit-learn-15535",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1808756,
+        "sandbox_runs": 38,
+        "attempts": 1,
+        "estimated_usd": 0.25
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 183189,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0265
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 1689489,
+        "sandbox_runs": 68,
+        "attempts": 8,
+        "estimated_usd": 0.1681
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-10451",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1932144,
+        "sandbox_runs": 69,
+        "attempts": 1,
+        "estimated_usd": 0.2193
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 381020,
+        "sandbox_runs": 11,
+        "attempts": 1,
+        "estimated_usd": 0.0439
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2003075,
+        "sandbox_runs": 57,
+        "attempts": 5,
+        "estimated_usd": 0.1413
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-11445",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 2271945,
+        "sandbox_runs": 86,
+        "attempts": 1,
+        "estimated_usd": 0.2135
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 310536,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.0426
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 1294591,
+        "sandbox_runs": 108,
+        "attempts": 8,
+        "estimated_usd": 0.1362
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-7686",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1045302,
+        "sandbox_runs": 57,
+        "attempts": 1,
+        "estimated_usd": 0.109
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 252132,
+        "sandbox_runs": 3,
+        "attempts": 1,
+        "estimated_usd": 0.0307
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 1055586,
+        "sandbox_runs": 55,
+        "attempts": 6,
+        "estimated_usd": 0.1015
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-7975",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 2150941,
+        "sandbox_runs": 92,
+        "attempts": 1,
+        "estimated_usd": 0.1676
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 574371,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0422
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": true,
+        "tokens": 1821871,
+        "sandbox_runs": 85,
+        "attempts": 10,
+        "estimated_usd": 0.169
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8273",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 981247,
+        "sandbox_runs": 48,
+        "attempts": 1,
+        "estimated_usd": 0.0924
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 356818,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.0503
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 315041,
+        "sandbox_runs": 31,
+        "attempts": 5,
+        "estimated_usd": 0.044
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8506",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 402224,
+        "sandbox_runs": 35,
+        "attempts": 1,
+        "estimated_usd": 0.0684
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 210553,
+        "sandbox_runs": 12,
+        "attempts": 1,
+        "estimated_usd": 0.0175
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 0,
+        "sandbox_runs": 4,
+        "attempts": 4,
+        "estimated_usd": 0.0
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8595",
+      "branching": {
+        "solved": true,
+        "any_candidate": true,
+        "tokens": 136821,
+        "sandbox_runs": 59,
+        "attempts": 1,
+        "estimated_usd": 0.0212
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 28459,
+        "sandbox_runs": 4,
+        "attempts": 1,
+        "estimated_usd": 0.0058
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 0,
+        "sandbox_runs": 4,
+        "attempts": 4,
+        "estimated_usd": 0.0
+      }
+    },
+    {
+      "task": "sphinx-doc__sphinx-8713",
+      "branching": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 0,
+        "sandbox_runs": 1,
+        "attempts": 1,
+        "estimated_usd": 0.0
+      },
+      "linear": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 0,
+        "sandbox_runs": 1,
+        "attempts": 1,
+        "estimated_usd": 0.0
+      },
+      "matched": {
+        "solved": false,
+        "any_candidate": false,
+        "tokens": 0,
+        "sandbox_runs": 4,
+        "attempts": 4,
+        "estimated_usd": 0.0
+      }
+    }
+  ],
+  "benchmark": {
+    "sources": [
+      {
+        "file": "benchmark_tasks.json",
+        "seed": 0,
+        "created": "2026-09-25"
+      },
+      {
+        "file": "benchmark_tasks_ext.json",
+        "seed": 0,
+        "created": "2026-09-26"
+      }
+    ]
+  }
+}

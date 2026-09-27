@@ -141,7 +141,7 @@ function Results({ index, onOpen }: { index: RunIndex; onOpen: (task: string) =>
   return (
     <section className="results" aria-labelledby="results-title">
       <div className="wrap">
-        <p className="nameplate">Benchmark · {index.tasks} held-out SWE-bench Lite tasks · run {index.benchmark.created}</p>
+        <p className="nameplate">Benchmark · {index.tasks} held-out SWE-bench Lite tasks · run {runDates(index.benchmark)}</p>
         <h2 id="results-title">
           Branching fixed {totals.branching.solved} of {index.tasks} bugs. Independent attempts with the same token
           budget fixed {totals.matched.solved}.
@@ -185,9 +185,15 @@ function Results({ index, onOpen }: { index: RunIndex; onOpen: (task: string) =>
             <p>
               Branching solved {cmp.branching_vs_matched.only_branching} tasks the matched attempts missed; they
               solved {cmp.branching_vs_matched.only_matched} that branching missed (exact McNemar p ={" "}
-              {cmp.branching_vs_matched.mcnemar_p.toFixed(2)}). Against one attempt: {cmp.branching_vs_linear.only_branching}{" "}
-              to {cmp.branching_vs_linear.only_linear} (p = {cmp.branching_vs_linear.mcnemar_p.toFixed(2)}).{" "}
-              <strong>Consistent in direction, not statistically significant at {index.tasks} tasks.</strong>
+              {fmtP(cmp.branching_vs_matched.mcnemar_p)}). Against one attempt: {cmp.branching_vs_linear.only_branching}{" "}
+              to {cmp.branching_vs_linear.only_linear} (p = {fmtP(cmp.branching_vs_linear.mcnemar_p)}).{" "}
+              <strong>
+                Against one attempt, branching's win is{" "}
+                {significant(cmp.branching_vs_linear.mcnemar_p) ? "statistically significant" : "not statistically significant"}.
+                At equal compute the direction is the same but{" "}
+                {significant(cmp.branching_vs_matched.mcnemar_p) ? "also significant" : "not yet significant"} at{" "}
+                {index.tasks} tasks.
+              </strong>
             </p>
           </div>
           <div>
@@ -284,6 +290,22 @@ function ForkFindings({ index, onOpen }: { index: RunIndex; onOpen: (task: strin
 
 function usd(value: number | null | undefined): string {
   return value == null ? "n/a" : `$${value.toFixed(2)}`;
+}
+
+function fmtP(p: number): string {
+  return p < 0.001 ? "< 0.001" : p.toFixed(3);
+}
+
+function significant(p: number): boolean {
+  return p < 0.05;
+}
+
+function runDates(benchmark: RunIndex["benchmark"]): string {
+  if ("sources" in benchmark) {
+    const dates = [...new Set(benchmark.sources.map((s) => s.created))].sort();
+    return dates.length > 1 ? `${dates[0]} to ${dates[dates.length - 1]}` : dates[0];
+  }
+  return benchmark.created;
 }
 
 function Outcome({ solved }: { solved: boolean }) {
@@ -519,9 +541,9 @@ function Method() {
           </li>
         </ol>
         <p className="method-note">
-          Tasks come from SWE-bench Lite. Of 104 held-out pytest-based tasks, 79 grade correctly in this harness;
-          40 were drawn from those with a fixed seed, proportionally by repository. django and sympy use other
-          test runners and are out of scope.
+          Tasks come from SWE-bench Lite. Of 104 held-out pytest-based tasks, all 79 that grade correctly in this
+          harness are covered here: the first 40, drawn with a fixed seed proportionally by repository, then the
+          remaining 39. django and sympy use other test runners and are out of scope.
         </p>
       </div>
     </section>

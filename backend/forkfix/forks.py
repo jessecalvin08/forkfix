@@ -12,10 +12,12 @@ without forking, so for each task branching solved we record whether that path p
 It is only an approximation of one attempt: model calls are not perfectly deterministic.
 
     .\\.venv\\Scripts\\python.exe -m forkfix.forks
+    .\\.venv\\Scripts\\python.exe -m forkfix.forks --tasks-file benchmark_tasks.json benchmark_tasks_ext.json --out ..\\results\\forks_all.json
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -94,22 +96,32 @@ def summarise(records: dict[str, dict], tasks: list[str]) -> dict:
     }
 
 
-def main() -> None:
-    benchmark = json.loads(BENCHMARK_FILE.read_text(encoding="utf-8"))
-    tasks = benchmark["tasks"]
-    records = latest_reports(REPORTS / "day2", tasks, BENCHMARK_FILE.stat().st_mtime)
+def main(args: argparse.Namespace) -> None:
+    tasks_files = [Path(p) for p in args.tasks_file] if args.tasks_file else [BENCHMARK_FILE]
+    out = Path(args.out) if args.out else RESULTS
+    tasks, records = [], {}
+    for tasks_file in tasks_files:
+        benchmark = json.loads(tasks_file.read_text(encoding="utf-8"))
+        if len(set(benchmark["tasks"])) != len(benchmark["tasks"]) or set(tasks) & set(benchmark["tasks"]):
+            raise SystemExit("task lists must contain unique, non-overlapping tasks")
+        records.update(latest_reports(REPORTS / "day2", benchmark["tasks"], tasks_file.stat().st_mtime))
+        tasks.extend(benchmark["tasks"])
     invalid = build(records, tasks)["invalid"]
     if invalid:
         raise SystemExit(f"refusing to analyse with invalid tasks: {invalid}")
     result = summarise(records, tasks)
-    RESULTS.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in result.items() if k != "per_task"}, indent=2))
     for task, r in result["per_task"].items():
         if r["branching_solved"]:
             print(f"{task}: forks {r['forks']}, decisive {len(r['decisive_forks'])}, "
                   f"own path {r['own_path_leaf']} passed={r['own_path_passed']}, one attempt solved={r['linear_solved']}")
-    print(f"wrote {RESULTS}")
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tasks-file", nargs="+", help="one or more non-overlapping task lists (default: benchmark_tasks.json)")
+    parser.add_argument("--out", help="where to write (default: results/forks.json)")
+    main(parser.parse_args())
