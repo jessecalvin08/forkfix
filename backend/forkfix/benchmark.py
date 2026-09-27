@@ -7,6 +7,10 @@ the eligible pool (at least one each), with a fixed seed, so the list can be reg
 nobody picked tasks by hand.
 
     .\\.venv\\Scripts\\python.exe -m forkfix.benchmark --size 40 --seed 0
+    .\\.venv\\Scripts\\python.exe -m forkfix.benchmark --rest
+
+--rest writes benchmark_tasks_ext.json instead: every eligible task the first list did not take,
+so an extension adds tasks without anyone choosing which.
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from pathlib import Path
 from .config import REPORTS
 
 OUTPUT = Path(__file__).resolve().parents[1] / "benchmark_tasks.json"
+EXTENSION = OUTPUT.with_name("benchmark_tasks_ext.json")
 
 
 def repo_of(instance_id: str) -> str:
@@ -76,17 +81,27 @@ def select(pool: list[str], size: int, seed: int) -> list[str]:
     return chosen
 
 
+def rest(pool: list[str], taken: list[str]) -> list[str]:
+    chosen = set(taken)
+    return sorted(task for task in pool if task not in chosen)
+
+
 def main(args: argparse.Namespace) -> None:
     validations = latest_validations(REPORTS / "validation")
     pool = eligible(validations, args.max_grading_seconds)
-    tasks = select(pool, args.size, args.seed)
-    OUTPUT.write_text(json.dumps({
+    if args.rest:
+        tasks, output = rest(pool, json.loads(OUTPUT.read_text(encoding="utf-8"))["tasks"]), EXTENSION
+        sampling = f"every eligible task not in {OUTPUT.name}"
+    else:
+        tasks, output = select(pool, args.size, args.seed), OUTPUT
+        sampling = "proportional by repository, at least one each, fixed seed"
+    output.write_text(json.dumps({
         "created": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "criteria": {
             "source": "SWE-bench Lite, pytest-based repositories, excluding the 5 development tasks",
             "harness_validated": "unfixed repository fails the hidden tests; reference fix passes them",
             "max_grading_seconds": args.max_grading_seconds,
-            "sampling": "proportional by repository, at least one each, fixed seed",
+            "sampling": sampling,
         },
         "seed": args.seed,
         "validated": len(validations),
@@ -97,7 +112,7 @@ def main(args: argparse.Namespace) -> None:
     for task in tasks:
         counts[repo_of(task)] += 1
     print(f"{len(validations)} validated, {len(pool)} eligible, {len(tasks)} chosen: {dict(counts)}")
-    print(f"wrote {OUTPUT}")
+    print(f"wrote {output}")
 
 
 if __name__ == "__main__":
@@ -105,4 +120,5 @@ if __name__ == "__main__":
     parser.add_argument("--size", type=int, default=40)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--max-grading-seconds", type=float, default=300)
+    parser.add_argument("--rest", action="store_true", help=f"write every eligible task not in {OUTPUT.name}")
     main(parser.parse_args())

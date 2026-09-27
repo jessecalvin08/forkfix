@@ -100,6 +100,32 @@ python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt
 Runs that spend credits require `--approve` and stop at `--max-tokens`. Evidence goes to the
 git-ignored `backend/reports/`.
 
+
+## Benchmark extension (prepared, not run)
+
+`backend/benchmark_tasks_ext.json` contains exactly the other 39 of the 79 harness-eligible tasks,
+with no overlap with the original 40. Run the one-attempt, branching, and matched modes on these tasks to extend the three-way comparison.
+Saved 40-task reports project roughly 82M tokens, 5,200 sandbox runs, and $9.40 in model charges
+for all three modes across 39 tasks; actual difficulty and cost may differ. More tasks may strengthen
+or weaken the result; significance is not promised. Run only after confirming promotional credit
+coverage and approving the paid run. The original 40-task result remains the published evidence until new runs finish.
+
+Free reporting commands from `backend/`, after the extension completes:
+
+```powershell
+.\.venv\Scripts\python.exe -m forkfix.report --tasks-file benchmark_tasks_ext.json --modes linear,branching,matched --out ..\results\benchmark_ext.json
+.\.venv\Scripts\python.exe -m forkfix.report --tasks-file benchmark_tasks.json benchmark_tasks_ext.json --modes linear,branching,matched --out ..\results\benchmark_all.json
+```
+
+The combined report requires both compared modes on every included task, lists missing/failed tasks,
+rejects duplicate task lists, and keeps each cohort's report cutoff. It includes all three modes only when each task has a valid report for every required mode.
+
+Before buying credits, check the [official hackathon resources](https://nebiusglobalaihackathon.devpost.com/resources):
+they advertise $25 Token Factory credits with the hackathon activation code, plus another $25 through
+the free [Nebius Builders Program](https://dev.nebius.com/builders) (checked September 27, 2026).
+Redemption eligibility and whether either offer was already claimed must be checked in the account.
+The saved-run viewer and offline development need no model credits.
+
 ## History
 
 This repository previously held RuleBranch, a permission-policy checker for coding agents. It is
