@@ -1,5 +1,9 @@
 # Devpost draft: Forkfix
 
+## Track
+
+Coding & Agentic Engineering.
+
 ## Project name
 
 Forkfix: Give Small Coding Agents More Than One Shot
@@ -76,7 +80,7 @@ also a real limitation: on several tasks a correct candidate existed but was not
 ## Links to fill before submission
 
 - Public repository: https://github.com/jessecalvin08/forkfix (renamed from `rulebranch` on
-  September 28, 2026; GitHub redirects the old URL).
+  September 27, 2026, 15:05 Pacific Time; GitHub redirects the old URL).
 - Working demo: the run viewer is now on `main`, so it will deploy to the existing Vercel site once
   Vercel rebuilds. The URL is still `rulebranch.vercel.app` unless the Vercel project itself is
   renamed (a separate step, not done here).

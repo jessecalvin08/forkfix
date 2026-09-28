@@ -139,9 +139,12 @@ The saved-run viewer and offline development need no model credits.
 ## History
 
 This repository previously held RuleBranch, a permission-policy checker for coding agents, and was
-itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 28, 2026.
-RuleBranch is preserved on the local `archive/rulebranch` branch and in the git history before the
-switch to Forkfix.
+itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 27, 2026 (commit
+`f733fd8`, 15:05 Pacific Time). All dates in this repository's docs are given in Pacific Time, the
+hackathon's own reference timezone; the commit itself carries the author's local timestamp
+(September 28, IST), which is one calendar day later than the Pacific-Time date because IST is
+UTC+5:30 and PDT is UTC-7. RuleBranch is preserved on the local `archive/rulebranch` branch and in
+the git history before the switch to Forkfix.
 
 ## License
 

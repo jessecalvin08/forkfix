@@ -13,11 +13,15 @@ September 25-27: branching beats one attempt significantly, p = 0.003; beats mat
 directionally, p = 0.092, short of the 0.05 threshold).
 
 The repository was RuleBranch (a permission-policy checker for coding agents) until September 25,
-2026, and was itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 28,
-2026, when `main` was pushed with the Forkfix content, replacing RuleBranch on the public Vercel
-site. RuleBranch is preserved on the local `archive/rulebranch` branch and in the git history before
-the switch. The Vercel project's own name and domain (as of the rename, still `rulebranch.vercel.app`)
-are not changed by a GitHub rename; only Jesse can rename the Vercel project itself.
+2026, and was itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 27,
+2026, 15:05 Pacific Time (commit `f733fd8`), when `main` was pushed with the Forkfix content,
+replacing RuleBranch on the public Vercel site. All dates in this repository's docs are given in
+Pacific Time, the hackathon's own reference timezone (see the deadline above); the rename commit
+carries the author's local timestamp of September 28, which is IST, one calendar day ahead of the
+Pacific-Time date. RuleBranch is preserved on the local `archive/rulebranch` branch and in the git
+history before the switch. The Vercel project's own name and domain (as of the rename, still
+`rulebranch.vercel.app`) are not changed by a GitHub rename; only Jesse can rename the Vercel project
+itself.
 
 ## Commands (Windows; `backend/.venv` exists)
 
