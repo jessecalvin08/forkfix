@@ -86,10 +86,9 @@ def setup_script(ref: IssueRef, commit: str = "") -> str:
     if commit and not COMMIT.match(commit):
         raise RepoError("The commit must be a hex sha.")
     checkout = f"git checkout -q {shlex.quote(commit)}" if commit else "true"
-    installs = [
-        "pip install -q -e '.[test]'", "pip install -q -e '.[tests]'", "pip install -q -e '.[dev]'",
-        "pip install -q -e .",
-    ]
+    # pip exits 0 for an extra a project does not define, so trying extras one by one would stop at the
+    # first name: ask for all the usual ones at once (pip installs those that exist and warns about the rest).
+    installs = ["pip install -q -e '.[test,tests,testing,dev]'", "pip install -q -e ."]
     tried = " || ".join(f"({cmd} && echo 'installed with: {cmd}')" for cmd in installs)
     groups = "for g in tests test dev; do pip install -q --group $g 2>/dev/null || true; done"  # PEP 735
     extras = ("for f in requirements-test.txt requirements-dev.txt test-requirements.txt requirements/test.txt; "
@@ -137,7 +136,7 @@ def parse_setup(output: str) -> SetupResult:
     if OK not in output:
         return SetupResult(False, message="setup did not finish (timeout or crash)")
     commit = re.search(r"^commit: ([0-9a-f]{40})", output, flags=re.MULTILINE)
-    count = re.search(r"^collected: (\d+)(?:/\d+)? tests?", output, flags=re.MULTILINE)
+    count = re.search(r"^collected: \D*(\d+)(?:/\d+)? tests? collected", output, flags=re.MULTILINE)
     collected = int(count.group(1)) if count else 0
     if not collected:
         # An installed project whose tests cannot be collected gives the verifier nothing to check.
