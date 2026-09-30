@@ -96,6 +96,8 @@ From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + 
 ## Constraints to respect
 
 - Never read, print, or commit `backend/.env`. Only `.env.example` is tracked.
+- Jesse's standing rule (2026-09-30): do not spend Nebius Token Factory credit; find another way (fakes, saved-report replays,
+  sandbox-only checks) and only surface a live model run as a last resort, for Jesse to decide.
 - Paid runs (anything with `--approve`, any probe in `feasibility/` except `check_access`) need Jesse's
   explicit go-ahead. Credit is currently very low (trial only); see memory.
 - Hidden tests must never reach the agent or the judge; they are used only to grade.

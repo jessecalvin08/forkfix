@@ -103,3 +103,28 @@ def test_an_edit_that_breaks_python_syntax_is_rejected_without_a_sandbox_run():
 def test_non_python_files_are_not_syntax_checked():
     after, observation = run(execute(Action(tool="create", path="notes.txt", content="def ("), workspace(), Meter()))
     assert observation.startswith("Created")
+
+
+# --- real-issue (strict) mode ---
+
+def test_strict_mode_refuses_package_installs_but_benchmark_mode_allows_them():
+    install = Action(tool="bash", command="pip install jsonpickle && python -m pip install -U x")
+    allowed_ws, refused_ws = workspace(bash=lambda cmd, fs: (0, "installed")), workspace(bash=lambda cmd, fs: (0, "installed"))
+    _, allowed = run(execute(install, allowed_ws, Meter()))
+    assert "installed" in allowed
+    meter = Meter()
+    _, refused = run(execute(install, refused_ws, meter, strict=True))
+    assert "installing packages is not allowed" in refused and meter.spawns == 0  # refused before any sandbox run
+    # Reading or running things that merely mention pip is still fine.
+    _, fine = run(execute(Action(tool="bash", command="pip list | grep click"), workspace(bash=lambda c, f: (0, "click 8")), Meter(), strict=True))
+    assert "click 8" in fine
+
+
+def test_repro_first_tasks_get_the_repro_prompt_and_strict_mode():
+    from forkfix.agent import SYSTEM_PROMPT, Trajectory
+    from fakes import make_task
+    real = Trajectory.start(make_task(repro_first=True), workspace())
+    plain = Trajectory.start(make_task(), workspace())
+    assert real.strict and "forkfix_repro_test.py" in real.messages[0]["content"]
+    assert "installing packages is refused" in real.messages[0]["content"]
+    assert not plain.strict and plain.messages[0]["content"] == SYSTEM_PROMPT  # benchmark prompt unchanged

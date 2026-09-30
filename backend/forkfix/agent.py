@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import posixpath
+import re
 from dataclasses import dataclass, field, replace
 from typing import Any, Literal, Protocol
 
@@ -68,9 +69,15 @@ REPRO_SYSTEM_PROMPT = SYSTEM_PROMPT.replace(
     "Work like this: find the relevant code, reproduce the bug with a small script, make",
     "Work like this: find the relevant code, then FIRST create the file forkfix_repro_test.py: a small pytest\n"
     "test that fails on the current code because of the bug in the issue (run it with `pytest forkfix_repro_test.py`\n"
-    "and confirm it fails for the right reason). Then make",
+    "and confirm it fails for the right reason). The test may import only the project and packages that are already\n"
+    "installed: installing packages is refused, and a test that needs one cannot be checked. Use grep -n to find code\n"
+    "and view at most about 100 lines at a time: the step budget is limited. Then make",
 ).replace("re-run your script to confirm, then submit.",
           "re-run forkfix_repro_test.py until it passes, then submit. Keep that file in place: it is the proof of your fix.")
+
+INSTALL_COMMAND = re.compile(r"\b(?:pip3?|uv\s+pip|conda|apt(?:-get)?)\s+install\b|\bpython3?\s+-m\s+pip\s+install\b")
+INSTALL_REFUSED = ("Error: installing packages is not allowed. Use only the project and the packages already "
+                   "installed; write the test with the standard library (for example a small custom class).")
 
 
 class Action(BaseModel):
@@ -190,10 +197,11 @@ class Trajectory:
     check: Any = None  # a verify.Check once the patch has been run against existing tests
     repro: Any = None  # a verify.ReproCheck once the reproduction test has been run on base and on this branch
     activate: str = ACTIVATE
+    strict: bool = False  # real-issue mode: no package installs, near-identical edit targets accepted
 
     @classmethod
     def start(cls, task: Task, workspace: Workspace, id: str = "0") -> Trajectory:
-        return cls(id=id, workspace=workspace, activate=task.activate, messages=[
+        return cls(id=id, workspace=workspace, activate=task.activate, strict=task.repro_first, messages=[
             {"role": "system", "content": REPRO_SYSTEM_PROMPT if task.repro_first else SYSTEM_PROMPT},
             {"role": "user", "content": f"<issue>\n{task.problem_statement}\n</issue>"},
         ])
@@ -246,11 +254,15 @@ def _q(value: str) -> str:
 
 
 async def execute(action: Action, workspace: Workspace, meter: Meter,
-                  activate: str = ACTIVATE) -> tuple[Workspace, str]:
+                  activate: str = ACTIVATE, strict: bool = False) -> tuple[Workspace, str]:
     """Run one action; returns the (possibly new) workspace and the observation text."""
     if action.tool == "bash":
         if not action.command.strip():
             return workspace, "Error: empty command."
+        if strict and INSTALL_COMMAND.search(action.command):
+            # An install only exists in this branch's snapshot, so a test relying on it cannot be
+            # re-run on the clean base repository and would prove nothing.
+            return workspace, INSTALL_REFUSED
         new, result = await workspace.run(f"{activate} && ({action.command}) 2>&1", meter=meter, timeout=BASH_TIMEOUT)
         return new, _clip(f"[exit code {result.exit_code}]\n{result.output}")
 
@@ -283,7 +295,8 @@ async def execute(action: Action, workspace: Workspace, meter: Meter,
         return workspace, _clip(f"{target} ({len(lines)} lines)\n{body}")
 
     # edit
-    outcome = apply_edit(text, action.old_str, action.new_str, parses=lambda source: not _syntax_error(target, source))
+    outcome = apply_edit(text, action.old_str, action.new_str, parses=lambda source: not _syntax_error(target, source),
+                          fuzzy=strict)
     if outcome.text is None:
         return workspace, f"Error: edit not applied; {outcome.message}"
     if problem := _syntax_error(target, outcome.text):
@@ -296,7 +309,7 @@ async def apply(trajectory: Trajectory, action: Action, meter: Meter) -> Traject
     """Execute an action on a trajectory in place and record it."""
     trajectory.steps += 1
     try:
-        workspace, observation = await execute(action, trajectory.workspace, meter, trajectory.activate)
+        workspace, observation = await execute(action, trajectory.workspace, meter, trajectory.activate, trajectory.strict)
     except (BudgetExceeded, InfraError):
         raise
     except Exception as error:  # noqa: BLE001 - a sandbox fault is shown to the agent, not fatal

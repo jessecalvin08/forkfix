@@ -39,3 +39,14 @@ def test_the_judge_never_sees_the_hidden_tests():
     asyncio.run(TokenFactoryJudge(client, "judge").score(task, trajectory(), Meter()))
     sent = str(completions.kwargs[0]["messages"])
     assert "test_secret_hidden" not in sent and "tests/test_calc.py::test_add" not in sent
+
+
+def test_a_fix_its_own_reproduction_test_does_not_prove_is_capped():
+    from forkfix.judge import UNPROVEN_CAP, cap_by_repro
+    from forkfix.verify import ReproCheck
+    t = trajectory()
+    assert cap_by_repro(10.0, t) == 10.0  # no reproduction test in play (benchmark tasks): untouched
+    t.repro = ReproCheck(present=True, fails_on_base=False, passes_now=True)
+    assert cap_by_repro(10.0, t) == UNPROVEN_CAP and cap_by_repro(2.0, t) == 2.0
+    t.repro = ReproCheck(present=True, fails_on_base=True, passes_now=True)
+    assert cap_by_repro(10.0, t) == 10.0  # proven

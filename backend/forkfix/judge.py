@@ -34,6 +34,16 @@ REPRO_NOTE = (" A reproduction test result is included: one that fails before th
               " evidence the bug is fixed; one that still fails means it is not fixed (score 3 or lower).")
 
 
+UNPROVEN_CAP = 4.0
+
+
+def cap_by_repro(score: float, trajectory: Trajectory) -> float:
+    """A fix whose own reproduction test does not prove it is capped: judges gave 10/10 to such patches."""
+    if trajectory.repro is not None and not trajectory.repro.ok:
+        return min(score, UNPROVEN_CAP)
+    return score
+
+
 class Verdict(BaseModel):
     reason: str
     score: int
@@ -64,7 +74,7 @@ class TokenFactoryJudge:
         for extra in ({}, {"extra_body": THINKING_OFF}):
             verdict = await self._ask(messages, extra, meter)
             if verdict is not None:
-                return float(min(max(verdict.score, 0), 10))
+                return cap_by_repro(float(min(max(verdict.score, 0), 10)), trajectory)
         return 0.0
 
     async def _ask(self, messages: list[dict], extra: dict, meter: Meter) -> Verdict | None:

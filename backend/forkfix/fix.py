@@ -96,7 +96,7 @@ if __name__ == "__main__":
     parser.add_argument("--commit", default="", help="hex sha to pin; default is the head of the default branch")
     parser.add_argument("--width", type=int, default=4)
     parser.add_argument("--branch", type=int, default=3)
-    parser.add_argument("--max-steps", type=int, default=30)
+    parser.add_argument("--max-steps", type=int, default=50, help="real issues need more than SWE-bench's 30")
     parser.add_argument("--max-tokens", type=int, default=5_000_000, help="hard cap for this issue")
     parser.add_argument("--max-spawns", type=int, default=600)
     parser.add_argument("--setup-only", action="store_true", help="build the environment, run no model")

@@ -68,23 +68,44 @@ def _numbered(lines: list[str], first: int) -> str:
     return "\n".join(f"{n:6d}  {line}" for n, line in enumerate(lines, start=first))
 
 
+def _best_windows(file_lines: list[str], old_lines: list[str]) -> tuple[int, float, float]:
+    """(index, ratio) of the file window most like old_lines, plus the runner-up's ratio."""
+    width = len(old_lines)
+    target = "\n".join(line.strip() for line in old_lines)
+    best, best_ratio, second = 0, -1.0, -1.0
+    for i in range(max(1, len(file_lines) - width + 1)):
+        matcher = difflib.SequenceMatcher(None, "\n".join(line.strip() for line in file_lines[i:i + width]), target)
+        if matcher.quick_ratio() <= second:
+            continue
+        ratio = matcher.ratio()
+        if ratio > best_ratio:
+            best, best_ratio, second = i, ratio, best_ratio
+        elif ratio > second:
+            second = ratio
+    return best, best_ratio, second
+
+
 def closest_region(text: str, old: str) -> str:
     """The file lines most similar to old_str, numbered, to help the model retry."""
     file_lines, old_lines = text.split("\n"), _trim_blank_edges(old.split("\n"))
     if not old_lines or not file_lines:
         return ""
-    width = len(old_lines)
-    target = "\n".join(line.strip() for line in old_lines)
-    best, best_ratio = 0, -1.0
-    for i in range(max(1, len(file_lines) - width + 1)):
-        matcher = difflib.SequenceMatcher(None, "\n".join(line.strip() for line in file_lines[i:i + width]), target)
-        if matcher.quick_ratio() > best_ratio and (ratio := matcher.ratio()) > best_ratio:
-            best, best_ratio = i, ratio
-    return _numbered(file_lines[best:best + width], best + 1)
+    best, _, _ = _best_windows(file_lines, old_lines)
+    return _numbered(file_lines[best:best + len(old_lines)], best + 1)
 
 
-def apply_edit(text: str, old: str, new: str, parses=lambda source: True) -> EditOutcome:
-    """Replace old with new in text. ``parses`` rejects results that do not compile."""
+# A near-identical region is a typo, not a different target. Used only when a caller opts in.
+FUZZY_MATCH = 0.9
+FUZZY_MARGIN = 0.8  # the runner-up must be clearly worse, so the target is unambiguous
+
+
+def apply_edit(text: str, old: str, new: str, parses=lambda source: True, fuzzy: bool = False) -> EditOutcome:
+    """Replace old with new in text. ``parses`` rejects results that do not compile.
+
+    ``fuzzy`` also accepts one region that matches old_str almost exactly (a mistyped comment
+    or token) when no other region comes close; real-issue runs measured about 15% of actions
+    lost to such misses.
+    """
     if not old.strip():
         return EditOutcome(None, "old_str is empty.")
     old, new = _strip_view_numbers(old), _strip_view_numbers(new)
@@ -123,5 +144,14 @@ def apply_edit(text: str, old: str, new: str, parses=lambda source: True) -> Edi
         where = ", ".join(str(i + 1) for i in matches[:8])
         return EditOutcome(None, f"old_str matches {len(matches)} places when whitespace is ignored "
                                  f"(lines {where}); include more surrounding lines.")
+    if fuzzy and old_lines:
+        i, ratio, runner_up = _best_windows(file_lines, old_lines)
+        if ratio >= FUZZY_MATCH and runner_up < FUZZY_MARGIN:
+            width = len(old_lines)
+            file_base = _indent(_first_code_line(file_lines[i:i + width]))
+            new_lines = _reindent(_trim_blank_edges(new.split("\n")), _indent(_first_code_line(old_lines)), file_base)
+            updated = "\n".join(file_lines[:i] + new_lines + file_lines[i + width:])
+            return EditOutcome(updated, f"old_str was not exact; it was applied to the near-identical lines "
+                                        f"{i + 1}-{i + width}. Check the result with view.")
     hint = closest_region(text, old)
     return EditOutcome(None, "old_str matches 0 times." + (f" The closest text is:\n{hint}" if hint else ""))

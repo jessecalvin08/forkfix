@@ -60,3 +60,23 @@ def test_a_miss_reports_the_closest_numbered_lines():
 
 def test_empty_old_str_is_refused():
     assert apply_edit(SOURCE, "  \n", "x", parses).text is None
+
+
+# --- fuzzy mode (real-issue runs only) ---
+
+CODE = "def load(payload):\n    try:\n        return loads(payload)  # type: ignore[arg-type]\n    except Exception:\n        raise\n"
+
+
+def test_fuzzy_mode_applies_a_near_identical_single_region_and_default_mode_does_not():
+    old = "        return loads(payload)  # type: ignore[arg]"  # a mistyped trailing comment
+    new = "        return loads(payload, **kwargs)  # type: ignore[arg-type]"
+    assert apply_edit(CODE, old, new).text is None  # benchmark behaviour is unchanged
+    fuzzy = apply_edit(CODE, old, new, fuzzy=True)
+    assert fuzzy.text is not None and "loads(payload, **kwargs)" in fuzzy.text and "near-identical lines 3-3" in fuzzy.message
+    assert fuzzy.text.count("def load") == 1 and "except Exception" in fuzzy.text
+
+
+def test_fuzzy_mode_refuses_unrelated_or_ambiguous_targets():
+    assert apply_edit(CODE, "def something_else():\n    pass", "x", fuzzy=True).text is None
+    twin = CODE + "\n" + CODE.replace("def load", "def load2")  # two near-identical regions: ambiguous
+    assert apply_edit(twin, "        return loads(payload)  # type: ignore[arg]", "y", fuzzy=True).text is None
