@@ -91,6 +91,7 @@ def setup_script(ref: IssueRef, commit: str = "") -> str:
         "pip install -q -e .",
     ]
     tried = " || ".join(f"({cmd} && echo 'installed with: {cmd}')" for cmd in installs)
+    groups = "for g in tests test dev; do pip install -q --group $g 2>/dev/null || true; done"  # PEP 735
     extras = ("for f in requirements-test.txt requirements-dev.txt test-requirements.txt requirements/test.txt; "
               "do [ -f \"$f\" ] && pip install -q -r \"$f\" || true; done")
     return "\n".join([
@@ -104,8 +105,11 @@ def setup_script(ref: IssueRef, commit: str = "") -> str:
         f"{checkout} || fail 'checkout'",
         "git config --global --add safe.directory /testbed",
         f"{tried} || fail 'install'",
+        groups,
         extras,
-        "COLLECTED=$(pytest --collect-only -q 2>/dev/null | tail -1)",
+        "pytest --collect-only -q > /tmp/forkfix_collect.log 2>&1",
+        "COLLECTED=$(tail -1 /tmp/forkfix_collect.log)",
+        "echo \"collect_tail: $(tail -3 /tmp/forkfix_collect.log | tr '\n' '|')\"",
         "echo \"commit: $(git rev-parse HEAD)\"",
         "echo \"collected: $COLLECTED\"",
         f"echo {OK}",
@@ -133,11 +137,13 @@ def parse_setup(output: str) -> SetupResult:
     if OK not in output:
         return SetupResult(False, message="setup did not finish (timeout or crash)")
     commit = re.search(r"^commit: ([0-9a-f]{40})", output, flags=re.MULTILINE)
-    count = re.search(r"^collected: (\d+) tests?", output, flags=re.MULTILINE)
+    count = re.search(r"^collected: (\d+)(?:/\d+)? tests?", output, flags=re.MULTILINE)
     collected = int(count.group(1)) if count else 0
     if not collected:
         # An installed project whose tests cannot be collected gives the verifier nothing to check.
-        return SetupResult(False, commit.group(1) if commit else "", 0, "pytest collected no tests")
+        tail = re.search(r"^collect_tail: (.*)", output, flags=re.MULTILINE)
+        detail = f" (pytest said: {tail.group(1).strip()[:300]})" if tail else ""
+        return SetupResult(False, commit.group(1) if commit else "", 0, "pytest collected no tests" + detail)
     return SetupResult(True, commit.group(1) if commit else "", collected)
 
 

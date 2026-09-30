@@ -36,6 +36,9 @@ def test_setup_output_is_read_from_its_markers():
     good = f"installed with: pip install -q -e .\ncommit: {'a' * 40}\ncollected: 412 tests collected in 1.2s\n{OK}\n"
     assert parse_setup(good) == SetupResult(True, "a" * 40, 412)
     assert parse_setup(f"{FAILED}: clone\n") == SetupResult(False, message="clone")
+    # Marker-deselected suites print "N/TOTAL tests collected (M deselected)": N is what will run.
+    assert parse_setup(f"commit: {'a' * 40}\ncollected: 2266/33266 tests collected (31000 deselected) in 1s\n{OK}\n").collected == 2266
+    assert "pip install -q --group" in setup_script(REF)  # test deps declared as PEP 735 dependency groups
     assert not parse_setup("killed").ok  # no marker: a timeout or crash
     empty = parse_setup(f"commit: {'b' * 40}\ncollected: no tests ran in 0.1s\n{OK}\n")
     assert not empty.ok and "collected no tests" in empty.message
