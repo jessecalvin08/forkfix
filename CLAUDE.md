@@ -31,6 +31,8 @@ From `backend/`:
 .\.venv\Scripts\python.exe -m forkfix.run_day2 --approve                  # paid: models + sandbox
 .\.venv\Scripts\python.exe -m forkfix.run_day2 --ids-file benchmark_tasks.json --parallel --approve  # the benchmark
 .\.venv\Scripts\python.exe -m forkfix.benchmark --size 40 --seed 0      # re-derive the benchmark list
+.\.venv\Scripts\python.exe -m forkfix.fix <issue-url> --issue-file issue.json   # dry run on a real issue, spends nothing
+.\.venv\Scripts\python.exe -m forkfix.fix <issue-url> --setup-only --approve   # paid: sandbox only, builds the repo env
 .\.venv\Scripts\python.exe -m feasibility.check_access                    # free: token limits, models
 .\.venv\Scripts\python.exe -m forkfix.report                             # free: results/benchmark.json
 .\.venv\Scripts\python.exe -m forkfix.viewer_data                        # free: frontend/public/runs/
@@ -78,6 +80,10 @@ From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + 
   `swebench/sweb.eval.x86_64.<id lower, "__" -> "_1776_">:latest`; grading resets test files, applies
   the hidden test patch, runs `pytest -rA`, returns only summary lines. django/sympy are excluded
   (different test runners).
+- `forkfix/repo.py` + `forkfix/fix.py` (real-issue mode, Oct 2026, not yet run live): `setup_script` clones a public repo
+  into a `python:3.11` sandbox with a venv at `/opt/venv`; `real_task` has no hidden tests and `repro_first=True`, so the
+  agent must write `/testbed/forkfix_repro_test.py` first. `Verifier.check_repro` runs it on the base repo (must exit 1)
+  and on each branch (must exit 0); a proven fix outranks judge score in `Search._rank`. SWE-bench prompts are unchanged.
 - `tests/fakes.py`: `FakeWorkspace`, `FakeAgent`, `FakeJudge` for fully offline tests.
 - `forkfix/report.py` aggregates the newest report per benchmark task (written after
   `benchmark_tasks.json`) into tracked `results/benchmark.json`, with McNemar p-values and a list-price

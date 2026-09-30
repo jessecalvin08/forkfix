@@ -29,6 +29,10 @@ rewrites, and changes unrelated to the issue. If the existing tests are BROKEN (
 run, or most now fail), score 2 or lower. If only a few existing tests now fail, decide whether
 the issue asks to change the behaviour they check: if it does, that is expected, not a defect. Reply with JSON: a short reason, then the integer score."""
 
+# Added only for tasks where the agent writes its own reproduction test, so the benchmark prompt is unchanged.
+REPRO_NOTE = (" A reproduction test result is included: one that fails before the fix and passes after it is strong"
+              " evidence the bug is fixed; one that still fails means it is not fixed (score 3 or lower).")
+
 
 class Verdict(BaseModel):
     reason: str
@@ -52,7 +56,10 @@ class TokenFactoryJudge:
         )
         if trajectory.check is not None:
             user += f"\n<existing_tests>\n{trajectory.check.summary()}\n</existing_tests>"
-        messages = [{"role": "system", "content": JUDGE_PROMPT}, {"role": "user", "content": user}]
+        if trajectory.repro is not None:
+            user += f"\n<reproduction_test>\n{trajectory.repro.summary()}\n</reproduction_test>"
+        system = JUDGE_PROMPT + (REPRO_NOTE if trajectory.repro is not None else "")
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
         # Thinking first; if it runs away, one retry without it. A judge failure scores 0.
         for extra in ({}, {"extra_body": THINKING_OFF}):
             verdict = await self._ask(messages, extra, meter)

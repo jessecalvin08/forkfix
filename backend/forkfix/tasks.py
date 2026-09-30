@@ -43,6 +43,10 @@ class Task:
     test_patch: str
     fail_to_pass: tuple[str, ...]
     pass_to_pass: tuple[str, ...]
+    # Real-repository tasks (repo.py) override these; SWE-bench tasks keep the defaults.
+    activate: str = ACTIVATE
+    image_ref: str = ""  # a ready snapshot image name, when not derived from the instance id
+    repro_first: bool = False  # the agent writes a failing reproduction test before fixing
 
     @classmethod
     def from_row(cls, row: dict) -> Task:
@@ -59,6 +63,8 @@ class Task:
 
     @property
     def image(self) -> str:
+        if self.image_ref:
+            return self.image_ref
         # SWE-bench's Docker Hub naming: lower-cased, "__" becomes "_1776_".
         return f"swebench/sweb.eval.x86_64.{self.instance_id.lower().replace('__', '_1776_')}:latest"
 

@@ -137,6 +137,14 @@ class Search:
                     raise
                 except Exception:  # noqa: BLE001 - an unverifiable candidate is ranked as unverified
                     t.check = None
+            t.repro = None
+            if self.verifier and self.task.repro_first:
+                try:
+                    t.repro = await self.verifier.check_repro(t.workspace, meter)
+                except BudgetExceeded:
+                    raise
+                except Exception:  # noqa: BLE001 - an unrunnable reproduction test counts as no proof
+                    t.repro = None
             if self.judge:
                 t.score = await self.judge.score(self.task, t, meter)
         await asyncio.gather(*(one(t) for t in trajectories))
@@ -145,7 +153,8 @@ class Search:
     def _rank(t: Trajectory) -> tuple:
         # A candidate that breaks the existing tests ranks below every one that does not.
         # Changed assertions are only evidence for the judge: the issue may ask for them.
-        return (t.check is None or not t.check.broken, t.score or 0.0)
+        # A fix proven by its own reproduction test (fails on base, passes here) outranks an unproven one.
+        return (t.check is None or not t.check.broken, bool(t.repro and t.repro.ok), t.score or 0.0)
 
     async def run(self, workspace: Workspace) -> SearchResult:
         roots = [Trajectory.start(self.task, workspace, id=str(i)) for i in range(self.config.roots)]
@@ -188,5 +197,6 @@ class Search:
             selected = candidates[0]
         elif candidates:
             await self._evaluate(candidates, closing)
-            selected = max(candidates, key=lambda t: (self._rank(t)[0], t.stop_reason == "submitted", t.score or 0.0))
+            selected = max(candidates, key=lambda t: (self._rank(t)[0], self._rank(t)[1],
+                                                       t.stop_reason == "submitted", t.score or 0.0))
         return SearchResult(selected=selected, candidates=candidates, all_trajectories=self.seen, rounds=rounds)

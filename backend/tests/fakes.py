@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import Callable
 
-from forkfix.agent import STAGING, Action, ActionError
+from forkfix.agent import REPRO_PATH, STAGING, Action, ActionError
 from forkfix.tasks import Task
 from forkfix.workspace import Meter, RunResult
 
@@ -22,10 +22,11 @@ class FakeWorkspace:
 
     def __init__(self, fs: dict[str, str], origin: dict[str, str] | None = None, bash: BashHandler | None = None,
                  grader: Callable[[dict[str, str]], str] | None = None, repo_tests: list[str] | None = None,
-                 checker: Callable[[dict[str, str]], str] | None = None):
+                 checker: Callable[[dict[str, str]], str] | None = None,
+                 repro: Callable[[dict[str, str]], int] | None = None):
         self.fs, self.origin = dict(fs), dict(origin if origin is not None else fs)
         self.bash, self.grader = bash, grader
-        self.repo_tests, self.checker = repo_tests or [], checker
+        self.repo_tests, self.checker, self.repro = repo_tests or [], checker, repro
         self.check_runs = 0
         self._id = f"snap-{next(_ids)}"
 
@@ -34,7 +35,7 @@ class FakeWorkspace:
         return self._id
 
     def _derive(self, fs: dict[str, str]) -> FakeWorkspace:
-        return FakeWorkspace(fs, self.origin, self.bash, self.grader, self.repo_tests, self.checker)
+        return FakeWorkspace(fs, self.origin, self.bash, self.grader, self.repo_tests, self.checker, self.repro)
 
     async def read(self, path: str) -> bytes:
         if path not in self.fs:
@@ -55,6 +56,11 @@ class FakeWorkspace:
             return self._derive(self.fs), RunResult(0, diff)
         if "git ls-files" in script:
             return self._derive(self.fs), RunResult(0, "\n".join(self.repo_tests))
+        if "forkfix_repro.log" in script:
+            # exit code of pytest on the reproduction test, computed from the files it would see
+            staged = files.get("/tmp/forkfix_repro_upload")
+            seen = {**self.fs, REPRO_PATH: staged.decode()} if staged is not None else self.fs
+            return self._derive(self.fs), RunResult(self.repro(seen) if self.repro else 0, "")
         if "forkfix_check.log" in script:
             self.check_runs += 1
             return self._derive(self.fs), RunResult(0, self.checker(self.fs) if self.checker else "")

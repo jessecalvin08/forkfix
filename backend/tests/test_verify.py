@@ -126,3 +126,75 @@ def test_matched_sampling_stops_at_the_attempt_cap():
     result = run(Search(make_task(), agent, None, SearchConfig(width=2, roots=2, refill=True, max_roots=6),
                         Meter(max_tokens=10**9)).run(base()))
     assert len(result.all_trajectories) == 6
+
+
+# --- reproduction test: fails on the base repo, passes on a fixed branch ---
+
+def repro_exit(fs):
+    """pytest's exit code for the reproduction test: 1 while the bug is there, 0 once it is fixed."""
+    if "forkfix" not in fs.get("/testbed/forkfix_repro_test.py", ""):
+        return 5  # nothing collected
+    return 0 if "a + b" in fs.get(SRC, "") else 1
+
+
+REPRO = "# forkfix\ndef test_add():\n    from src.calc import add\n    assert add(1, 2) == 3\n"
+
+
+def repro_base():
+    return FakeWorkspace({SRC: BUGGY}, repro=repro_exit)
+
+
+def test_a_fix_is_proven_only_when_its_test_fails_on_base_and_passes_on_the_branch():
+    from forkfix.verify import REPRO_PATH
+    verifier = Verifier(make_task(repro_first=True), repro_base())
+    fixed = FakeWorkspace({SRC: BUGGY.replace("a - b", "a + b"), REPRO_PATH: REPRO}, repro=repro_exit)
+    still_buggy = FakeWorkspace({SRC: BUGGY, REPRO_PATH: REPRO}, repro=repro_exit)
+    empty = FakeWorkspace({SRC: BUGGY.replace("a - b", "a + b")}, repro=repro_exit)
+    trivial = FakeWorkspace({SRC: BUGGY, REPRO_PATH: "def test_x():\n    assert True\n"}, repro=repro_exit)
+
+    async def checks():  # one event loop: the verifier caches base runs as tasks
+        return [await verifier.check_repro(w, Meter()) for w in (fixed, still_buggy, empty, trivial)]
+
+    proven, unfixed, missing, trivial_check = run(checks())
+    assert proven.ok and "fixed" in proven.summary()
+    assert unfixed.fails_on_base and not unfixed.passes_now and not unfixed.ok
+    assert not missing.present
+    # A test that never fails on the unfixed repository (here it collects nothing) proves nothing.
+    assert not trivial_check.ok
+
+
+def test_identical_reproduction_tests_share_one_run_on_the_base_repository():
+    from forkfix.verify import REPRO_PATH
+    verifier = Verifier(make_task(repro_first=True), repro_base())
+    branch = FakeWorkspace({SRC: BUGGY.replace("a - b", "a + b"), REPRO_PATH: REPRO}, repro=repro_exit)
+    meter = Meter()
+
+    async def twice():
+        await verifier.check_repro(branch, meter)
+        first = meter.spawns
+        await verifier.check_repro(branch, meter)
+        return meter.spawns - first
+
+    assert run(twice()) == 1  # only the branch itself again; the base result was cached
+
+
+def test_search_selects_the_fix_its_reproduction_test_proves_over_a_higher_judged_one():
+    from forkfix.verify import REPRO_PATH
+
+    def agent_policy(messages, temperature):
+        step = steps_taken(messages)
+        if step == 0:
+            return Action(tool="create", path="forkfix_repro_test.py", content=REPRO)
+        if step == 1:
+            # the search samples alternatives here; "a * b" does not fix the bug, "a + b" does
+            agent_policy.n = getattr(agent_policy, "n", 0) + 1
+            return Action(tool="edit", path="src/calc.py", old_str="a - b", new_str=["a * b", "a + b"][agent_policy.n % 2])
+        return Action(tool="submit")
+
+    agent_policy.n = 0
+    task = make_task(repro_first=True)
+    config = SearchConfig(width=4, branch_factor=2)
+    judge = FakeJudge(lambda patch: 9.0 if "a * b" in patch else 5.0)  # the judge prefers the wrong fix
+    result = run(Search(task, FakeAgent(agent_policy), judge, config, Meter(), Verifier(task, repro_base())).run(repro_base()))
+    assert "a + b" in result.selected.patch and result.selected.repro.ok
+    assert any(c.repro and not c.repro.ok for c in result.candidates)

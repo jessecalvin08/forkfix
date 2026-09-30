@@ -62,6 +62,16 @@ Tools:
 Work like this: find the relevant code, reproduce the bug with a small script, make a minimal fix in the
 library source (never edit the existing tests), re-run your script to confirm, then submit."""
 
+REPRO_PATH = f"{REPO_ROOT}/forkfix_repro_test.py"
+
+REPRO_SYSTEM_PROMPT = SYSTEM_PROMPT.replace(
+    "Work like this: find the relevant code, reproduce the bug with a small script, make",
+    "Work like this: find the relevant code, then FIRST create the file forkfix_repro_test.py: a small pytest\n"
+    "test that fails on the current code because of the bug in the issue (run it with `pytest forkfix_repro_test.py`\n"
+    "and confirm it fails for the right reason). Then make",
+).replace("re-run your script to confirm, then submit.",
+          "re-run forkfix_repro_test.py until it passes, then submit. Keep that file in place: it is the proof of your fix.")
+
 
 class Action(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -178,11 +188,13 @@ class Trajectory:
     patch: str = ""
     score: float | None = None
     check: Any = None  # a verify.Check once the patch has been run against existing tests
+    repro: Any = None  # a verify.ReproCheck once the reproduction test has been run on base and on this branch
+    activate: str = ACTIVATE
 
     @classmethod
     def start(cls, task: Task, workspace: Workspace, id: str = "0") -> Trajectory:
-        return cls(id=id, workspace=workspace, messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
+        return cls(id=id, workspace=workspace, activate=task.activate, messages=[
+            {"role": "system", "content": REPRO_SYSTEM_PROMPT if task.repro_first else SYSTEM_PROMPT},
             {"role": "user", "content": f"<issue>\n{task.problem_statement}\n</issue>"},
         ])
 
@@ -233,12 +245,13 @@ def _q(value: str) -> str:
     return "'" + value.replace("'", "'\"'\"'") + "'"
 
 
-async def execute(action: Action, workspace: Workspace, meter: Meter) -> tuple[Workspace, str]:
+async def execute(action: Action, workspace: Workspace, meter: Meter,
+                  activate: str = ACTIVATE) -> tuple[Workspace, str]:
     """Run one action; returns the (possibly new) workspace and the observation text."""
     if action.tool == "bash":
         if not action.command.strip():
             return workspace, "Error: empty command."
-        new, result = await workspace.run(f"{ACTIVATE} && ({action.command}) 2>&1", meter=meter, timeout=BASH_TIMEOUT)
+        new, result = await workspace.run(f"{activate} && ({action.command}) 2>&1", meter=meter, timeout=BASH_TIMEOUT)
         return new, _clip(f"[exit code {result.exit_code}]\n{result.output}")
 
     if action.tool == "submit":
@@ -283,7 +296,7 @@ async def apply(trajectory: Trajectory, action: Action, meter: Meter) -> Traject
     """Execute an action on a trajectory in place and record it."""
     trajectory.steps += 1
     try:
-        workspace, observation = await execute(action, trajectory.workspace, meter)
+        workspace, observation = await execute(action, trajectory.workspace, meter, trajectory.activate)
     except (BudgetExceeded, InfraError):
         raise
     except Exception as error:  # noqa: BLE001 - a sandbox fault is shown to the agent, not fatal
@@ -299,6 +312,6 @@ async def apply(trajectory: Trajectory, action: Action, meter: Meter) -> Traject
 
 async def collect_patch(trajectory: Trajectory, meter: Meter) -> str:
     """The trajectory's answer: tracked-file changes only, so scratch scripts are excluded."""
-    _, result = await trajectory.workspace.run(f"{ACTIVATE} && git diff 2>/dev/null", meter=meter, timeout=60)
+    _, result = await trajectory.workspace.run(f"{trajectory.activate} && git diff 2>/dev/null", meter=meter, timeout=60)
     trajectory.patch = result.output if result.exit_code == 0 else ""
     return trajectory.patch

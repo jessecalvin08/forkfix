@@ -14,10 +14,12 @@ those are reported to the judge as information, never as proof the patch is wron
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import posixpath
 import shlex
 from dataclasses import dataclass
 
+from .agent import REPRO_PATH
 from .tasks import ACTIVATE, PASSING, Task, parse_pytest_report, patched_files
 from .workspace import Meter, Workspace
 
@@ -57,6 +59,28 @@ class Check:
                        "This is expected only if the issue asks to change the behaviour they check.")
 
 
+@dataclass(frozen=True)
+class ReproCheck:
+    """The agent's own reproduction test: it must fail on the base repo and pass on the branch."""
+
+    present: bool
+    fails_on_base: bool = False
+    passes_now: bool = False
+
+    @property
+    def ok(self) -> bool:
+        return self.present and self.fails_on_base and self.passes_now
+
+    def summary(self) -> str:
+        if not self.present:
+            return "No reproduction test (forkfix_repro_test.py) was written."
+        if not self.fails_on_base:
+            return "The reproduction test does not fail on the unfixed repository, so it proves nothing."
+        if not self.passes_now:
+            return "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed."
+        return "The reproduction test fails on the unfixed repository and passes here: the bug is fixed."
+
+
 def related_tests(changed: list[str], test_files: list[str]) -> list[str]:
     """Existing test files named after the changed source files, e.g. skipping.py -> test_skipping.py."""
     chosen: list[str] = []
@@ -77,9 +101,9 @@ def related_tests(changed: list[str], test_files: list[str]) -> list[str]:
     return chosen[:MAX_TEST_FILES]
 
 
-def check_script(files: list[str]) -> str:
+def check_script(files: list[str], activate: str = ACTIVATE) -> str:
     quoted = " ".join(shlex.quote(f) for f in files)
-    return (f"{ACTIVATE} && pytest -rA {quoted} > /tmp/forkfix_check.log 2>&1"
+    return (f"{activate} && pytest -rA {quoted} > /tmp/forkfix_check.log 2>&1"
             "; grep -a -E '^(PASSED|FAILED|SKIPPED|ERROR|XFAIL)' /tmp/forkfix_check.log")
 
 
@@ -90,6 +114,7 @@ class Verifier:
         self.task, self.base = task, base
         self._test_files: asyncio.Task | None = None
         self._baselines: dict[tuple[str, ...], asyncio.Task] = {}
+        self._repro_base: dict[str, asyncio.Task] = {}
 
     async def _list_tests(self, meter: Meter) -> list[str]:
         _, result = await self.base.run(
@@ -97,7 +122,7 @@ class Verifier:
         return [line.strip() for line in result.output.splitlines() if line.strip().endswith(".py")]
 
     async def _statuses(self, workspace: Workspace, files: tuple[str, ...], meter: Meter) -> dict[str, str]:
-        _, result = await workspace.run(check_script(list(files)), meter=meter, timeout=CHECK_TIMEOUT)
+        _, result = await workspace.run(check_script(list(files), self.task.activate), meter=meter, timeout=CHECK_TIMEOUT)
         return parse_pytest_report(result.output)
 
     async def check(self, patch: str, workspace: Workspace, meter: Meter) -> Check:
@@ -114,3 +139,25 @@ class Verifier:
         errored = sum(now.get(t) in (None, "ERROR") for t in regressions)
         return Check(files, regressions, sum(s in PASSING for s in now.values()), len(now),
                      base_passing=sum(s in PASSING for s in base.values()), errored=errored)
+
+    async def _repro_exit(self, workspace: Workspace, source: bytes | None, meter: Meter) -> int:
+        """Exit code of ``pytest`` on the reproduction test: 0 pass, 1 test failure, others are errors."""
+        staged = "/tmp/forkfix_repro_upload"
+        put = f"cp {staged} {shlex.quote(REPRO_PATH)} && " if source is not None else ""
+        _, result = await workspace.run(
+            f"{self.task.activate} && {put}pytest -q -x -p no:cacheprovider {shlex.quote(REPRO_PATH)} > /tmp/forkfix_repro.log 2>&1",
+            files={staged: source} if source is not None else None, meter=meter, timeout=CHECK_TIMEOUT)
+        return result.exit_code
+
+    async def check_repro(self, workspace: Workspace, meter: Meter) -> ReproCheck:
+        """Run the branch's reproduction test on the base repository and on the branch itself."""
+        try:
+            source = await workspace.read(REPRO_PATH)
+        except Exception:  # noqa: BLE001 - a missing file is a normal outcome, not a crash
+            return ReproCheck(present=False)
+        digest = hashlib.sha256(source).hexdigest()
+        if digest not in self._repro_base:  # identical tests from sibling branches share one base run
+            self._repro_base[digest] = asyncio.ensure_future(self._repro_exit(self.base, source, meter))
+        base_exit, now_exit = await asyncio.gather(self._repro_base[digest], self._repro_exit(workspace, None, meter))
+        # Only a real assertion failure (exit 1) shows the bug: a crash or empty collection does not.
+        return ReproCheck(present=True, fails_on_base=base_exit == 1, passes_now=now_exit == 0)
