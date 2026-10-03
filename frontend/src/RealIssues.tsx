@@ -26,9 +26,9 @@ export default function RealIssues() {
   const sorted = [...data.rows].sort((a, b) => a.issue.localeCompare(b.issue, "en", { numeric: true }));
   const heading =
     data.clean > 0
-      ? `On ${data.issues} real GitHub issues, ${data.clean} fix${data.clean === 1 ? " was" : "es were"} proven and breaks no existing test.`
+      ? `On ${data.issues} real GitHub issues, ${data.clean} fix${data.clean === 1 ? " was" : "es were"} proven and held up on review.`
       : data.proven > 0
-        ? `On ${data.issues} real GitHub issues, ${data.proven} patch passed its own proof check, and it breaks an existing test.`
+        ? `On ${data.issues} real GitHub issues, ${data.proven} patch${data.proven === 1 ? "" : "es"} passed ${data.proven === 1 ? "its" : "their"} own proof check; none held up on review.`
         : `On ${data.issues} real GitHub issues, no patch passed the proof check.`;
   const rerun = sorted.filter((r) => r.run >= AGENT_CHANGED_ON).length;
 
@@ -43,8 +43,8 @@ export default function RealIssues() {
             Real issues have no hidden tests to grade against, so Forkfix asks the agent to write its own reproduction
             test first. A branch counts as a fix only if that test <strong>fails on the unfixed repository and passes
             on the branch</strong>, and it should not break the project's existing tests. The judge model scores
-            patches too, but its score alone is not proof, and neither is the agent's own test: the one patch that
-            passed it breaks a test the project already had.
+            patches too, but its score alone is not proof, and neither is the agent's own test: the patches that passed
+            it either break a test the project already had or fail on inputs the agent's test never tried.
           </p>
           <p>
             {data.patched} of {data.issues} runs produced any patch. Together they used {fmtTokens(data.tokens)} model
@@ -91,9 +91,9 @@ function proofLabel(row: RealIssue): string {
   const proven = row.candidates.filter((c) => c.proven).length;
   if (proven === 0) return `Not proven (0 of ${row.candidates.length})`;
   const breaking = row.candidates.filter((c) => c.proven && c.regressions).length;
-  return breaking === proven
-    ? `Passed its own test, breaks an existing test (${proven} of ${row.candidates.length})`
-    : `Proven (${proven} of ${row.candidates.length})`;
+  if (breaking === proven) return `Passed its own test, breaks an existing test (${proven} of ${row.candidates.length})`;
+  if (row.review) return `Passed its own test, failed review (${proven} of ${row.candidates.length})`;
+  return `Proven (${proven} of ${row.candidates.length})`;
 }
 
 function IssueRow({ row }: { row: RealIssue }) {

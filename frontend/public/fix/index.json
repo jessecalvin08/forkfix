@@ -1,9 +1,9 @@
 {
  "issues": 6,
- "proven": 1,
+ "proven": 2,
  "clean": 0,
  "patched": 4,
- "tokens": 14706139,
+ "tokens": 15905494,
  "rows": [
   {
    "issue": "pallets/itsdangerous#389",
@@ -62,6 +62,7 @@
      "regressions": true
     }
    ],
+   "review": null,
    "clean": false,
    "note": "Checked on 2026-09-30 (sandbox only, no model calls) and again by the 2026-10-03 live run. Forwarding serializer_kwargs to loads makes the repository's own test_serializer_kwargs fail: it passes skipkeys, which json.dumps accepts and json.loads does not. serializer_kwargs is probably meant for dumps only, so this issue is likely intended behaviour, not a bug. The 2026-10-03 patch passes the agent's own test because that test checks only that the keyword arguments reach loads."
   },
@@ -77,6 +78,7 @@
    "selected": null,
    "proven": false,
    "candidates": [],
+   "review": null,
    "clean": false,
    "note": null
   },
@@ -92,6 +94,7 @@
    "selected": null,
    "proven": false,
    "candidates": [],
+   "review": null,
    "clean": false,
    "note": null
   },
@@ -99,61 +102,62 @@
    "issue": "mahmoud/boltons#301",
    "url": "https://github.com/mahmoud/boltons/issues/301",
    "title": "`FunctionBuilder.from_func` not working",
-   "run": "20260930",
+   "run": "20261003",
    "commit": "4e5faa3d7e4008d89e0d8bf1ea87b6d9a061a16d",
-   "max_steps": 30,
-   "tokens": 2966863,
-   "sandbox_runs": 172,
-   "selected": "0.0.2.1",
-   "proven": false,
+   "max_steps": 50,
+   "tokens": 4166218,
+   "sandbox_runs": 97,
+   "selected": "0.0.0.1",
+   "proven": true,
    "candidates": [
     {
      "id": "0.0.0.1",
-     "stop": "step_limit",
-     "steps": 30,
-     "judge": 5.0,
-     "proven": false,
-     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "stop": "submitted",
+     "steps": 20,
+     "judge": 7.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
      "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
-     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..68a0a69 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -851,6 +851,12 @@ class FunctionBuilder:\n                       'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n                       'annotations': getattr(func, \"__annotations__\", {}),\n                       'dict': getattr(func, '__dict__', {})}\n+            # Extract body from function source to preserve original behavior\n+            try:\n+                kwargs[\"body\"] = inspect.getsource(func)\n+            except (OSError, TypeError):\n+                # Fall back to default body if source cannot be retrieved\n+                kwargs[\"body\"] = \"pass\"\n \n         kwargs.update(cls._argspec_to_dict(func))\n \n",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..e5b90a1 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -834,8 +834,6 @@ class FunctionBuilder:\n         function. The original function will not be stored or\n         modified.\n         \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n         if not callable(func):\n             raise TypeError(f'expected callable object, not {func!r}')\n \n@@ -852,6 +850,27 @@ class FunctionBuilder:\n                       'annotations': getattr(func, \"__annotations__\", {}),\n                       'dict': getattr(func, '__dict__', {})}\n \n+            # Try to extract the body from the function's source code\n+            try:\n+                if hasattr(func, '__code__') and func.__code__ is not None:\n+                    source_lines = inspect.getsource(func).splitlines()\n+                    # Find the body by looking for the first indented line after the function definition\n+                    body_lines = []\n+                    in_function = False\n+                    for line in source_lines:\n+                        if line.strip().startswith('def ') or line.strip().startswith('lambda ') or line.strip().startswith('class '):\n+                            in_function = True\n+                            continue\n+                        if in_function:\n+                            if line.strip() and not line.startswith(' '):\n+                                # Next non-indented line means the function ended\n+                                break\n+                            body_lines.append(line.rstrip())\n+                    kwargs['body'] = '\\n'.join(body_lines)\n+            except (OSError, TypeError):\n+                # If we can't get the source, use default body\n+                pass\n+\n         kwargs.update(cls._argspec_to_dict(func))\n \n         # getfullargspec merges positional-only params into args; recover\n@@ -859,7 +878,7 @@ class FunctionBuilder:\n         # (functools.partial objects have no __code__; posonly detection\n         # is skipped for them, preserving today's behavior.)\n         n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n+                              'co_posonlyargcount', 0)\n         if n_posonly:\n             kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n \n",
      "regressions": false
     },
     {
-     "id": "0.0.2.1",
-     "stop": "step_limit",
-     "steps": 30,
-     "judge": 8.0,
-     "proven": false,
-     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "id": "0.0.0.2",
+     "stop": "submitted",
+     "steps": 20,
+     "judge": 7.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
      "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
-     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..548285b 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -747,6 +747,7 @@ class FunctionBuilder:\n                  'filename': lambda: 'boltons.funcutils.FunctionBuilder'}\n \n     _defaults.update(_argspec_defaults)\n+    _default_body = 'pass'\n \n     _compile_count = itertools.count()\n \n@@ -830,43 +831,68 @@ class FunctionBuilder:\n \n     @classmethod\n     def from_func(cls, func):\n-        \"\"\"Create a new FunctionBuilder instance based on an existing\n-        function. The original function will not be stored or\n-        modified.\n-        \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n-        if not callable(func):\n-            raise TypeError(f'expected callable object, not {func!r}')\n-\n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n-\n-        kwargs.update(cls._argspec_to_dict(func))\n-\n-        # getfullargspec merges positional-only params into args; recover\n-        # them from the code object so they are never keyword-forwarded.\n-        # (functools.partial objects have no __code__; posonly detection\n-        # is skipped for them, preserving today's behavior.)\n-        n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n-        if n_posonly:\n-            kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n-\n-        if inspect.iscoroutinefunction(func):\n-            kwargs['is_async'] = True\n-\n-        return cls(**kwargs)\n+              \"\"\"Create a new FunctionBuilder instance based on an existing\n+              function. The original function will not be stored or\n+              modified.\n+              \"\"\"\n+              if not callable(func):\n+                  raise TypeError(f'expected callable object, not {func!r}')\n+\n+              # Extract body from function's source code\n+              body = 'pass'  # default body\n+              try:\n+                  source = inspect.getsource(func)\n+                  # Find the body by looking for the function definition and getting everything after the colon\n+                  lines = source.split('\\n')\n+                  body_lines = []\n+                  found_def = False\n+                  for line i",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..45a2538 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -830,43 +830,56 @@ class FunctionBuilder:\n \n     @classmethod\n     def from_func(cls, func):\n-        \"\"\"Create a new FunctionBuilder instance based on an existing\n-        function. The original function will not be stored or\n-        modified.\n-        \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n-        if not callable(func):\n-            raise TypeError(f'expected callable object, not {func!r}')\n-\n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n-\n-        kwargs.update(cls._argspec_to_dict(func))\n-\n-        # getfullargspec merges positional-only params into args; recover\n-        # them from the code object so they are never keyword-forwarded.\n-        # (functools.partial objects have no __code__; posonly detection\n-        # is skipped for them, preserving today's behavior.)\n-        n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n-        if n_posonly:\n-            kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n-\n-        if inspect.iscoroutinefunction(func):\n-            kwargs['is_async'] = True\n-\n-        return cls(**kwargs)\n+                \"\"\"Create a new FunctionBuilder instance based on an existing\n+                function. The original function will not be stored or\n+                modified.\n+                \"\"\"\n+                if not callable(func):\n+                    raise TypeError(f'expected callable object, not {func!r}')\n+\n+                if isinstance(func, functools.partial):\n+                    kwargs = {'name': func.func.__name__,\n+                              'doc': func.func.__doc__,\n+                              'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n+                              'annotations': getattr(func.func, \"__annotations__\", {}),\n+                              'dict': getattr(func.func, '__dict__', {})}\n+                else:\n+                    kwargs = {'name': func.__name__,\n+                              'doc': func.__doc__,\n+                              'module': getattr(func, '__module__', None),  # e.g",
      "regressions": false
     },
     {
      "id": "0.0.1.0",
-     "stop": "step_limit",
-     "steps": 30,
-     "judge": 8.0,
-     "proven": false,
-     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "stop": "submitted",
+     "steps": 22,
+     "judge": 7.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
      "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
-     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..6445bcc 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -834,24 +834,19 @@ class FunctionBuilder:\n         function. The original function will not be stored or\n         modified.\n         \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n         if not callable(func):\n             raise TypeError(f'expected callable object, not {func!r}')\n \n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n+        # Start with basic attributes\n+        kwargs = {\n+            'name': func.__name__,\n+            'doc': func.__doc__,\n+            'module': getattr(func, '__module__', None),\n+            'annotations': getattr(func, \"__annotations__\", {}),\n+            'dict': getattr(func, '__dict__', {})\n+        }\n \n+        # Add arguments information\n         kwargs.update(cls._argspec_to_dict(func))\n \n         # getfullargspec merges positional-only params into args; recover\n@@ -859,13 +854,42 @@ class FunctionBuilder:\n         # (functools.partial objects have no __code__; posonly detection\n         # is skipped for them, preserving today's behavior.)\n         n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n+                              'co_posonlyargcount', 0)\n         if n_posonly:\n             kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n \n         if inspect.iscoroutinefunction(func):\n             kwargs['is_async'] = True\n \n+        # Extract the function body from source code\n+        try:\n+            import inspect\n+            source_lines = inspect.getsource(func).split('\\n')\n+            # Find the function definition line\n+            for i, line in enumerate(source_lines):\n+                if line.strip().startswith('def '):\n+                    # Get the indentation of the function definition\n+                    def_indent = len(line) - len(line.lstrip())\n+                    # Collect all lines that are indented more than the function definition\n+                    body_lines = []\n+                    for j in range(i + 1, len(source_lines)):\n+                        current_line = source_lines[j]\n+                        current_indent = len(curr",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..6d96b81 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -866,6 +866,19 @@ class FunctionBuilder:\n         if inspect.iscoroutinefunction(func):\n             kwargs['is_async'] = True\n \n+                # Extract the function body from the source code\n+        try:\n+            source = inspect.getsource(func)\n+            lines = source.splitlines()\n+            if len(lines) > 1:\n+                body = '\\n'.join(lines[1:])\n+            else:\n+                body = 'pass'\n+            kwargs['body'] = body\n+        except (OSError, TypeError):\n+            # If we can't get the source, use the default body\n+            kwargs['body'] = 'pass'\n+\n         return cls(**kwargs)\n \n     def get_func(self, execdict=None, add_source=True, with_dict=True):\n",
      "regressions": false
     },
     {
-     "id": "0.0.1.1",
+     "id": "0.0.0.0",
      "stop": "step_limit",
-     "steps": 30,
-     "judge": 3.0,
+     "steps": 50,
+     "judge": 1.0,
      "proven": false,
-     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "reproduction": "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed.",
      "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
-     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..da8b0e4 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -834,24 +834,19 @@ class FunctionBuilder:\n         function. The original function will not be stored or\n         modified.\n         \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n         if not callable(func):\n             raise TypeError(f'expected callable object, not {func!r}')\n \n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n+        # Extract function signature info\n+        kwargs = {\n+            'name': func.__name__,\n+            'doc': func.__doc__,\n+            'module': getattr(func, '__module__', None),\n+            'annotations': getattr(func, '__annotations__', {}),\n+            'dict': getattr(func, '__dict__', {})\n+        }\n \n+        # Add argument information\n         kwargs.update(cls._argspec_to_dict(func))\n \n         # getfullargspec merges positional-only params into args; recover\n@@ -859,13 +854,34 @@ class FunctionBuilder:\n         # (functools.partial objects have no __code__; posonly detection\n         # is skipped for them, preserving today's behavior.)\n         n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n+                              'co_posonlyargcount', 0)\n         if n_posonly:\n             kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n \n         if inspect.iscoroutinefunction(func):\n             kwargs['is_async'] = True\n \n+        # Extract the body from the function's source code\n+        try:\n+            source_lines = inspect.getsource(func).split('\\n')\n+            # Find the function body - everything after the def line that is indented\n+            body_lines = []\n+            in_function = False\n+            for line in source_lines:\n+                stripped = line.strip()\n+                if stripped.startswith('def '):\n+                    in_function = True\n+                    continue\n+                if in_function:\n+                    if stripped and not line.startswith(' '):\n+                        # Next function or end of function\n+                        break\n+                    body_lines.append(line)\n+            kwargs['body'] ",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..7598567 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -834,8 +834,6 @@ class FunctionBuilder:\n         function. The original function will not be stored or\n         modified.\n         \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n         if not callable(func):\n             raise TypeError(f'expected callable object, not {func!r}')\n \n@@ -851,6 +849,33 @@ class FunctionBuilder:\n                       'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n                       'annotations': getattr(func, \"__annotations__\", {}),\n                       'dict': getattr(func, '__dict__', {})}\n+            \n+            # Try to extract the body from the function's source code\n+            try:\n+                source = inspect.getsource(func)\n+                # Find where the function body starts\n+                lines = source.split('\\n')\n+                body = 'pass'  # Default body\n+                for i, line in enumerate(lines):\n+                    stripped = line.strip()\n+                    if stripped.startswith('def ') or stripped.startswith('lambda '):\n+                        # Look for the first non-empty line after the function definition that is indented\n+                        for j in range(i+1, len(lines)):\n+                            next_line = lines[j]\n+                            if next_line.strip() and next_line[0] in ' \\t':\n+                                # Collect all lines until we hit a line that is not indented\n+                                body_lines = []\n+                                k = j\n+                                while k < len(lines) and (lines[k][0] in ' \\t' or lines[k].strip() == ''):\n+                                    if lines[k].strip():\n+                                        body_lines.append(lines[k])\n+                                    k += 1\n+                                body = '\\n'.join(body_lines)\n+                                break\n+                        break\n+            except (TypeError, OSError):\n+                # If we can't get the source (e.g., built-in functions), use default\n+                body = 'pass'\n \n         kwargs.update(cls._argspec_to_dict(func))\n \n@@ -859,14 +884,14 @@ class FunctionBuilder:\n         # (functools.partial objects have no __code__; posonly detection\n         # is skipped for them, preserving today's behavior.)\n         n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n+                              'co_posonlyargcount', 0)\n         if n_posonly:\n             kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n \n         if inspect.iscoroutinefunction(func):\n             kwargs['is_async'] = True\n \n-        return cls(**kwargs)\n+        return cls(body=body, **kwargs)\n \n     def get_func(self, execdict=None",
      "regressions": false
     }
    ],
+   "review": "Fails on multi-line signatures and nested functions.",
    "clean": false,
-   "note": null
+   "note": "Reviewed by hand on 2026-10-04 (no model calls; python -m feasibility.boltons_body_probe). The patch copies the function body by parsing source lines. It works for the issue's example, but a multi-line signature puts the signature lines in the body, and a function containing a nested def or class raises IndentationError, which the patch does not catch. It also deletes two unrelated TODO comments."
   },
   {
    "issue": "astanin/python-tabulate#230",
@@ -179,6 +183,7 @@
      "regressions": false
     }
    ],
+   "review": null,
    "clean": false,
    "note": null
   },
@@ -206,6 +211,7 @@
      "regressions": false
     }
    ],
+   "review": null,
    "clean": false,
    "note": null
   }

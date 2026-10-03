@@ -57,9 +57,10 @@ writes a reproduction test first, and a branch counts as a fix only if that test
 repository and passes on the branch, without breaking the project's existing tests. On the first run, 4 of 6
 runs produced a patch and none passed. After we changed the agent, we re-ran one issue: one patch passed the
 agent's own test and the judge scored it 10/10, but it breaks a test the project already had, because the issue
-most likely asks for behaviour the project does not intend. So the proof check alone is not enough, and we do
-not claim a fix rate on real issues. The other five issues have not been re-run with the changed agent, and
-we have not submitted anything to any project.
+most likely asks for behaviour the project does not intend. A second re-run (boltons) produced three patches
+that passed their own test and broke no existing test, but a manual check showed the patch fails on
+multi-line signatures and nested functions. So the proof check alone is not enough, and we do not claim a fix
+rate on real issues. We have not submitted anything to any project.
 
 ## Feedback on the platforms (draft; all points are from our own logs and probes)
 

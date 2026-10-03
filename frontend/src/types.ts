@@ -126,6 +126,8 @@ export interface RealIssue {
   proven: boolean;
   /** The selected branch is proven and breaks no existing test. */
   clean: boolean;
+  /** Why a hand review rejected a patch that passed the checks, if it did. */
+  review: string | null;
   candidates: IssueCandidate[];
   note: string | null;
 }

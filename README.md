@@ -123,8 +123,11 @@ changed (no package installs, more steps, a cap on unproven judge scores) and it
 on October 3 (2.9M model tokens, about $0.40 at list price): one patch passed the agent's own test, and the
 judge gave it 10/10, but it breaks the project's own `test_serializer_kwargs` (that test passes `skipkeys`,
 which `json.dumps` accepts and `json.loads` does not). The issue most likely asks for behaviour the project
-does not intend, so **we count no real-issue fix as proven or mergeable**. The other five issues have not been
-re-run with the changed agent. Nothing has been submitted to any project. The results are in the viewer's
+does not intend. boltons #301 was re-run too (4.2M tokens, about $0.60): three branches passed their own test
+with no existing test broken, but the patch copies a function body by parsing source lines, which works for the
+issue's example and fails on multi-line signatures and nested functions
+(`python -m feasibility.boltons_body_probe`). **We count no real-issue fix as proven or mergeable.** The
+remaining issues are being re-run with the changed agent; see the viewer for the latest. Nothing has been submitted to any project. The results are in the viewer's
 "Real issues" section, with each branch's patch available to download.
 
 ## Re-running the benchmark extension

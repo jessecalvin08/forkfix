@@ -92,3 +92,15 @@ def test_a_proven_patch_that_breaks_an_existing_test_is_not_clean():
     assert out["proven"] is True and out["candidates"][0]["regressions"] is True and out["clean"] is False
     cand["existing_tests"] = "Existing tests t: 41/41 pass."
     assert export_issue(report, "20261003T000000Z-x.json")["clean"] is True
+
+
+def test_a_hand_reviewed_patch_is_not_counted_even_when_clean():
+    from forkfix.viewer_data import REVIEWED_NOT_A_FIX, export_issue
+    issue = next(iter(REVIEWED_NOT_A_FIX))
+    report = issue_report(issue=issue)
+    cand = report["result"]["candidates"][0]
+    cand.update(reproduction_ok=True, existing_tests="8/8 pass.")
+    report["result"].update(proven=True)
+    out = export_issue(report, "20261003T000000Z-x.json")
+    assert out["proven"] is True and out["candidates"][0]["regressions"] is False
+    assert out["clean"] is False and out["review"]

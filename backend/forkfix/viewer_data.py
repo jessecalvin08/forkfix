@@ -89,6 +89,17 @@ ANNOTATIONS = {
         "so this issue is likely intended behaviour, not a bug. The 2026-10-03 patch passes the agent's own test "
         "because that test checks only that the keyword arguments reach loads."
     ),
+    "https://github.com/mahmoud/boltons/issues/301": (
+        "Reviewed by hand on 2026-10-04 (no model calls; python -m feasibility.boltons_body_probe). The patch copies "
+        "the function body by parsing source lines. It works for the issue's example, but a multi-line signature "
+        "puts the signature lines in the body, and a function containing a nested def or class raises "
+        "IndentationError, which the patch does not catch. It also deletes two unrelated TODO comments."
+    ),
+}
+
+# Patches that passed the proof check and the existing tests but failed a manual review, so they do not count as fixes.
+REVIEWED_NOT_A_FIX = {
+    "https://github.com/mahmoud/boltons/issues/301": "Fails on multi-line signatures and nested functions.",
 }
 
 REGRESSION_MARK = "previously passing tests now fail"
@@ -113,7 +124,8 @@ def export_issue(report: dict, name: str) -> dict:
         "commit": report["setup"]["commit"], "max_steps": plan["config"]["max_steps"],
         "tokens": spend["prompt_tokens"] + spend["completion_tokens"], "sandbox_runs": spend["sandbox_spawns"],
         "selected": result.get("selected"), "proven": bool(result.get("proven")), "candidates": candidates,
-        "clean": any(c["id"] == result.get("selected") and c["proven"] and not c["regressions"] for c in candidates),
+        "review": REVIEWED_NOT_A_FIX.get(plan["issue"]),
+        "clean": plan["issue"] not in REVIEWED_NOT_A_FIX and any(c["id"] == result.get("selected") and c["proven"] and not c["regressions"] for c in candidates),
         "note": ANNOTATIONS.get(plan["issue"]),
     }
 
