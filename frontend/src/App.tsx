@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import BranchDetail from "./BranchDetail";
+import RealIssues from "./RealIssues";
 import TreeView from "./TreeView";
 import { defaultNode, fmtTokens, shortTask } from "./tree";
 import { MODES, MODE_LABEL, type IndexRow, type ModeName, type RunIndex, type TaskRun } from "./types";
@@ -71,6 +72,7 @@ export default function App() {
                 document.getElementById("replay")?.scrollIntoView({ block: "start" });
               }}
             />
+            <RealIssues />
             <Replay index={index} route={route} setRoute={setRoute} />
           </>
         )}

@@ -22,6 +22,8 @@ from .report import build, latest_reports
 from .tasks import load_tasks
 
 OUTPUT = Path(__file__).resolve().parents[2] / "frontend" / "public" / "runs"
+FIX_OUTPUT = Path(__file__).resolve().parents[2] / "frontend" / "public" / "fix"
+PATCH_CHARS = 3000
 PROBLEM_CHARS = 1500
 OBSERVATION_CHARS = 400
 
@@ -78,11 +80,67 @@ def export_mode(mode: dict) -> dict:
     }
 
 
+# Hand-written findings from checks that are not in the saved reports. Shown with their date on the page.
+ANNOTATIONS = {
+    "https://github.com/pallets/itsdangerous/issues/389": (
+        "Checked separately on 2026-09-30 (sandbox only, no model calls). The selected patch forwards "
+        "serializer_kwargs on the bytes path only, so a hand-written stdlib repro test still failed on it. "
+        "With both paths patched the test passed, but the repository's own test_serializer_kwargs then failed: "
+        "it passes skipkeys, which json.dumps accepts and json.loads does not. serializer_kwargs is probably "
+        "meant for dumps only, so this issue is likely intended behaviour, not a bug."
+    ),
+}
+
+
+def export_issue(report: dict, name: str) -> dict:
+    """One real-issue run (forkfix.fix) for the viewer: candidates with their proof-check verdicts, no trees."""
+    plan, spend = report["plan"], report["total_spend"]
+    result = report.get("result") or {}
+    candidates = [{
+        "id": c["id"], "stop": c["stop_reason"], "steps": c["steps"], "judge": c["judge_score"],
+        "proven": c["reproduction_ok"], "reproduction": c["reproduction"], "existing_tests": c["existing_tests"],
+        "patch": (c["patch"] or "")[:PATCH_CHARS],
+    } for c in result.get("candidates", [])]
+    slug = plan["issue"].removeprefix("https://github.com/").replace("/issues/", "#")
+    return {
+        "issue": slug, "url": plan["issue"], "title": plan["title"], "run": name[:8],
+        "commit": report["setup"]["commit"], "max_steps": plan["config"]["max_steps"],
+        "tokens": spend["prompt_tokens"] + spend["completion_tokens"], "sandbox_runs": spend["sandbox_spawns"],
+        "selected": result.get("selected"), "proven": bool(result.get("proven")), "candidates": candidates,
+        "note": ANNOTATIONS.get(plan["issue"]),
+    }
+
+
+def export_real_issues(reports: Path = REPORTS / "fix", out: Path = FIX_OUTPUT) -> int:
+    """Newest finished run per issue (runs that failed setup have no result and are skipped)."""
+    newest: dict[str, tuple[str, dict]] = {}
+    for path in sorted(reports.glob("*.json")):
+        report = json.loads(path.read_text(encoding="utf-8"))
+        if report.get("result") is not None:
+            newest[report["plan"]["issue"]] = (path.name, report)
+    issues = [export_issue(report, name) for name, report in newest.values()]
+    if not issues:
+        return 0
+    out.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "issues": len(issues),
+        "proven": sum(i["proven"] for i in issues),
+        "patched": sum(bool(i["candidates"]) for i in issues),
+        "tokens": sum(i["tokens"] for i in issues),
+        "rows": issues,
+    }
+    (out / "index.json").write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8")
+    return len(issues)
+
+
 def fork_points(mode: dict) -> int:
     return sum(n["stop"] == "branched" for n in mode["nodes"])
 
 
 def main(args: argparse.Namespace) -> None:
+    if args.real_issues_only:
+        print(f"wrote {export_real_issues()} real-issue runs to {FIX_OUTPUT}")
+        return
     tasks_files = [Path(p) for p in args.tasks_file] if args.tasks_file else [BENCHMARK_FILE]
     tasks, records, sources = [], {}, []
     for tasks_file in tasks_files:
@@ -128,10 +186,12 @@ def main(args: argparse.Namespace) -> None:
     (OUTPUT / "index.json").write_text(json.dumps(index, indent=1) + "\n", encoding="utf-8")
     size = sum(p.stat().st_size for p in OUTPUT.glob("*.json"))
     print(f"wrote {len(index_rows)} tasks + index to {OUTPUT} ({size / 1e6:.1f} MB)")
+    print(f"wrote {export_real_issues()} real-issue runs to {FIX_OUTPUT}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--tasks-file", nargs="+",
                         help="one or more non-overlapping task lists (default: benchmark_tasks.json)")
+    parser.add_argument("--real-issues-only", action="store_true", help="export only the forkfix.fix runs")
     main(parser.parse_args())

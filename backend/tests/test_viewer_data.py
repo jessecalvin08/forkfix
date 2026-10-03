@@ -40,3 +40,42 @@ def test_export_carries_candidate_grades():
     cand = export_mode(mode())["candidates"]["0.1"]
     assert cand["resolved"] and cand["fail_to_pass"] == [1, 1] and cand["pass_to_pass"] == [8, 8]
     assert cand["patch"].startswith("diff --git")
+
+
+# --- real-issue export ---
+
+def issue_report(issue="https://github.com/o/r/issues/7", candidates=None, proven=False):
+    return {
+        "plan": {"issue": issue, "title": "Bug", "config": {"max_steps": 30}},
+        "setup": {"commit": "c" * 40}, "total_spend": {"prompt_tokens": 900, "completion_tokens": 100, "sandbox_spawns": 12},
+        "result": {"selected": "0.1", "proven": proven, "candidates": candidates if candidates is not None else [{
+            "id": "0.1", "stop_reason": "submitted", "steps": 9, "judge_score": 10.0, "reproduction_ok": False,
+            "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+            "existing_tests": "41/41 pass.", "patch": "x" * 5000}]},
+    }
+
+
+def test_issue_export_pairs_the_judge_score_with_the_proof_verdict_and_trims_patches():
+    import json
+    from forkfix.viewer_data import PATCH_CHARS, export_issue, export_real_issues
+    out = export_issue(issue_report(), "20260930T095914Z-x.json")
+    assert out["issue"] == "o/r#7" and out["run"] == "20260930" and out["tokens"] == 1000
+    cand = out["candidates"][0]
+    assert cand["judge"] == 10.0 and cand["proven"] is False and len(cand["patch"]) == PATCH_CHARS
+    assert "tree" not in out and out["note"] is None
+
+
+def test_real_issue_index_keeps_the_newest_finished_run_per_issue_and_skips_failed_setups(tmp_path):
+    import json
+    from forkfix.viewer_data import export_real_issues
+    reports, out = tmp_path / "fix", tmp_path / "out"
+    reports.mkdir()
+    failed = issue_report(); del failed["result"]
+    (reports / "20260930T000001Z-a.json").write_text(json.dumps(failed))
+    (reports / "20260930T000002Z-a.json").write_text(json.dumps(issue_report(candidates=[])))
+    (reports / "20260930T000003Z-a.json").write_text(json.dumps(issue_report(proven=True)))
+    (reports / "20260930T000004Z-b.json").write_text(json.dumps(issue_report("https://github.com/o/r/issues/8")))
+    assert export_real_issues(reports, out) == 2
+    index = json.loads((out / "index.json").read_text())
+    assert index["issues"] == 2 and index["proven"] == 1 and index["patched"] == 2
+    assert export_real_issues(tmp_path / "empty", tmp_path / "none") == 0

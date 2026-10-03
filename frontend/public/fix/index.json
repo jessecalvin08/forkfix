@@ -1,0 +1,196 @@
+{
+ "issues": 6,
+ "proven": 0,
+ "patched": 4,
+ "tokens": 13384938,
+ "rows": [
+  {
+   "issue": "pallets/itsdangerous#389",
+   "url": "https://github.com/pallets/itsdangerous/issues/389",
+   "title": "serializer_kwargs are missing in load_payload function",
+   "run": "20260930",
+   "commit": "672971d66a2ef9f85151e53283113f33d642dabd",
+   "max_steps": 30,
+   "tokens": 1560898,
+   "sandbox_runs": 103,
+   "selected": "0.0.0.2",
+   "proven": false,
+   "candidates": [
+    {
+     "id": "0.0.2.1",
+     "stop": "submitted",
+     "steps": 22,
+     "judge": 9.0,
+     "proven": false,
+     "reproduction": "No reproduction test (forkfix_repro_test.py) was written.",
+     "existing_tests": "Existing tests tests/test_itsdangerous/test_serializer.py: 40/41 pass. 1 previously passing tests now fail, e.g. tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer_kwargs[Serializer]. This is expected only if the issue asks to change the behaviour they check.",
+     "patch": "diff --git a/src/itsdangerous/serializer.py b/src/itsdangerous/serializer.py\nindex 5ed949c..f9ffc3e 100644\n--- a/src/itsdangerous/serializer.py\n+++ b/src/itsdangerous/serializer.py\n@@ -258,9 +258,9 @@ class Serializer(t.Generic[_TSerialized]):\n \n         try:\n             if is_text:\n-                return use_serializer.loads(payload.decode(\"utf-8\"))  # type: ignore[arg-type]\n+                return use_serializer.loads(payload.decode(\"utf-8\"), **self.serializer_kwargs)  # type: ignore[arg-type]\n \n-            return use_serializer.loads(payload)  # type: ignore[arg-type]\n+            return use_serializer.loads(payload, **self.serializer_kwargs)  # type: ignore[arg-type]\n         except Exception as e:\n             raise BadPayload(\n                 \"Could not load the payload because an exception\"\n"
+    },
+    {
+     "id": "0.0.0.2",
+     "stop": "submitted",
+     "steps": 26,
+     "judge": 10.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_itsdangerous/test_serializer.py: 41/41 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/itsdangerous/serializer.py b/src/itsdangerous/serializer.py\nindex 5ed949c..ba90eda 100644\n--- a/src/itsdangerous/serializer.py\n+++ b/src/itsdangerous/serializer.py\n@@ -260,7 +260,7 @@ class Serializer(t.Generic[_TSerialized]):\n             if is_text:\n                 return use_serializer.loads(payload.decode(\"utf-8\"))  # type: ignore[arg-type]\n \n-            return use_serializer.loads(payload)  # type: ignore[arg-type]\n+            return use_serializer.loads(payload, **self.serializer_kwargs)  # type: ignore[arg-type]\n         except Exception as e:\n             raise BadPayload(\n                 \"Could not load the payload because an exception\"\n"
+    },
+    {
+     "id": "0.0.0.0",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 9.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_itsdangerous/test_serializer.py: 40/41 pass. 1 previously passing tests now fail, e.g. tests/test_itsdangerous/test_serializer.py::TestSerializer::test_serializer_kwargs[Serializer]. This is expected only if the issue asks to change the behaviour they check.",
+     "patch": "diff --git a/src/itsdangerous/serializer.py b/src/itsdangerous/serializer.py\nindex 5ed949c..22d7ac1 100644\n--- a/src/itsdangerous/serializer.py\n+++ b/src/itsdangerous/serializer.py\n@@ -258,9 +258,15 @@ class Serializer(t.Generic[_TSerialized]):\n \n         try:\n             if is_text:\n-                return use_serializer.loads(payload.decode(\"utf-8\"))  # type: ignore[arg-type]\n+                if self.serializer_kwargs is not None:\n+                    return use_serializer.loads(payload.decode(\"utf-8\"), **self.serializer_kwargs)  # type: ignore[arg-type]\n+                else:\n+                    return use_serializer.loads(payload.decode(\"utf-8\"))  # type: ignore[arg-type]\n \n-            return use_serializer.loads(payload)  # type: ignore[arg-type]\n+            if self.serializer_kwargs is not None:\n+                return use_serializer.loads(payload, **self.serializer_kwargs)  # type: ignore[arg-type]\n+            else:\n+                return use_serializer.loads(payload)  # type: ignore[arg-type]\n         except Exception as e:\n             raise BadPayload(\n                 \"Could not load the payload because an exception\"\n"
+    },
+    {
+     "id": "0.0.0.1",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 10.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_itsdangerous/test_serializer.py: 41/41 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/itsdangerous/serializer.py b/src/itsdangerous/serializer.py\nindex 5ed949c..ba90eda 100644\n--- a/src/itsdangerous/serializer.py\n+++ b/src/itsdangerous/serializer.py\n@@ -260,7 +260,7 @@ class Serializer(t.Generic[_TSerialized]):\n             if is_text:\n                 return use_serializer.loads(payload.decode(\"utf-8\"))  # type: ignore[arg-type]\n \n-            return use_serializer.loads(payload)  # type: ignore[arg-type]\n+            return use_serializer.loads(payload, **self.serializer_kwargs)  # type: ignore[arg-type]\n         except Exception as e:\n             raise BadPayload(\n                 \"Could not load the payload because an exception\"\n"
+    }
+   ],
+   "note": "Checked separately on 2026-09-30 (sandbox only, no model calls). The selected patch forwards serializer_kwargs on the bytes path only, so a hand-written stdlib repro test still failed on it. With both paths patched the test passed, but the repository's own test_serializer_kwargs then failed: it passes skipkeys, which json.dumps accepts and json.loads does not. serializer_kwargs is probably meant for dumps only, so this issue is likely intended behaviour, not a bug."
+  },
+  {
+   "issue": "astanin/python-tabulate#71",
+   "url": "https://github.com/astanin/python-tabulate/issues/71",
+   "title": "`floatfmt` doesn't work when `tablefmt=\"pretty\"`",
+   "run": "20260930",
+   "commit": "268615a5c27dc40e5c22454c07b44d5c50410da0",
+   "max_steps": 30,
+   "tokens": 2321801,
+   "sandbox_runs": 109,
+   "selected": null,
+   "proven": false,
+   "candidates": [],
+   "note": null
+  },
+  {
+   "issue": "jazzband/prettytable#173",
+   "url": "https://github.com/jazzband/prettytable/issues/173",
+   "title": "Usage of get_html_string() ends up with `TypeError: cannot pickle '_thread.lock' object`",
+   "run": "20260930",
+   "commit": "f1563ab4bdfaa6884b70d40f8e437e94bbbca604",
+   "max_steps": 30,
+   "tokens": 1531590,
+   "sandbox_runs": 100,
+   "selected": null,
+   "proven": false,
+   "candidates": [],
+   "note": null
+  },
+  {
+   "issue": "mahmoud/boltons#301",
+   "url": "https://github.com/mahmoud/boltons/issues/301",
+   "title": "`FunctionBuilder.from_func` not working",
+   "run": "20260930",
+   "commit": "4e5faa3d7e4008d89e0d8bf1ea87b6d9a061a16d",
+   "max_steps": 30,
+   "tokens": 2966863,
+   "sandbox_runs": 172,
+   "selected": "0.0.2.1",
+   "proven": false,
+   "candidates": [
+    {
+     "id": "0.0.0.1",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 5.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..68a0a69 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -851,6 +851,12 @@ class FunctionBuilder:\n                       'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n                       'annotations': getattr(func, \"__annotations__\", {}),\n                       'dict': getattr(func, '__dict__', {})}\n+            # Extract body from function source to preserve original behavior\n+            try:\n+                kwargs[\"body\"] = inspect.getsource(func)\n+            except (OSError, TypeError):\n+                # Fall back to default body if source cannot be retrieved\n+                kwargs[\"body\"] = \"pass\"\n \n         kwargs.update(cls._argspec_to_dict(func))\n \n"
+    },
+    {
+     "id": "0.0.2.1",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 8.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..548285b 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -747,6 +747,7 @@ class FunctionBuilder:\n                  'filename': lambda: 'boltons.funcutils.FunctionBuilder'}\n \n     _defaults.update(_argspec_defaults)\n+    _default_body = 'pass'\n \n     _compile_count = itertools.count()\n \n@@ -830,43 +831,68 @@ class FunctionBuilder:\n \n     @classmethod\n     def from_func(cls, func):\n-        \"\"\"Create a new FunctionBuilder instance based on an existing\n-        function. The original function will not be stored or\n-        modified.\n-        \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n-        if not callable(func):\n-            raise TypeError(f'expected callable object, not {func!r}')\n-\n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n-\n-        kwargs.update(cls._argspec_to_dict(func))\n-\n-        # getfullargspec merges positional-only params into args; recover\n-        # them from the code object so they are never keyword-forwarded.\n-        # (functools.partial objects have no __code__; posonly detection\n-        # is skipped for them, preserving today's behavior.)\n-        n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n-        if n_posonly:\n-            kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n-\n-        if inspect.iscoroutinefunction(func):\n-            kwargs['is_async'] = True\n-\n-        return cls(**kwargs)\n+              \"\"\"Create a new FunctionBuilder instance based on an existing\n+              function. The original function will not be stored or\n+              modified.\n+              \"\"\"\n+              if not callable(func):\n+                  raise TypeError(f'expected callable object, not {func!r}')\n+\n+              # Extract body from function's source code\n+              body = 'pass'  # default body\n+              try:\n+                  source = inspect.getsource(func)\n+                  # Find the body by looking for the function definition and getting everything after the colon\n+                  lines = source.split('\\n')\n+                  body_lines = []\n+                  found_def = False\n+                  for line i"
+    },
+    {
+     "id": "0.0.1.0",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 8.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..6445bcc 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -834,24 +834,19 @@ class FunctionBuilder:\n         function. The original function will not be stored or\n         modified.\n         \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n         if not callable(func):\n             raise TypeError(f'expected callable object, not {func!r}')\n \n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n+        # Start with basic attributes\n+        kwargs = {\n+            'name': func.__name__,\n+            'doc': func.__doc__,\n+            'module': getattr(func, '__module__', None),\n+            'annotations': getattr(func, \"__annotations__\", {}),\n+            'dict': getattr(func, '__dict__', {})\n+        }\n \n+        # Add arguments information\n         kwargs.update(cls._argspec_to_dict(func))\n \n         # getfullargspec merges positional-only params into args; recover\n@@ -859,13 +854,42 @@ class FunctionBuilder:\n         # (functools.partial objects have no __code__; posonly detection\n         # is skipped for them, preserving today's behavior.)\n         n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n+                              'co_posonlyargcount', 0)\n         if n_posonly:\n             kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n \n         if inspect.iscoroutinefunction(func):\n             kwargs['is_async'] = True\n \n+        # Extract the function body from source code\n+        try:\n+            import inspect\n+            source_lines = inspect.getsource(func).split('\\n')\n+            # Find the function definition line\n+            for i, line in enumerate(source_lines):\n+                if line.strip().startswith('def '):\n+                    # Get the indentation of the function definition\n+                    def_indent = len(line) - len(line.lstrip())\n+                    # Collect all lines that are indented more than the function definition\n+                    body_lines = []\n+                    for j in range(i + 1, len(source_lines)):\n+                        current_line = source_lines[j]\n+                        current_indent = len(curr"
+    },
+    {
+     "id": "0.0.1.1",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 3.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_funcutils.py: 8/8 pass. None that passed before fail now.",
+     "patch": "diff --git a/boltons/funcutils.py b/boltons/funcutils.py\nindex 1a8c5f4..da8b0e4 100644\n--- a/boltons/funcutils.py\n+++ b/boltons/funcutils.py\n@@ -834,24 +834,19 @@ class FunctionBuilder:\n         function. The original function will not be stored or\n         modified.\n         \"\"\"\n-        # TODO: copy_body? gonna need a good signature regex.\n-        # TODO: might worry about __closure__?\n         if not callable(func):\n             raise TypeError(f'expected callable object, not {func!r}')\n \n-        if isinstance(func, functools.partial):\n-            kwargs = {'name': func.func.__name__,\n-                      'doc': func.func.__doc__,\n-                      'module': getattr(func.func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func.func, \"__annotations__\", {}),\n-                      'dict': getattr(func.func, '__dict__', {})}\n-        else:\n-            kwargs = {'name': func.__name__,\n-                      'doc': func.__doc__,\n-                      'module': getattr(func, '__module__', None),  # e.g., method_descriptor\n-                      'annotations': getattr(func, \"__annotations__\", {}),\n-                      'dict': getattr(func, '__dict__', {})}\n+        # Extract function signature info\n+        kwargs = {\n+            'name': func.__name__,\n+            'doc': func.__doc__,\n+            'module': getattr(func, '__module__', None),\n+            'annotations': getattr(func, '__annotations__', {}),\n+            'dict': getattr(func, '__dict__', {})\n+        }\n \n+        # Add argument information\n         kwargs.update(cls._argspec_to_dict(func))\n \n         # getfullargspec merges positional-only params into args; recover\n@@ -859,13 +854,34 @@ class FunctionBuilder:\n         # (functools.partial objects have no __code__; posonly detection\n         # is skipped for them, preserving today's behavior.)\n         n_posonly = getattr(getattr(func, '__code__', None),\n-                            'co_posonlyargcount', 0)\n+                              'co_posonlyargcount', 0)\n         if n_posonly:\n             kwargs['posonlyargs'] = list(kwargs['args'][:n_posonly])\n \n         if inspect.iscoroutinefunction(func):\n             kwargs['is_async'] = True\n \n+        # Extract the body from the function's source code\n+        try:\n+            source_lines = inspect.getsource(func).split('\\n')\n+            # Find the function body - everything after the def line that is indented\n+            body_lines = []\n+            in_function = False\n+            for line in source_lines:\n+                stripped = line.strip()\n+                if stripped.startswith('def '):\n+                    in_function = True\n+                    continue\n+                if in_function:\n+                    if stripped and not line.startswith(' '):\n+                        # Next function or end of function\n+                        break\n+                    body_lines.append(line)\n+            kwargs['body'] "
+    }
+   ],
+   "note": null
+  },
+  {
+   "issue": "astanin/python-tabulate#230",
+   "url": "https://github.com/astanin/python-tabulate/issues/230",
+   "title": "Incorrect row width when using SEPARATING_LINE with some table formats",
+   "run": "20260930",
+   "commit": "268615a5c27dc40e5c22454c07b44d5c50410da0",
+   "max_steps": 30,
+   "tokens": 2840376,
+   "sandbox_runs": 140,
+   "selected": "0.1.0.2",
+   "proven": false,
+   "candidates": [
+    {
+     "id": "0.1.0.2",
+     "stop": "step_limit",
+     "steps": 30,
+     "judge": 1.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..6b33999 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -2496,6 +2496,9 @@ def _expand_iterable(original, num_desired, default):\n def _pad_row(cells, padding):\n     if cells:\n         if cells == SEPARATING_LINE:\n+            # When we encounter a SEPARATING_LINE, we need to create a full-width separator\n+            # This should be handled at a higher level by replacing the SEPARATING_LINE\n+            # with an appropriate separator line that spans the full table width\n             return SEPARATING_LINE\n         pad = \" \" * padding\n         padded_cells = [pad + cell + pad for cell in cells]\n"
+    }
+   ],
+   "note": null
+  },
+  {
+   "issue": "astanin/python-tabulate#315",
+   "url": "https://github.com/astanin/python-tabulate/issues/315",
+   "title": "[bug] Error if trying to render a table with no rows using maxcolwidths",
+   "run": "20260930",
+   "commit": "268615a5c27dc40e5c22454c07b44d5c50410da0",
+   "max_steps": 30,
+   "tokens": 2163410,
+   "sandbox_runs": 174,
+   "selected": "0.1.0.1",
+   "proven": false,
+   "candidates": [
+    {
+     "id": "0.1.0.1",
+     "stop": "submitted",
+     "steps": 16,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": null,
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..c8a5f83 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -2250,7 +2250,7 @@ def tabulate(\n         else:\n             num_cols = 0\n         if isinstance(maxcolwidths, int):  # Expand scalar for all columns\n-            maxcolwidths = _expand_iterable(maxcolwidths, num_cols, maxcolwidths)\n+            maxcolwidths = _expand_iterable([maxcolwidths], num_cols, None)\n         else:  # Ignore col width for any 'trailing' columns\n             maxcolwidths = _expand_iterable(maxcolwidths, num_cols, None)\n \n"
+    }
+   ],
+   "note": null
+  }
+ ]
+}

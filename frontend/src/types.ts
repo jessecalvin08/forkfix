@@ -97,3 +97,39 @@ export interface RunIndex {
   };
   rows: IndexRow[];
 }
+
+// Real GitHub issues (backend/forkfix/fix.py), written by export_real_issues in viewer_data.py.
+export interface IssueCandidate {
+  id: string;
+  stop: string;
+  steps: number;
+  judge: number | null;
+  /** The agent's own reproduction test failed on the unfixed repo and passed on this branch. */
+  proven: boolean;
+  reproduction: string | null;
+  existing_tests: string | null;
+  patch: string;
+}
+
+export interface RealIssue {
+  issue: string;
+  url: string;
+  title: string;
+  run: string;
+  commit: string;
+  max_steps: number;
+  tokens: number;
+  sandbox_runs: number;
+  selected: string | null;
+  proven: boolean;
+  candidates: IssueCandidate[];
+  note: string | null;
+}
+
+export interface RealIssueIndex {
+  issues: number;
+  proven: number;
+  patched: number;
+  tokens: number;
+  rows: RealIssue[];
+}

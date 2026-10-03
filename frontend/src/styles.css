@@ -368,3 +368,37 @@ thead .num { font-family: var(--display); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ------------------------------------------------------------------------
+ * Real issues: no green here, because nothing was proven
+ * --------------------------------------------------------------------- */
+.real-intro { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; margin-bottom: 40px; }
+.real-intro p { margin: 0; max-width: 62ch; color: var(--ink-2); font-size: 14px; line-height: 1.65; }
+.real-intro strong { color: var(--ink); font-weight: 600; }
+.real-table { min-width: 720px; background: var(--card); border: 1px solid var(--rule); }
+.real-table th:first-child, .real-table td:first-child { padding-left: 16px; }
+.real-table tbody th { font-weight: 400; }
+.real-table a { color: var(--ink); text-decoration-color: var(--rule); text-underline-offset: 3px; }
+.real-table a:hover { text-decoration-color: var(--ink); }
+.real-table .row-note { max-width: 52ch; }
+.real-table .detail-row td { padding: 0 16px 14px; }
+.verdict { font-family: var(--mono); font-size: 13px; color: var(--ink-3); }
+.verdict.proven { color: var(--fix); font-weight: 700; }
+.issue-detail { font-size: 13px; }
+.issue-detail > summary { color: var(--ink-2); cursor: pointer; }
+.issue-note { max-width: 78ch; margin: 12px 0 0; padding-left: 12px; border-left: 2px solid var(--ink-3); color: var(--ink-2); line-height: 1.6; }
+.cand-list { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.cand { padding: 12px 14px; border: 1px solid var(--rule); background: var(--paper); }
+.cand-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 6px; }
+.cand-line { max-width: 80ch; margin: 4px 0 0; color: var(--ink-2); line-height: 1.55; }
+.cand-line strong { color: var(--ink); font-weight: 600; }
+.cand details { margin-top: 8px; }
+.cand summary { color: var(--ink-2); cursor: pointer; }
+.cand pre {
+  max-height: 240px; overflow: auto; margin: 8px 0 0; padding: 12px;
+  border: 1px solid var(--rule); background: var(--card);
+  font-family: var(--mono); font-size: 12px; line-height: 1.55; white-space: pre;
+}
+.tag { padding: 1px 7px; border: 1px solid var(--ink-3); font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+.real-foot { max-width: 80ch; margin: 20px 0 0; color: var(--ink-3); font-size: 13px; line-height: 1.6; }
+@media (max-width: 760px) { .real-intro { grid-template-columns: 1fr; gap: 16px; } }
