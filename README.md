@@ -71,11 +71,12 @@ and each task's official SWE-bench image grades correctly (unfixed fails, refere
 
 `frontend/` is a static page that replays every benchmark run: the results table, then each task's
 tree in all three modes, with every branch's actions, judge score, existing-test check, patch and
-hidden-test grade. Its data (`frontend/public/runs/`, tracked) is exported from the same reports as
-`results/benchmark.json`:
+hidden-test grade, and a section for the first runs on real GitHub issues. Its data (`frontend/public/runs/`
+and `frontend/public/fix/`, tracked) is exported from the saved reports; the export requires both task lists,
+since the default covers only the first 40 tasks:
 
 ```powershell
-cd backend; .\.venv\Scripts\python.exe -m forkfix.report; .\.venv\Scripts\python.exe -m forkfix.viewer_data
+cd backend; .\.venv\Scripts\python.exe -m forkfix.viewer_data --tasks-file benchmark_tasks.json benchmark_tasks_ext.json
 cd ..\frontend; npm install; npm run dev    # http://localhost:5173
 ```
 
@@ -111,30 +112,37 @@ Runs that spend credits require `--approve` and stop at `--max-tokens`. Evidence
 git-ignored `backend/reports/`.
 
 
-## Benchmark extension (prepared, not run)
+## Real GitHub issues (first live run, not yet a result)
 
-`backend/benchmark_tasks_ext.json` contains exactly the other 39 of the 79 harness-eligible tasks,
-with no overlap with the original 40. Run the one-attempt, branching, and matched modes on these tasks to extend the three-way comparison.
-Saved 40-task reports project roughly 82M tokens, 5,200 sandbox runs, and $9.40 in model charges
-for all three modes across 39 tasks; actual difficulty and cost may differ. More tasks may strengthen
-or weaken the result; significance is not promised. Run only after confirming promotional credit
-coverage and approving the paid run. The original 40-task result remains the published evidence until new runs finish.
+`python -m forkfix.fix <issue-url>` runs the same search on a real open issue with no hidden tests.
+The agent writes its own reproduction test first; a branch counts as a fix only if that test fails on
+the unfixed repository and passes on the branch. On the first live run (6 issues from 6 public
+repositories, 13.4M model tokens), 4 runs produced a patch and **none passed that proof check**. The
+judge model gave scores up to 10/10 to patches the proof check rejected, which is why its score alone is
+not treated as evidence. The agent has been changed since that run (no package installs, more steps, a
+cap on unproven judge scores); those changes have not been run against a live model. Nothing has been
+submitted to any project. The results are in the viewer's "Real issues" section, with each branch's
+patch available to download.
 
-Free reporting commands from `backend/`, after the extension completes:
+## Re-running the benchmark extension
+
+The extension (`backend/benchmark_tasks_ext.json`, the other 39 tasks) has run; its results are in
+[`results/benchmark_ext.json`](results/benchmark_ext.json) and the pooled
+[`results/benchmark_all.json`](results/benchmark_all.json). The free reporting commands, from `backend/`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m forkfix.report --tasks-file benchmark_tasks_ext.json --modes linear,branching,matched --out ..\results\benchmark_ext.json
 .\.venv\Scripts\python.exe -m forkfix.report --tasks-file benchmark_tasks.json benchmark_tasks_ext.json --modes linear,branching,matched --out ..\results\benchmark_all.json
 ```
 
-The combined report requires both compared modes on every included task, lists missing/failed tasks,
-rejects duplicate task lists, and keeps each cohort's report cutoff. It includes all three modes only when each task has a valid report for every required mode.
+The combined report requires every compared mode on every included task, lists missing or failed tasks,
+rejects duplicate task lists, and ignores reports whose filename date is earlier than the task list's
+`created` date.
 
-Before buying credits, check the [official hackathon resources](https://nebiusglobalaihackathon.devpost.com/resources):
-they advertise $25 Token Factory credits with the hackathon activation code, plus another $25 through
-the free [Nebius Builders Program](https://dev.nebius.com/builders) (checked September 27, 2026).
-Redemption eligibility and whether either offer was already claimed must be checked in the account.
-The saved-run viewer and offline development need no model credits.
+Re-running any paid mode needs model credits (the hackathon activation code gives $25 of Token Factory
+credit; see the [official resources](https://nebiusglobalaihackathon.devpost.com/resources)). Whether an
+offer was already claimed must be checked in the account. The saved-run viewer and offline development
+need no model credits.
 
 ## History
 

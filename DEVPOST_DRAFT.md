@@ -50,6 +50,15 @@ Forkfix uses Nebius Token Factory for Nemotron model calls and Nebius Sandboxes 
 
 The benchmark includes a one-attempt baseline, a branching search, and independent attempts given the token budget used by branching on that task. Reports preserve the trees, actions, patches, checks, model-token counts, and grading results. A static viewer replays the saved runs; it does not run a live public agent.
 
+## Real GitHub issues: not yet a result
+
+We also pointed Forkfix at 6 open issues in public repositories, where no hidden tests exist. The agent
+writes a reproduction test first, and a branch counts as a fix only if that test fails on the unfixed
+repository and passes on the branch. On this first live run, 4 of 6 runs produced a patch and none passed
+the proof check. The judge model scored some of those patches up to 10/10, so we do not treat its score as
+evidence. We changed the agent afterwards, and those changes have not been run live. We have not
+submitted anything to any project, and we do not claim a fix rate on real issues.
+
 ## What we learned
 
 The first five-task comparison exposed a miscalibrated judge, overly strict edit matching, fragile provider retries, and the need for an equal-compute baseline. We corrected those issues before the 40-task benchmark. We also found that a small number of existing tests can assert the old behavior even when an issue requests a deliberate behavior change, so those failures should inform the judge rather than automatically disqualify a patch.
