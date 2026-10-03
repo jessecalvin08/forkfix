@@ -65,6 +65,28 @@ The first five-task comparison exposed a miscalibrated judge, overly strict edit
 
 Forking only helps if the search can produce meaningfully different candidates and the selection process can recognize the right one. On some tasks, a candidate passed hidden tests but the system selected another patch. Candidate selection remains a limitation.
 
+## Feedback on the platforms (draft; all points are from our own logs and probes)
+
+**Nebius Sandboxes (beta).** Checkpoint-and-branch is what made this project possible: 16 forks of one
+snapshot ran in parallel in 7.8 s with isolation intact, and a fork costs nothing until it runs. Measured
+limits that shaped the design: 50 concurrent instances, 3,600 s per instance, 8 concurrent image imports; a
+SWE-bench image imported from Docker Hub in about 55 s. Requests: surface the per-instance limits and a
+running cost in the API response (runs reported a `cost`, but no Sandbox charge appeared in billing during the
+beta, so we could not tell what a branch would cost later); clearer errors when connections drop mid-run, since
+transient transport failures were our biggest source of invalid runs and we had to add our own retry and
+"infra stop" handling.
+
+**Nebius Token Factory.** Strict `json_schema` output worked reliably for agent actions with Nemotron 3 Nano
+and Super. Nemotron 3 Nano spends 3,000-4,000 tokens thinking before each action, so we needed a
+`max_tokens` of 16,384 and a retry with thinking turned off (`enable_thinking: false`), which also worked.
+Documenting that behaviour and the recommended setting for agent loops would have saved us a day.
+
+**NVIDIA API catalog (probes on 2026-09-27; historical, not a current guarantee).** We tried to move the
+benchmark to NVIDIA's hosted API to save credit. `nemotron-3-nano-30b-a3b` returned HTTP 410 (retired),
+the listed `nemotron-nano-3-30b-a3b` returned 404, and the one working 30B-A3B model we found is a
+different model whose free queue took 308 s for a single call. A model that is listed but returns 404, or
+retired without redirecting, makes a fair comparison on a named model hard to reproduce.
+
 ## Limitations and next step
 
 The benchmark now covers all 79 of 104 held-out pytest-based tasks whose grading harnesses were
