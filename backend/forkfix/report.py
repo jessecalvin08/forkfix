@@ -52,10 +52,14 @@ def estimate_usd(spend: dict) -> float | None:
     return round(cost, 4)
 
 
-def latest_reports(folder: Path, tasks: list[str], since: float) -> dict[str, dict]:
+def latest_reports(folder: Path, tasks: list[str], since: str = "") -> dict[str, dict]:
+    """Newest report per task. `since` is an ISO date (a task list's `created`): reports whose filename
+    timestamp (`YYYYMMDDT...Z-`, written when the run started) is earlier are ignored. File mtimes are not
+    used, because a git checkout resets them."""
+    cutoff = since.replace("-", "")
     records: dict[str, dict] = {}
     for path in sorted(folder.glob("*.json")):
-        if path.name.endswith("-summary.json") or path.stat().st_mtime < since:
+        if path.name.endswith("-summary.json") or path.name[:8] < cutoff:
             continue
         record = json.loads(path.read_text(encoding="utf-8"))
         if record.get("instance_id") in tasks and "modes" in record:
@@ -127,7 +131,7 @@ def main(args: argparse.Namespace) -> None:
         benchmark = json.loads(tasks_file.read_text(encoding="utf-8"))
         if len(set(benchmark["tasks"])) != len(benchmark["tasks"]) or set(tasks) & set(benchmark["tasks"]):
             raise SystemExit("task lists must contain unique, non-overlapping tasks")
-        since = tasks_file.stat().st_mtime if args.since_benchmark_file else 0.0
+        since = benchmark["created"] if args.since_benchmark_file else ""
         records.update(latest_reports(REPORTS / "day2", benchmark["tasks"], since))
         tasks.extend(benchmark["tasks"])
         sources.append({"file": tasks_file.name, "seed": benchmark["seed"], "created": benchmark["created"]})

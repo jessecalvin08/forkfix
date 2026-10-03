@@ -147,7 +147,7 @@ def main(args: argparse.Namespace) -> None:
         benchmark = json.loads(tasks_file.read_text(encoding="utf-8"))
         if len(set(benchmark["tasks"])) != len(benchmark["tasks"]) or set(tasks) & set(benchmark["tasks"]):
             raise SystemExit("task lists must contain unique, non-overlapping tasks")
-        records.update(latest_reports(REPORTS / "day2", benchmark["tasks"], tasks_file.stat().st_mtime))
+        records.update(latest_reports(REPORTS / "day2", benchmark["tasks"], benchmark["created"]))
         tasks.extend(benchmark["tasks"])
         sources.append({"file": tasks_file.name, "seed": benchmark["seed"], "created": benchmark["created"]})
     result = build(records, tasks)

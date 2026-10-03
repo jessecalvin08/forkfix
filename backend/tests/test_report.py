@@ -72,14 +72,14 @@ def test_combined_cli_preserves_each_lists_report_cutoff(tmp_path, monkeypatch):
     folder = tmp_path / "day2"
     folder.mkdir()
     first, extension = tmp_path / "first.json", tmp_path / "extension.json"
-    for path, task, cutoff in ((first, "original", 100), (extension, "new", 200)):
-        path.write_text(json.dumps({"tasks": [task], "seed": 0, "created": "2026-09-27"}))
-        os.utime(path, (cutoff, cutoff))
+    # The extension list was created after the report for "new" was written; mtimes must not matter.
+    for path, task, created in ((first, "original", "2026-09-27"), (extension, "new", "2026-09-28")):
+        path.write_text(json.dumps({"tasks": [task], "seed": 0, "created": created}))
+        os.utime(path, (200, 200) if task == "original" else (100, 100))
         record_path = folder / f"20260927-{task}.json"
         record_path.write_text(json.dumps({"instance_id": task, "modes": {
             "branching": mode(True), "matched": mode(False),
         }}))
-        os.utime(record_path, (150, 150))
     monkeypatch.setattr(report, "REPORTS", tmp_path)
     output = tmp_path / "combined.json"
     args = argparse.Namespace(tasks_file=[str(first), str(extension)], out=str(output),
