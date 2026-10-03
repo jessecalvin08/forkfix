@@ -16,6 +16,7 @@ that do, then orders by judge score. Hidden tests are never consulted.
 from __future__ import annotations
 
 import asyncio
+import sys
 from dataclasses import dataclass
 
 from .agent import Action, ActionError, AgentModel, Trajectory, apply, collect_patch
@@ -169,6 +170,8 @@ class Search:
                 for group in stepped:
                     for t in group:
                         (finished if t.done else active).append(t)
+                print(f"[round {rounds}] active={len(active)} finished={len(finished)} tokens={self.meter.tokens}",
+                      file=sys.stderr, flush=True)
                 if len(active) > self.config.width and (self.judge or self.verifier):
                     await self._evaluate(active, self.meter)
                     active.sort(key=self._rank, reverse=True)

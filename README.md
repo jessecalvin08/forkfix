@@ -116,13 +116,16 @@ git-ignored `backend/reports/`.
 
 `python -m forkfix.fix <issue-url>` runs the same search on a real open issue with no hidden tests.
 The agent writes its own reproduction test first; a branch counts as a fix only if that test fails on
-the unfixed repository and passes on the branch. On the first live run (6 issues from 6 public
-repositories, 13.4M model tokens), 4 runs produced a patch and **none passed that proof check**. The
-judge model gave scores up to 10/10 to patches the proof check rejected, which is why its score alone is
-not treated as evidence. The agent has been changed since that run (no package installs, more steps, a
-cap on unproven judge scores); those changes have not been run against a live model. Nothing has been
-submitted to any project. The results are in the viewer's "Real issues" section, with each branch's
-patch available to download.
+the unfixed repository and passes on the branch, and it should not break the project's existing tests.
+First live run (September 30; 6 issues from 6 public repositories): 4 runs produced a patch and none
+passed that check. The judge gave scores up to 10/10 to patches the check rejected. The agent was then
+changed (no package installs, more steps, a cap on unproven judge scores) and itsdangerous #389 was re-run
+on October 3 (2.9M model tokens, about $0.40 at list price): one patch passed the agent's own test, and the
+judge gave it 10/10, but it breaks the project's own `test_serializer_kwargs` (that test passes `skipkeys`,
+which `json.dumps` accepts and `json.loads` does not). The issue most likely asks for behaviour the project
+does not intend, so **we count no real-issue fix as proven or mergeable**. The other five issues have not been
+re-run with the changed agent. Nothing has been submitted to any project. The results are in the viewer's
+"Real issues" section, with each branch's patch available to download.
 
 ## Re-running the benchmark extension
 

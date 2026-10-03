@@ -109,6 +109,8 @@ export interface IssueCandidate {
   reproduction: string | null;
   existing_tests: string | null;
   patch: string;
+  /** The repository's own tests that passed before now fail on this branch. */
+  regressions: boolean;
 }
 
 export interface RealIssue {
@@ -122,6 +124,8 @@ export interface RealIssue {
   sandbox_runs: number;
   selected: string | null;
   proven: boolean;
+  /** The selected branch is proven and breaks no existing test. */
+  clean: boolean;
   candidates: IssueCandidate[];
   note: string | null;
 }
@@ -129,6 +133,7 @@ export interface RealIssue {
 export interface RealIssueIndex {
   issues: number;
   proven: number;
+  clean: number;
   patched: number;
   tokens: number;
   rows: RealIssue[];

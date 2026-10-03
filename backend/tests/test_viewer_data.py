@@ -79,3 +79,16 @@ def test_real_issue_index_keeps_the_newest_finished_run_per_issue_and_skips_fail
     index = json.loads((out / "index.json").read_text())
     assert index["issues"] == 2 and index["proven"] == 1 and index["patched"] == 2
     assert export_real_issues(tmp_path / "empty", tmp_path / "none") == 0
+
+
+def test_a_proven_patch_that_breaks_an_existing_test_is_not_clean():
+    from forkfix.viewer_data import export_issue
+    report = issue_report()
+    result = report["result"]
+    cand = result["candidates"][0]
+    cand.update(reproduction_ok=True, existing_tests="1 previously passing tests now fail, e.g. t::x")
+    result.update(selected=cand["id"], proven=True)
+    out = export_issue(report, "20261003T000000Z-x.json")
+    assert out["proven"] is True and out["candidates"][0]["regressions"] is True and out["clean"] is False
+    cand["existing_tests"] = "Existing tests t: 41/41 pass."
+    assert export_issue(report, "20261003T000000Z-x.json")["clean"] is True

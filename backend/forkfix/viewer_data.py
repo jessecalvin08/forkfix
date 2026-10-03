@@ -83,13 +83,19 @@ def export_mode(mode: dict) -> dict:
 # Hand-written findings from checks that are not in the saved reports. Shown with their date on the page.
 ANNOTATIONS = {
     "https://github.com/pallets/itsdangerous/issues/389": (
-        "Checked separately on 2026-09-30 (sandbox only, no model calls). The selected patch forwards "
-        "serializer_kwargs on the bytes path only, so a hand-written stdlib repro test still failed on it. "
-        "With both paths patched the test passed, but the repository's own test_serializer_kwargs then failed: "
-        "it passes skipkeys, which json.dumps accepts and json.loads does not. serializer_kwargs is probably "
-        "meant for dumps only, so this issue is likely intended behaviour, not a bug."
+        "Checked on 2026-09-30 (sandbox only, no model calls) and again by the 2026-10-03 live run. Forwarding "
+        "serializer_kwargs to loads makes the repository's own test_serializer_kwargs fail: it passes skipkeys, "
+        "which json.dumps accepts and json.loads does not. serializer_kwargs is probably meant for dumps only, "
+        "so this issue is likely intended behaviour, not a bug. The 2026-10-03 patch passes the agent's own test "
+        "because that test checks only that the keyword arguments reach loads."
     ),
 }
+
+REGRESSION_MARK = "previously passing tests now fail"
+
+
+def breaks_existing_tests(candidate: dict) -> bool:
+    return REGRESSION_MARK in (candidate.get("existing_tests") or "")
 
 
 def export_issue(report: dict, name: str) -> dict:
@@ -99,7 +105,7 @@ def export_issue(report: dict, name: str) -> dict:
     candidates = [{
         "id": c["id"], "stop": c["stop_reason"], "steps": c["steps"], "judge": c["judge_score"],
         "proven": c["reproduction_ok"], "reproduction": c["reproduction"], "existing_tests": c["existing_tests"],
-        "patch": (c["patch"] or "")[:PATCH_CHARS],
+        "patch": (c["patch"] or "")[:PATCH_CHARS], "regressions": breaks_existing_tests(c),
     } for c in result.get("candidates", [])]
     slug = plan["issue"].removeprefix("https://github.com/").replace("/issues/", "#")
     return {
@@ -107,6 +113,7 @@ def export_issue(report: dict, name: str) -> dict:
         "commit": report["setup"]["commit"], "max_steps": plan["config"]["max_steps"],
         "tokens": spend["prompt_tokens"] + spend["completion_tokens"], "sandbox_runs": spend["sandbox_spawns"],
         "selected": result.get("selected"), "proven": bool(result.get("proven")), "candidates": candidates,
+        "clean": any(c["id"] == result.get("selected") and c["proven"] and not c["regressions"] for c in candidates),
         "note": ANNOTATIONS.get(plan["issue"]),
     }
 
@@ -125,6 +132,7 @@ def export_real_issues(reports: Path = REPORTS / "fix", out: Path = FIX_OUTPUT) 
     payload = {
         "issues": len(issues),
         "proven": sum(i["proven"] for i in issues),
+        "clean": sum(i["clean"] for i in issues),
         "patched": sum(bool(i["candidates"]) for i in issues),
         "tokens": sum(i["tokens"] for i in issues),
         "rows": issues,

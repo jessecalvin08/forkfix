@@ -8,6 +8,9 @@ import type { IssueCandidate, RealIssue, RealIssueIndex } from "./types";
  * when the agent's own reproduction test fails on the unfixed repository and passes on the branch.
  * Nothing here is green: green is reserved for patches that passed.
  */
+/** Runs dated on or after this used the agent changes made after the first live run. */
+const AGENT_CHANGED_ON = "20261001";
+
 export default function RealIssues() {
   const [data, setData] = useState<RealIssueIndex | null>(null);
 
@@ -22,9 +25,12 @@ export default function RealIssues() {
 
   const sorted = [...data.rows].sort((a, b) => a.issue.localeCompare(b.issue, "en", { numeric: true }));
   const heading =
-    data.proven === 0
-      ? `On ${data.issues} real GitHub issues, no patch passed the proof check.`
-      : `On ${data.issues} real GitHub issues, ${data.proven} fix${data.proven === 1 ? " was" : "es were"} proven.`;
+    data.clean > 0
+      ? `On ${data.issues} real GitHub issues, ${data.clean} fix${data.clean === 1 ? " was" : "es were"} proven and breaks no existing test.`
+      : data.proven > 0
+        ? `On ${data.issues} real GitHub issues, ${data.proven} patch passed its own proof check, and it breaks an existing test.`
+        : `On ${data.issues} real GitHub issues, no patch passed the proof check.`;
+  const rerun = sorted.filter((r) => r.run >= AGENT_CHANGED_ON).length;
 
   return (
     <section className="real" id="real-issues" aria-labelledby="real-title">
@@ -36,13 +42,15 @@ export default function RealIssues() {
           <p>
             Real issues have no hidden tests to grade against, so Forkfix asks the agent to write its own reproduction
             test first. A branch counts as a fix only if that test <strong>fails on the unfixed repository and passes
-            on the branch</strong>. The judge model scores patches too, but its score alone is not proof: it gave 10 out
-            of 10 to a patch the proof check rejected.
+            on the branch</strong>, and it should not break the project's existing tests. The judge model scores
+            patches too, but its score alone is not proof, and neither is the agent's own test: the one patch that
+            passed it breaks a test the project already had.
           </p>
           <p>
             {data.patched} of {data.issues} runs produced any patch. Together they used {fmtTokens(data.tokens)} model
-            tokens. The agent has been changed since this run (no package installs, more steps, a cap on unproven
-            scores); those changes have not been run against a live model.
+            tokens. {rerun > 0
+              ? `${rerun} issue${rerun === 1 ? " was" : "s were"} re-run after the agent was changed (no package installs, more steps, a cap on unproven scores); the other ${data.issues - rerun} are from before those changes and have not been re-run.`
+              : "The agent has been changed since these runs (no package installs, more steps, a cap on unproven scores); those changes have not been run against a live model."}
           </p>
         </div>
 
@@ -81,7 +89,11 @@ function bestJudge(row: RealIssue): number | null {
 function proofLabel(row: RealIssue): string {
   if (row.candidates.length === 0) return "No patch";
   const proven = row.candidates.filter((c) => c.proven).length;
-  return proven === 0 ? `Not proven (0 of ${row.candidates.length})` : `Proven (${proven} of ${row.candidates.length})`;
+  if (proven === 0) return `Not proven (0 of ${row.candidates.length})`;
+  const breaking = row.candidates.filter((c) => c.proven && c.regressions).length;
+  return breaking === proven
+    ? `Passed its own test, breaks an existing test (${proven} of ${row.candidates.length})`
+    : `Proven (${proven} of ${row.candidates.length})`;
 }
 
 function IssueRow({ row }: { row: RealIssue }) {
@@ -96,7 +108,7 @@ function IssueRow({ row }: { row: RealIssue }) {
         <td className="num">{row.candidates.length}</td>
         <td className="num">{best == null ? "–" : `${best} / 10`}</td>
         <td>
-          <span className={`verdict${row.proven ? " proven" : ""}`}>{proofLabel(row)}</span>
+          <span className={`verdict${row.clean ? " proven" : ""}`}>{proofLabel(row)}</span>
         </td>
         <td className="num">{fmtTokens(row.tokens)}</td>
       </tr>
