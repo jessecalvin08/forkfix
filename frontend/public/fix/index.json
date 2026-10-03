@@ -1,9 +1,9 @@
 {
  "issues": 6,
- "proven": 2,
+ "proven": 3,
  "clean": 0,
- "patched": 4,
- "tokens": 15905494,
+ "patched": 5,
+ "tokens": 17774746,
  "rows": [
   {
    "issue": "pallets/itsdangerous#389",
@@ -70,17 +70,62 @@
    "issue": "astanin/python-tabulate#71",
    "url": "https://github.com/astanin/python-tabulate/issues/71",
    "title": "`floatfmt` doesn't work when `tablefmt=\"pretty\"`",
-   "run": "20260930",
+   "run": "20261003",
    "commit": "268615a5c27dc40e5c22454c07b44d5c50410da0",
-   "max_steps": 30,
-   "tokens": 2321801,
-   "sandbox_runs": 109,
-   "selected": null,
-   "proven": false,
-   "candidates": [],
-   "review": null,
+   "max_steps": 50,
+   "tokens": 4191053,
+   "sandbox_runs": 161,
+   "selected": "0.2.1.0",
+   "proven": true,
+   "candidates": [
+    {
+     "id": "0.2.1.0",
+     "stop": "submitted",
+     "steps": 31,
+     "judge": 9.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..d0ffdee 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -1317,7 +1317,14 @@ def _format(val, valtype, floatfmt, intfmt, missingval=\"\", has_invisible=True):\n         return \"\"\n \n     if valtype is str:\n-        return f\"{val}\"\n+        # When disable_numparse=True, we still want to apply floatfmt to\n+        # string representations of numbers\n+        try:\n+            # Try to convert to float to apply floatfmt\n+            float_val = float(val)\n+            return format(float_val, floatfmt)\n+        except (ValueError, TypeError):\n+            return f\"{val}\"\n     elif valtype is int:\n         if isinstance(val, str):\n             val_striped = val.encode(\"unicode_escape\").decode(\"utf-8\")\n@@ -1355,6 +1362,15 @@ def _format(val, valtype, floatfmt, intfmt, missingval=\"\", has_invisible=True):\n             except (ValueError, TypeError):\n                 return f\"{val}\"\n     else:\n+        # When disable_numparse=True, we still want to apply floatfmt to\n+        # string representations of numbers\n+        if isinstance(val, str):\n+            try:\n+                # Try to convert to float to apply floatfmt\n+                float_val = float(val)\n+                return format(float_val, floatfmt)\n+            except (ValueError, TypeError):\n+                pass\n         return f\"{val}\"\n \n \n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.0.0",
+     "stop": "submitted",
+     "steps": 36,
+     "judge": 8.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..121ab43 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -1317,7 +1317,7 @@ def _format(val, valtype, floatfmt, intfmt, missingval=\"\", has_invisible=True):\n         return \"\"\n \n     if valtype is str:\n-        return f\"{val}\"\n+      return f\"{val}\"\n     elif valtype is int:\n         if isinstance(val, str):\n             val_striped = val.encode(\"unicode_escape\").decode(\"utf-8\")\n@@ -1354,8 +1354,16 @@ def _format(val, valtype, floatfmt, intfmt, missingval=\"\", has_invisible=True):\n                 return format(float(val), floatfmt)\n             except (ValueError, TypeError):\n                 return f\"{val}\"\n-    else:\n-        return f\"{val}\"\n+\n+    # Handle string representations of numbers when disable_numparse is True\n+    # but still allow floatfmt to be applied to numeric strings\n+    elif isinstance(val, str):\n+        try:\n+            # Try to convert to float to apply floatfmt\n+            float_val = float(val)\n+            return format(float_val, floatfmt)\n+        except (ValueError, TypeError):\n+            return f\"{val}\"\n \n \n def _align_header(header, alignment, width, visible_width, is_multiline=False, width_fn=None):\n@@ -2365,6 +2373,21 @@ def tabulate(\n         )\n     ]\n \n+    # Special handling for pretty format: apply floatfmt to numeric strings\n+    # even when disable_numparse=True prevents automatic type conversion\n+    if tablefmt == \"pretty\" and disable_numparse:\n+        pretty_float_fmts = []\n+        for col_idx, (col, float_fmt) in enumerate(zip(cols, float_formats)):\n+            for val_idx, val_str in enumerate(col):\n+                try:\n+                    # Try to convert to float and re-format with floatfmt\n+                    float_val = float(val_str)\n+                    formatted_val = format(float_val, float_fmt)\n+                    cols[col_idx][val_idx] = formatted_val\n+                except (ValueError, TypeError):\n+                    # Keep original value if conversion fails\n+                    pass\n+\n     # align columns\n     # first set global alignment\n     if colglobalalign is not None:  # if global alignment provided\n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.0.1",
+     "stop": "step_limit",
+     "steps": 50,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..7ba34b7 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -1353,6 +1353,15 @@ def _format(val, valtype, floatfmt, intfmt, missingval=\"\", has_invisible=True):\n             try:\n                 return format(float(val), floatfmt)\n             except (ValueError, TypeError):\n+                # Handle string representations of numbers when disable_numparse is True\n+                # but still allow floatfmt to be applied to numeric strings\n+                if isinstance(val, str):\n+                    try:\n+                        # Try to convert to float to apply floatfmt\n+                        float_val = float(val)\n+                        return format(float_val, floatfmt)\n+                    except (ValueError, TypeError):\n+                        return f\"{val}\"\n                 return f\"{val}\"\n     else:\n         return f\"{val}\"\n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.0.2",
+     "stop": "step_limit",
+     "steps": 50,
+     "judge": 1.0,
+     "proven": false,
+     "reproduction": "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..2561171 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -1353,6 +1353,16 @@ def _format(val, valtype, floatfmt, intfmt, missingval=\"\", has_invisible=True):\n             try:\n                 return format(float(val), floatfmt)\n             except (ValueError, TypeError):\n+                # Handle string representations of numbers when disable_numparse is True\n+                # but still allow floatfmt to be applied to numeric strings\n+                if isinstance(val, str):\n+                    try:\n+                        # Try to convert to float to apply floatfmt\n+                        float_val = float(val)\n+                        return format(float_val, floatfmt)\n+                    except (ValueError, TypeError):\n+                        return f\"{val}\"\n+                return f\"{val}\"\n                 return f\"{val}\"\n     else:\n         return f\"{val}\"\n",
+     "regressions": false
+    }
+   ],
+   "review": "Rewrites numeric-looking text, e.g. 0123 -> 123.",
    "clean": false,
-   "note": null
+   "note": "Reviewed by hand on 2026-10-04 (no model calls; python -m feasibility.tabulate_71_probe). The patch applies floatfmt to every string that parses as a float, so text such as 0123 becomes 123 and a 20-digit ID becomes 1.23457e+19, including for users who set disable_numparse=True to keep strings as written. No existing tests were run on it: the check picks tests by the changed file's name and found none for tabulate/__init__.py. Real-issue runs now fall back to the whole suite when it is small."
   },
   {
    "issue": "jazzband/prettytable#173",

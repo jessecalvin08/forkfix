@@ -198,3 +198,12 @@ def test_search_selects_the_fix_its_reproduction_test_proves_over_a_higher_judge
     result = run(Search(task, FakeAgent(agent_policy), judge, config, Meter(), Verifier(task, repro_base())).run(repro_base()))
     assert "a + b" in result.selected.patch and result.selected.repro.ok
     assert any(c.repro and not c.repro.ok for c in result.candidates)
+
+
+def test_real_issue_mode_runs_a_small_suite_whole_when_no_test_is_named_after_the_changed_file():
+    patch = "--- a/src/other_module.py\n+++ b/src/other_module.py\n"
+    fake = lambda: FakeWorkspace({SRC: BUGGY}, repo_tests=["tests/test_calc.py", "tests/test_x.py"], checker=existing_tests)
+    swe = run(Verifier(make_task(), fake()).check(patch, fake(), Meter()))
+    assert swe.test_files == ()  # SWE-bench behaviour is unchanged
+    real = run(Verifier(make_task(repro_first=True), fake()).check(patch, fake(), Meter()))
+    assert real.test_files == ("tests/test_calc.py", "tests/test_x.py")

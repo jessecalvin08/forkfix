@@ -129,7 +129,12 @@ class Verifier:
         # Cached as tasks so concurrent branches share one listing and one baseline run.
         if self._test_files is None:
             self._test_files = asyncio.ensure_future(self._list_tests(meter))
-        files = tuple(related_tests(patched_files(patch), await self._test_files))
+        test_files = await self._test_files
+        files = tuple(related_tests(patched_files(patch), test_files))
+        if not files and self.task.repro_first and 0 < len(test_files) <= MAX_TEST_FILES:
+            # Real issues: tests are often not named after the changed file (tabulate/__init__.py vs
+            # test/test_output.py), so a small suite is run whole rather than not at all.
+            files = tuple(test_files)
         if not files:
             return Check((), (), 0, 0)
         if files not in self._baselines:

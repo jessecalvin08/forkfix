@@ -95,11 +95,19 @@ ANNOTATIONS = {
         "puts the signature lines in the body, and a function containing a nested def or class raises "
         "IndentationError, which the patch does not catch. It also deletes two unrelated TODO comments."
     ),
+    "https://github.com/astanin/python-tabulate/issues/71": (
+        "Reviewed by hand on 2026-10-04 (no model calls; python -m feasibility.tabulate_71_probe). The patch applies "
+        "floatfmt to every string that parses as a float, so text such as 0123 becomes 123 and a 20-digit ID becomes "
+        "1.23457e+19, including for users who set disable_numparse=True to keep strings as written. No existing "
+        "tests were run on it: the check picks tests by the changed file's name and found none for "
+        "tabulate/__init__.py. Real-issue runs now fall back to the whole suite when it is small."
+    ),
 }
 
 # Patches that passed the proof check and the existing tests but failed a manual review, so they do not count as fixes.
 REVIEWED_NOT_A_FIX = {
     "https://github.com/mahmoud/boltons/issues/301": "Fails on multi-line signatures and nested functions.",
+    "https://github.com/astanin/python-tabulate/issues/71": "Rewrites numeric-looking text, e.g. 0123 -> 123.",
 }
 
 REGRESSION_MARK = "previously passing tests now fail"
