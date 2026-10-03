@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { fmtTokens } from "./tree";
 import type { IssueCandidate, RealIssue, RealIssueIndex } from "./types";
@@ -113,7 +113,7 @@ function IssueRow({ row }: { row: RealIssue }) {
             ) : (
               <ul className="cand-list">
                 {row.candidates.map((c) => (
-                  <Candidate key={c.id} c={c} selected={c.id === row.selected} />
+                  <Candidate key={c.id} c={c} selected={c.id === row.selected} issue={row.issue} />
                 ))}
               </ul>
             )}
@@ -124,7 +124,14 @@ function IssueRow({ row }: { row: RealIssue }) {
   );
 }
 
-function Candidate({ c, selected }: { c: IssueCandidate; selected: boolean }) {
+function patchHref(patch: string): string {
+  const text = patch.endsWith("\n") ? patch : `${patch}\n`;
+  return URL.createObjectURL(new Blob([text], { type: "text/x-diff" }));
+}
+
+function Candidate({ c, selected, issue }: { c: IssueCandidate; selected: boolean; issue: string }) {
+  const href = useMemo(() => (c.patch ? patchHref(c.patch) : null), [c.patch]);
+  useEffect(() => () => { if (href) URL.revokeObjectURL(href); }, [href]);
   return (
     <li className="cand">
       <p className="cand-head">
@@ -139,6 +146,12 @@ function Candidate({ c, selected }: { c: IssueCandidate; selected: boolean }) {
       {c.patch && (
         <details>
           <summary>Patch</summary>
+          <p>
+            <a className="mono" href={href ?? undefined} download={`${issue.replace(/[^\w.-]+/g, "-")}-branch-${c.id}.patch`}>
+              Download .patch
+            </a>
+            <span className="dim"> · review before applying; not a proven fix unless marked so above</span>
+          </p>
           <pre>{c.patch}</pre>
         </details>
       )}
