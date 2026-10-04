@@ -43,8 +43,9 @@ export default function RealIssues() {
             Real issues have no hidden tests to grade against, so Forkfix asks the agent to write its own reproduction
             test first. A branch counts as a fix only if that test <strong>fails on the unfixed repository and passes
             on the branch</strong>, and it should not break the project's existing tests. The judge model scores
-            patches too, but its score alone is not proof, and neither is the agent's own test: the patches that passed
-            it either break a test the project already had or fail on inputs the agent's test never tried.
+            patches too, but its score alone is not proof, and neither is the agent's own test: {data.clean > 0
+              ? `most of the patches that passed it either broke a test the project already had or failed on inputs the agent's test never tried; ${data.clean} held up under a hand-written check.`
+              : "the patches that passed it either broke a test the project already had or failed on inputs the agent's test never tried."}
           </p>
           <p>
             {data.patched} of {data.issues} runs produced any patch. Together they used {fmtTokens(data.tokens)} model
@@ -74,7 +75,7 @@ export default function RealIssues() {
         </div>
         <p className="real-foot">
           The first six issues were chosen by a person from open, unassigned bugs with no competing pull request. The
-          last four (dateutil and arrow) were chosen as clear bugs with exact examples, and each already has an open
+          later ones (dateutil, arrow, sqlparse) were chosen as clear bugs with exact examples, and each already has an open
           pull request from someone else, so they are test cases only. Nothing has been submitted to any project.
         </p>
       </div>

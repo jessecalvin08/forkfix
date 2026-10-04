@@ -52,16 +52,22 @@ The benchmark includes a one-attempt baseline, a branching search, and independe
 
 ## Real GitHub issues: not yet a result
 
-We also pointed Forkfix at 10 open issues in 6 public repositories, where no hidden tests exist. The agent
-writes a reproduction test first, and a branch counts as a fix only if that test fails on the unfixed
-repository and passes on the branch, without breaking the project's existing tests. We reviewed every patch
-that passed by hand. Four passed the agent's own test, and all four failed review: one breaks a test the project
-already had, one fails on multi-line signatures and nested functions, one rewrites strings such as 0123 to 123,
-and one (dateutil ISO week 53, 10/10 from the judge, all 255 existing tests passing) rejects 49 valid ISO dates.
-So the proof check is necessary but not sufficient, and we do not claim a fix rate on real issues. The runs
-also exposed harness faults (an agent repeating a failing edit 34 times, an existing-test check that found no
-tests), which we fixed for real-issue mode but have not re-run live. We have not submitted anything to any
-project, and four of the ten issues were chosen as test cases that already have someone else's open pull request.
+We also pointed Forkfix at 13 open issues in 9 public repositories, where no hidden tests exist. The agent
+writes a reproduction test first, and a branch counts as a fix only if that test fails on the unfixed repository
+and passes on the branch, without breaking the project's existing tests. We reviewed every patch that passed by
+hand, with a sandbox probe that runs inputs the agent's test never tried. Three held up (sqlparse, inflect and
+humanize: each a one- or two-line change, checked against hundreds of other inputs and the project's own suite, at
+a total of 2.7M model tokens, about $0.40 at list price). Four more passed the agent's own test and failed
+review: one breaks a test the project already had, one fails on multi-line signatures and nested functions, one
+rewrites strings such as 0123 to 123, and one (dateutil ISO week 53, 10/10 from the judge, all 255 existing tests
+passing) rejects 49 valid ISO dates. So the proof check is necessary but not sufficient.
+
+Please read this with its context. The first six issues, picked from bugs with no competing pull request, produced
+no fix. The seven picked afterwards were clear bugs with exact examples, each already with someone else's open pull
+request, so they are test cases and we have submitted nothing. Between the two rounds we also tightened the agent,
+so we cannot say which change helped. Thirteen issues is not a benchmark, and we do not claim a fix rate on real
+issues. The runs also exposed harness faults (an agent repeating a failing edit 34 times, an existing-test check
+that ran no tests when pytest coloured its output), which we fixed.
 
 ## Feedback on the platforms (draft; all points are from our own logs and probes)
 

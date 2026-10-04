@@ -53,3 +53,10 @@ def test_a_real_task_has_no_hidden_tests_and_asks_for_a_reproduction_first():
     assert task.instance_id == "pallets__click-2789" and task.problem_statement == "Title\n\nBody"
     assert task.repro_first and task.gold_patch == "" and task.fail_to_pass == ()
     assert task.activate.startswith("source /opt/venv/bin/activate")
+
+
+def test_parse_setup_ignores_terminal_colour_codes_around_the_collect_summary():
+    esc = chr(27)
+    line = f"{esc}[32m{esc}[32m856 tests collected{esc}[0m{esc}[32m in 0.18s{esc}[0m{esc}[0m"
+    out = parse_setup("commit: " + "a" * 40 + chr(10) + "collected: " + line + chr(10) + "FORKFIX_SETUP_OK")
+    assert out.ok and out.collected == 856

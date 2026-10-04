@@ -131,6 +131,31 @@ ANNOTATIONS = {
     "https://github.com/dateutil/dateutil/issues/1063": (
         "Run on 2026-10-04: 1.8M tokens and no patch."
     ),
+    "https://github.com/andialbrecht/sqlparse/issues/885": (
+        "Run on 2026-10-04 (6 of 6 branches proved their fix, 0.9M tokens). Reviewed by hand with a sandbox probe "
+        "(python -m feasibility.patch_probe, probe feasibility/probes_sqlparse_885.py): the selected two-line guard "
+        "turns the three crashing inputs ( AS ), (AS) and (( AS )) into unchanged output, and 17 other inputs, "
+        "including ordinary SQL, give identical output before and after. All 284 existing tests pass. We count "
+        "this as a fix for a test case; an open pull request from someone else already exists, so nothing was submitted."
+    ),
+    "https://github.com/jaraco/inflect/issues/242": (
+        "Run on 2026-10-04 (4 of 4 branches proved their fix, 0.6M tokens). The existing-test check found no tests to "
+        "run, so the selected one-line change was reviewed by hand with a sandbox probe (python -m "
+        "feasibility.patch_probe, probe feasibility/probes_inflect_242.py): before the patch 444 huge inputs leaked "
+        "IndexError, after it all 444 raise NumOutOfRangeError, the words for 5,300 in-range inputs are byte-identical "
+        "(same hash, no errors), and the project's test suite gives the same result before and after. We count this "
+        "as a fix for a test case; open pull requests from others already exist, so nothing was submitted."
+    ),
+    "https://github.com/python-humanize/humanize/issues/366": (
+        "Run on 2026-10-04 (5 of 5 branches proved their fix, 1.2M tokens). The existing-test check ran 0 tests because "
+        "pytest coloured its output, a harness bug since fixed (pytest is now run with --color=no). Reviewed by hand "
+        "with a sandbox probe (python -m feasibility.patch_probe, probe feasibility/probes_humanize_366.py): the "
+        "issue's own call now returns the pre-4.16 result, all 396 numeric-format calls are byte-identical before and "
+        "after, the 235 text-format calls that raised ValueError now raise none, and the project's suite passes "
+        "(744 passed, 112 skipped). Limitation: with a text format and non-GNU units, 999,999 gives 'Size: 1000.0 kB' "
+        "rather than rolling up to MB, which is the pre-4.16 behaviour the issue asks to keep. We count this as a fix "
+        "for a test case; an open pull request from someone else already exists, so nothing was submitted."
+    ),
 }
 
 # Patches that passed the proof check and the existing tests but failed a manual review, so they do not count as fixes.
@@ -138,6 +163,14 @@ REVIEWED_NOT_A_FIX = {
     "https://github.com/mahmoud/boltons/issues/301": "Fails on multi-line signatures and nested functions.",
     "https://github.com/astanin/python-tabulate/issues/71": "Rewrites numeric-looking text, e.g. 0123 -> 123.",
     "https://github.com/dateutil/dateutil/issues/1236": "Rejects 49 valid ISO dates and accepts 27 invalid ones.",
+}
+
+# Patches that passed the proof check, broke no existing test, and held up under a hand-written sandbox probe
+# (python -m feasibility.patch_probe). Only these count as fixes; a passing proof check alone never does.
+REVIEWED_AS_FIX = {
+    "https://github.com/andialbrecht/sqlparse/issues/885",
+    "https://github.com/jaraco/inflect/issues/242",
+    "https://github.com/python-humanize/humanize/issues/366",
 }
 
 REGRESSION_MARK = "previously passing tests now fail"
@@ -163,7 +196,7 @@ def export_issue(report: dict, name: str) -> dict:
         "tokens": spend["prompt_tokens"] + spend["completion_tokens"], "sandbox_runs": spend["sandbox_spawns"],
         "selected": result.get("selected"), "proven": bool(result.get("proven")), "candidates": candidates,
         "review": REVIEWED_NOT_A_FIX.get(plan["issue"]),
-        "clean": plan["issue"] not in REVIEWED_NOT_A_FIX and any(c["id"] == result.get("selected") and c["proven"] and not c["regressions"] for c in candidates),
+        "clean": plan["issue"] in REVIEWED_AS_FIX and plan["issue"] not in REVIEWED_NOT_A_FIX and any(c["id"] == result.get("selected") and c["proven"] and not c["regressions"] for c in candidates),
         "note": ANNOTATIONS.get(plan["issue"]),
     }
 

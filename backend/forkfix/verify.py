@@ -104,7 +104,7 @@ def related_tests(changed: list[str], test_files: list[str]) -> list[str]:
 
 def check_script(files: list[str], activate: str = ACTIVATE) -> str:
     quoted = " ".join(shlex.quote(f) for f in files)
-    return (f"{activate} && pytest -rA {quoted} > /tmp/forkfix_check.log 2>&1"
+    return (f"{activate} && pytest -rA --color=no {quoted} > /tmp/forkfix_check.log 2>&1"
             "; grep -a -E '^(PASSED|FAILED|SKIPPED|ERROR|XFAIL)' /tmp/forkfix_check.log")
 
 

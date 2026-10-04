@@ -91,7 +91,14 @@ def test_a_proven_patch_that_breaks_an_existing_test_is_not_clean():
     out = export_issue(report, "20261003T000000Z-x.json")
     assert out["proven"] is True and out["candidates"][0]["regressions"] is True and out["clean"] is False
     cand["existing_tests"] = "Existing tests t: 41/41 pass."
-    assert export_issue(report, "20261003T000000Z-x.json")["clean"] is True
+    # Proven and breaking nothing is still not a fix until a human has reviewed it.
+    assert export_issue(report, "20261003T000000Z-x.json")["clean"] is False
+    from forkfix import viewer_data
+    viewer_data.REVIEWED_AS_FIX.add(report["plan"]["issue"])
+    try:
+        assert export_issue(report, "20261003T000000Z-x.json")["clean"] is True
+    finally:
+        viewer_data.REVIEWED_AS_FIX.discard(report["plan"]["issue"])
 
 
 def test_a_hand_reviewed_patch_is_not_counted_even_when_clean():
@@ -104,3 +111,10 @@ def test_a_hand_reviewed_patch_is_not_counted_even_when_clean():
     out = export_issue(report, "20261003T000000Z-x.json")
     assert out["proven"] is True and out["candidates"][0]["regressions"] is False
     assert out["clean"] is False and out["review"]
+
+
+def test_reviewed_lists_are_consistent():
+    from forkfix.viewer_data import ANNOTATIONS, REVIEWED_AS_FIX, REVIEWED_NOT_A_FIX
+    assert not set(REVIEWED_AS_FIX) & set(REVIEWED_NOT_A_FIX)
+    assert all(isinstance(reason, str) and len(reason) < 120 for reason in REVIEWED_NOT_A_FIX.values())
+    assert set(REVIEWED_AS_FIX) <= set(ANNOTATIONS) and set(REVIEWED_NOT_A_FIX) <= set(ANNOTATIONS)

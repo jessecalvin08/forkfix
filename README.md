@@ -112,32 +112,35 @@ Runs that spend credits require `--approve` and stop at `--max-tokens`. Evidence
 git-ignored `backend/reports/`.
 
 
-## Real GitHub issues (live runs; no fix proven)
+## Real GitHub issues (live runs)
 
 `python -m forkfix.fix <issue-url>` runs the same search on a real open issue with no hidden tests. The agent
 writes its own reproduction test first; a branch counts as a fix only if that test fails on the unfixed
-repository and passes on the branch, and it should not break the project's existing tests. We then review any
-such patch by hand. **Across 10 issues from 6 public repositories, no patch is a fix we would sign.** The runs
-used 31.2M model tokens, about $4.50 at list price. Nothing has been submitted to any project.
+repository and passes on the branch, and it should not break the project's existing tests. We then review every
+such patch by hand with a sandbox probe (`python -m feasibility.patch_probe`) that runs inputs the agent's test
+never tried, before and after the patch. **Across 13 issues from 9 public repositories, three patches held up
+under that review; ten did not.** Nothing has been submitted to any project. The saved runs used 33.9M model
+tokens; the three runs that produced the fixes used 2.7M (about $0.40 at list price).
 
-| Issue | What happened |
+| Issue | Outcome |
 | --- | --- |
-| itsdangerous #389 | Patch passes its own test but breaks the project's `test_serializer_kwargs`; the issue likely asks for behaviour the project does not intend |
-| boltons #301 | Three branches pass their own test and the existing ones, but the body extraction fails on multi-line signatures and nested functions (`python -m feasibility.boltons_body_probe`) |
-| tabulate #71 | Patch rewrites numeric-looking text (`0123` becomes `123`) (`feasibility.tabulate_71_probe`); the existing-test check found no tests to run |
-| dateutil #1236 | Two branches pass their own test and all 255 existing tests, with 10/10 judge scores, but the patch rejects 49 valid ISO dates, such as `2003-W01-1` (`feasibility.dateutil_1236_probe`) |
-| dateutil #1156 | No fix; the selected patch breaks 163 of 225 existing parser tests |
-| arrow #1191 | No fix; stopped at the token cap |
-| prettytable #173, dateutil #1063 | No patch; in one prettytable branch the agent sent the edit tool the repository root 34 times |
-| tabulate #315, #230 | Not proven; the agent's test never reproduced the bug on #315 |
+| sqlparse #885 | **Fix.** Two-line guard; the three crashing inputs return unchanged, 17 other inputs are identical before and after, all 284 existing tests pass |
+| inflect #242 | **Fix.** One line; 444 huge inputs that leaked `IndexError` now raise `NumOutOfRangeError`, 5,300 in-range outputs are byte-identical, the project's tests pass |
+| humanize #366 | **Fix.** The issue's own call returns the pre-4.16 result; 396 numeric-format calls are byte-identical, 235 text-format calls that raised now do not, 744 project tests pass. Limitation: with a text format and non-GNU units, 999,999 gives `Size: 1000.0 kB` instead of rolling up to MB |
+| dateutil #1236 | Rejected: passed its own test and all 255 existing tests with 10/10 judge scores, but rejects 49 valid ISO dates such as `2003-W01-1` (`feasibility.dateutil_1236_probe`) |
+| boltons #301 | Rejected: the body extraction fails on multi-line signatures and nested functions (`feasibility.boltons_body_probe`) |
+| tabulate #71 | Rejected: rewrites numeric-looking text (`0123` becomes `123`) (`feasibility.tabulate_71_probe`) |
+| itsdangerous #389 | Rejected: breaks the project's `test_serializer_kwargs`; the issue likely asks for behaviour the project does not intend |
+| dateutil #1156, arrow #1191, dateutil #1063, prettytable #173, tabulate #315, tabulate #230 | No patch we would count: no fix, no patch, or the agent's test never reproduced the bug |
 
-What this shows is that the proof check (the agent's own test fails before and passes after, with existing tests
-intact) is necessary but not sufficient: four patches passed it and a hand check rejected all four. The runs
-also found harness faults that are now fixed for real-issue mode and have not been run live: a repeated-edit guard,
-a specific error for a directory path, and a fallback that runs a small test suite whole when no test file is named
-after the changed one. The first six issues were picked from open, unassigned bugs with no competing pull request; the
-last four (dateutil, arrow) were picked as clear bugs with exact examples and each has an open pull request
-from someone else, so they are test cases only. The results are in the viewer's "Real issues" section.
+Read this with its context. The first six issues (all of them failures) were picked from open, unassigned bugs with
+no competing pull request. The seven picked later were chosen as clear bugs with exact examples, and **each of those
+already has an open pull request from someone else, so they are test cases only**. Three of those seven held up. We
+also tightened the agent between the two rounds (a rule that its test must check related inputs that already work,
+a repeated-edit guard, and a fallback that runs a small test suite whole), so the improvement cannot be attributed
+to one cause. Two harness bugs were found and fixed on the way: the existing-test check ran no tests when pytest
+coloured its output, and the setup parser miscounted coloured summaries. This is thirteen issues, not a
+benchmark, and we do not claim a fix rate on real issues. The results are in the viewer's "Real issues" section.
 
 ## Re-running the benchmark extension
 

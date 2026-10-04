@@ -1,9 +1,9 @@
 {
- "issues": 10,
- "proven": 4,
- "clean": 0,
- "patched": 8,
- "tokens": 31190892,
+ "issues": 13,
+ "proven": 7,
+ "clean": 3,
+ "patched": 11,
+ "tokens": 33923207,
  "rows": [
   {
    "issue": "pallets/itsdangerous#389",
@@ -414,6 +414,222 @@
    "review": null,
    "clean": false,
    "note": "Run on 2026-10-04: 1.8M tokens and no patch."
+  },
+  {
+   "issue": "andialbrecht/sqlparse#885",
+   "url": "https://github.com/andialbrecht/sqlparse/issues/885",
+   "title": "strip_whitespace=True raises IndexError on \"( AS )\"",
+   "run": "20261004",
+   "commit": "60cdc649726bf1bc4f1b336050560b336da715ec",
+   "max_steps": 50,
+   "tokens": 893358,
+   "sandbox_runs": 142,
+   "selected": "0.2.0.0",
+   "proven": true,
+   "candidates": [
+    {
+     "id": "0.2.0.0",
+     "stop": "submitted",
+     "steps": 7,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_cli.py, tests/test_dos_prevention.py, tests/test_format.py, tests/test_grouping.py, tests/test_keywords.py, tests/test_parse.py, tests/test_regressions.py, tests/test_split.py, tests/test_tokenize.py, tests/test_utils.py: 284/284 pass. None that passed before fail now.",
+     "patch": "diff --git a/sqlparse/filters/others.py b/sqlparse/filters/others.py\nindex 95bc436..7ecab3e 100644\n--- a/sqlparse/filters/others.py\n+++ b/sqlparse/filters/others.py\n@@ -112,6 +112,8 @@ class StripWhitespaceFilter:\n         return self._stripws_default(tlist)\n \n     def _stripws_parenthesis(self, tlist):\n+        if len(tlist.tokens) < 2:\n+            return\n         while tlist.tokens[1].is_whitespace:\n             tlist.tokens.pop(1)\n         while tlist.tokens[-2].is_whitespace:\n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.0.1",
+     "stop": "submitted",
+     "steps": 8,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_cli.py, tests/test_dos_prevention.py, tests/test_format.py, tests/test_grouping.py, tests/test_keywords.py, tests/test_parse.py, tests/test_regressions.py, tests/test_split.py, tests/test_tokenize.py, tests/test_utils.py: 284/284 pass. None that passed before fail now.",
+     "patch": "diff --git a/sqlparse/filters/others.py b/sqlparse/filters/others.py\nindex 95bc436..7d942de 100644\n--- a/sqlparse/filters/others.py\n+++ b/sqlparse/filters/others.py\n@@ -112,14 +112,15 @@ class StripWhitespaceFilter:\n         return self._stripws_default(tlist)\n \n     def _stripws_parenthesis(self, tlist):\n-        while tlist.tokens[1].is_whitespace:\n-            tlist.tokens.pop(1)\n-        while tlist.tokens[-2].is_whitespace:\n-            tlist.tokens.pop(-2)\n-        if tlist.tokens[-2].is_group:\n-            # save to remove the last whitespace\n-            while tlist.tokens[-2].tokens[-1].is_whitespace:\n-                tlist.tokens[-2].tokens.pop(-1)\n+        if len(tlist.tokens) > 1:\n+            while tlist.tokens[1].is_whitespace:\n+                tlist.tokens.pop(1)\n+            while len(tlist.tokens) > 1 and tlist.tokens[-2].is_whitespace:\n+                tlist.tokens.pop(-2)\n+            if len(tlist.tokens) > 1 and tlist.tokens[-2].is_group:\n+                # save to remove the last whitespace\n+                while len(tlist.tokens[-2].tokens) > 1 and tlist.tokens[-2].tokens[-1].is_whitespace:\n+                    tlist.tokens[-2].tokens.pop(-1)\n         self._stripws_default(tlist)\n \n     def process(self, stmt, depth=0):\n",
+     "regressions": false
+    },
+    {
+     "id": "0.1.2.1",
+     "stop": "submitted",
+     "steps": 11,
+     "judge": 9.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_cli.py, tests/test_dos_prevention.py, tests/test_format.py, tests/test_grouping.py, tests/test_keywords.py, tests/test_parse.py, tests/test_regressions.py, tests/test_split.py, tests/test_tokenize.py, tests/test_utils.py: 284/284 pass. None that passed before fail now.",
+     "patch": "diff --git a/sqlparse/filters/others.py b/sqlparse/filters/others.py\nindex 95bc436..7fc4bc8 100644\n--- a/sqlparse/filters/others.py\n+++ b/sqlparse/filters/others.py\n@@ -112,13 +112,13 @@ class StripWhitespaceFilter:\n         return self._stripws_default(tlist)\n \n     def _stripws_parenthesis(self, tlist):\n-        while tlist.tokens[1].is_whitespace:\n+        while len(tlist.tokens) > 1 and tlist.tokens[1].is_whitespace:\n             tlist.tokens.pop(1)\n-        while tlist.tokens[-2].is_whitespace:\n+        while len(tlist.tokens) >= 2 and tlist.tokens[-2].is_whitespace:\n             tlist.tokens.pop(-2)\n-        if tlist.tokens[-2].is_group:\n+        if len(tlist.tokens) >= 2 and tlist.tokens[-2].is_group:\n             # save to remove the last whitespace\n-            while tlist.tokens[-2].tokens[-1].is_whitespace:\n+            while len(tlist.tokens[-2].tokens) >= 1 and tlist.tokens[-2].tokens[-1].is_whitespace:\n                 tlist.tokens[-2].tokens.pop(-1)\n         self._stripws_default(tlist)\n \n",
+     "regressions": false
+    },
+    {
+     "id": "0.1.2.2",
+     "stop": "submitted",
+     "steps": 11,
+     "judge": 9.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_cli.py, tests/test_dos_prevention.py, tests/test_format.py, tests/test_grouping.py, tests/test_keywords.py, tests/test_parse.py, tests/test_regressions.py, tests/test_split.py, tests/test_tokenize.py, tests/test_utils.py: 284/284 pass. None that passed before fail now.",
+     "patch": "diff --git a/sqlparse/filters/others.py b/sqlparse/filters/others.py\nindex 95bc436..7fc4bc8 100644\n--- a/sqlparse/filters/others.py\n+++ b/sqlparse/filters/others.py\n@@ -112,13 +112,13 @@ class StripWhitespaceFilter:\n         return self._stripws_default(tlist)\n \n     def _stripws_parenthesis(self, tlist):\n-        while tlist.tokens[1].is_whitespace:\n+        while len(tlist.tokens) > 1 and tlist.tokens[1].is_whitespace:\n             tlist.tokens.pop(1)\n-        while tlist.tokens[-2].is_whitespace:\n+        while len(tlist.tokens) >= 2 and tlist.tokens[-2].is_whitespace:\n             tlist.tokens.pop(-2)\n-        if tlist.tokens[-2].is_group:\n+        if len(tlist.tokens) >= 2 and tlist.tokens[-2].is_group:\n             # save to remove the last whitespace\n-            while tlist.tokens[-2].tokens[-1].is_whitespace:\n+            while len(tlist.tokens[-2].tokens) >= 1 and tlist.tokens[-2].tokens[-1].is_whitespace:\n                 tlist.tokens[-2].tokens.pop(-1)\n         self._stripws_default(tlist)\n \n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.1.0",
+     "stop": "submitted",
+     "steps": 13,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_cli.py, tests/test_dos_prevention.py, tests/test_format.py, tests/test_grouping.py, tests/test_keywords.py, tests/test_parse.py, tests/test_regressions.py, tests/test_split.py, tests/test_tokenize.py, tests/test_utils.py: 284/284 pass. None that passed before fail now.",
+     "patch": "diff --git a/sqlparse/filters/others.py b/sqlparse/filters/others.py\nindex 95bc436..e67543b 100644\n--- a/sqlparse/filters/others.py\n+++ b/sqlparse/filters/others.py\n@@ -112,13 +112,15 @@ class StripWhitespaceFilter:\n         return self._stripws_default(tlist)\n \n     def _stripws_parenthesis(self, tlist):\n-        while tlist.tokens[1].is_whitespace:\n+        if len(tlist.tokens) < 2:\n+            return\n+        while len(tlist.tokens) > 1 and tlist.tokens[1].is_whitespace:\n             tlist.tokens.pop(1)\n-        while tlist.tokens[-2].is_whitespace:\n+        while len(tlist.tokens) > 1 and tlist.tokens[-2].is_whitespace:\n             tlist.tokens.pop(-2)\n-        if tlist.tokens[-2].is_group:\n+        if len(tlist.tokens) > 1 and tlist.tokens[-2].is_group:\n             # save to remove the last whitespace\n-            while tlist.tokens[-2].tokens[-1].is_whitespace:\n+            while len(tlist.tokens) > 1 and tlist.tokens[-2].tokens[-1].is_whitespace:\n                 tlist.tokens[-2].tokens.pop(-1)\n         self._stripws_default(tlist)\n \n",
+     "regressions": false
+    },
+    {
+     "id": "0.1.2.0",
+     "stop": "submitted",
+     "steps": 37,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_cli.py, tests/test_dos_prevention.py, tests/test_format.py, tests/test_grouping.py, tests/test_keywords.py, tests/test_parse.py, tests/test_regressions.py, tests/test_split.py, tests/test_tokenize.py, tests/test_utils.py: 284/284 pass. None that passed before fail now.",
+     "patch": "diff --git a/sqlparse/filters/others.py b/sqlparse/filters/others.py\nindex 95bc436..eb23129 100644\n--- a/sqlparse/filters/others.py\n+++ b/sqlparse/filters/others.py\n@@ -112,14 +112,25 @@ class StripWhitespaceFilter:\n         return self._stripws_default(tlist)\n \n     def _stripws_parenthesis(self, tlist):\n-        while tlist.tokens[1].is_whitespace:\n+        # Only process if there are at least 2 tokens in the parenthesis\n+        if len(tlist.tokens) < 2:\n+            self._stripws_default(tlist)\n+            return\n+    \n+        # Remove leading whitespace tokens\n+        while len(tlist.tokens) > 1 and tlist.tokens[1].is_whitespace:\n             tlist.tokens.pop(1)\n-        while tlist.tokens[-2].is_whitespace:\n+    \n+        # Remove trailing whitespace tokens\n+        while len(tlist.tokens) >= 2 and tlist.tokens[-2].is_whitespace:\n             tlist.tokens.pop(-2)\n-        if tlist.tokens[-2].is_group:\n+    \n+        # Handle nested groups\n+        if len(tlist.tokens) >= 2 and tlist.tokens[-2].is_group:\n             # save to remove the last whitespace\n-            while tlist.tokens[-2].tokens[-1].is_whitespace:\n+            while len(tlist.tokens[-2].tokens) >= 1 and tlist.tokens[-2].tokens[-1].is_whitespace:\n                 tlist.tokens[-2].tokens.pop(-1)\n+    \n         self._stripws_default(tlist)\n \n     def process(self, stmt, depth=0):\n",
+     "regressions": false
+    }
+   ],
+   "review": null,
+   "clean": true,
+   "note": "Run on 2026-10-04 (6 of 6 branches proved their fix, 0.9M tokens). Reviewed by hand with a sandbox probe (python -m feasibility.patch_probe, probe feasibility/probes_sqlparse_885.py): the selected two-line guard turns the three crashing inputs ( AS ), (AS) and (( AS )) into unchanged output, and 17 other inputs, including ordinary SQL, give identical output before and after. All 284 existing tests pass. We count this as a fix for a test case; an open pull request from someone else already exists, so nothing was submitted."
+  },
+  {
+   "issue": "jaraco/inflect#242",
+   "url": "https://github.com/jaraco/inflect/issues/242",
+   "title": "number_to_words leaks IndexError instead of NumOutOfRangeError for huge inputs",
+   "run": "20261004",
+   "commit": "262a247d2d99a47a520cdb2d46adb90df88b4326",
+   "max_steps": 50,
+   "tokens": 623364,
+   "sandbox_runs": 74,
+   "selected": "0.0.0",
+   "proven": true,
+   "candidates": [
+    {
+     "id": "0.0.0",
+     "stop": "submitted",
+     "steps": 13,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/inflect/__init__.py b/inflect/__init__.py\nindex 3eef486..8a33200 100644\n--- a/inflect/__init__.py\n+++ b/inflect/__init__.py\n@@ -3696,7 +3696,7 @@ class engine:\n             unit_part = unit[units]\n             mill_part = self.millfn(mindex)\n             return f\"{tens_part}{hyphen}{unit_part}{mill_part}\"\n-        return f\"{teen[units]}{mill[mindex]}\"\n+        return f\"{teen[units]}{self.millfn(mindex)}\"\n \n     def hundfn(self, hundreds: int, tens: int, units: int, mindex: int) -> str:\n         if hundreds:\n",
+     "regressions": false
+    },
+    {
+     "id": "0.1.0.2",
+     "stop": "submitted",
+     "steps": 14,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/inflect/__init__.py b/inflect/__init__.py\nindex 3eef486..8a33200 100644\n--- a/inflect/__init__.py\n+++ b/inflect/__init__.py\n@@ -3696,7 +3696,7 @@ class engine:\n             unit_part = unit[units]\n             mill_part = self.millfn(mindex)\n             return f\"{tens_part}{hyphen}{unit_part}{mill_part}\"\n-        return f\"{teen[units]}{mill[mindex]}\"\n+        return f\"{teen[units]}{self.millfn(mindex)}\"\n \n     def hundfn(self, hundreds: int, tens: int, units: int, mindex: int) -> str:\n         if hundreds:\n",
+     "regressions": false
+    },
+    {
+     "id": "0.1.0.0",
+     "stop": "submitted",
+     "steps": 17,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/inflect/__init__.py b/inflect/__init__.py\nindex 3eef486..e889272 100644\n--- a/inflect/__init__.py\n+++ b/inflect/__init__.py\n@@ -3696,6 +3696,8 @@ class engine:\n             unit_part = unit[units]\n             mill_part = self.millfn(mindex)\n             return f\"{tens_part}{hyphen}{unit_part}{mill_part}\"\n+        if mindex >= len(mill):\n+            raise NumOutOfRangeError\n         return f\"{teen[units]}{mill[mindex]}\"\n \n     def hundfn(self, hundreds: int, tens: int, units: int, mindex: int) -> str:\n",
+     "regressions": false
+    },
+    {
+     "id": "0.1.0.1",
+     "stop": "submitted",
+     "steps": 20,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/inflect/__init__.py b/inflect/__init__.py\nindex 3eef486..8a33200 100644\n--- a/inflect/__init__.py\n+++ b/inflect/__init__.py\n@@ -3696,7 +3696,7 @@ class engine:\n             unit_part = unit[units]\n             mill_part = self.millfn(mindex)\n             return f\"{tens_part}{hyphen}{unit_part}{mill_part}\"\n-        return f\"{teen[units]}{mill[mindex]}\"\n+        return f\"{teen[units]}{self.millfn(mindex)}\"\n \n     def hundfn(self, hundreds: int, tens: int, units: int, mindex: int) -> str:\n         if hundreds:\n",
+     "regressions": false
+    }
+   ],
+   "review": null,
+   "clean": true,
+   "note": "Run on 2026-10-04 (4 of 4 branches proved their fix, 0.6M tokens). The existing-test check found no tests to run, so the selected one-line change was reviewed by hand with a sandbox probe (python -m feasibility.patch_probe, probe feasibility/probes_inflect_242.py): before the patch 444 huge inputs leaked IndexError, after it all 444 raise NumOutOfRangeError, the words for 5,300 in-range inputs are byte-identical (same hash, no errors), and the project's test suite gives the same result before and after. We count this as a fix for a test case; open pull requests from others already exist, so nothing was submitted."
+  },
+  {
+   "issue": "python-humanize/humanize#366",
+   "url": "https://github.com/python-humanize/humanize/issues/366",
+   "title": "`naturalsize()` raises `ValueError` for custom format strings with text",
+   "run": "20261004",
+   "commit": "6ed367fbeee9bfc4250789b5e47b1011c99a46b6",
+   "max_steps": 50,
+   "tokens": 1215593,
+   "sandbox_runs": 141,
+   "selected": "0.0.2",
+   "proven": true,
+   "candidates": [
+    {
+     "id": "0.0.2",
+     "stop": "submitted",
+     "steps": 12,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_filesize.py: 0/0 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/humanize/filesize.py b/src/humanize/filesize.py\nindex 063affe..febe073 100644\n--- a/src/humanize/filesize.py\n+++ b/src/humanize/filesize.py\n@@ -103,8 +103,17 @@ def naturalsize(\n     # mantissa afterward; rounding can push it up to `base` (e.g. 999999 is\n     # 999.999 kB, which formats to \"1000.0 kB\"). When that happens and a larger\n     # suffix is available, step up one suffix so the result reads \"1.0 MB\".\n-    if exp < len(suffix) and abs(float(format % (abs_bytes / (base**exp)))) >= base:\n-        exp += 1\n+    # Apply rollover only when the formatted mantissa can be interpreted as a number.\n+    formatted_mantissa = format % (abs_bytes / (base**exp))\n+    try:\n+        # Attempt to convert to float; if it fails, the format likely contains\n+        # non\u2011numeric text (e.g. \"Size: %.1f\") and we skip the rollover check.\n+        mantissa = float(formatted_mantissa)\n+        if exp < len(suffix) and abs(mantissa) >= base:\n+            exp += 1\n+    except ValueError:\n+        # Non\u2011numeric format; preserve pre\u20114.16 behavior.\n+        pass\n     space = \"\" if gnu else \" \"\n     ret: str = format % (bytes_ / (base**exp)) + space + _(suffix[exp - 1])\n     return ret\n",
+     "regressions": false
+    },
+    {
+     "id": "0.0.0.1",
+     "stop": "submitted",
+     "steps": 13,
+     "judge": 9.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_filesize.py: 0/0 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/humanize/filesize.py b/src/humanize/filesize.py\nindex 063affe..b39417c 100644\n--- a/src/humanize/filesize.py\n+++ b/src/humanize/filesize.py\n@@ -103,7 +103,8 @@ def naturalsize(\n     # mantissa afterward; rounding can push it up to `base` (e.g. 999999 is\n     # 999.999 kB, which formats to \"1000.0 kB\"). When that happens and a larger\n     # suffix is available, step up one suffix so the result reads \"1.0 MB\".\n-    if exp < len(suffix) and abs(float(format % (abs_bytes / (base**exp)))) >= base:\n+    formatted = format % (abs_bytes / (base**exp))\n+    if exp < len(suffix) and (formatted.replace('.', '', 1).isdigit() or (formatted.startswith('-') and formatted[1:].replace('.', '', 1).isdigit())) and abs(float(formatted)) >= base:\n         exp += 1\n     space = \"\" if gnu else \" \"\n     ret: str = format % (bytes_ / (base**exp)) + space + _(suffix[exp - 1])\n",
+     "regressions": false
+    },
+    {
+     "id": "0.0.1.0",
+     "stop": "submitted",
+     "steps": 14,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_filesize.py: 0/0 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/humanize/filesize.py b/src/humanize/filesize.py\nindex 063affe..20fb98a 100644\n--- a/src/humanize/filesize.py\n+++ b/src/humanize/filesize.py\n@@ -6,6 +6,14 @@ __lazy_modules__ = {\"humanize.i18n\"}\n \n from humanize.i18n import _gettext as _\n \n+\n+def _try_float(s: str) -> float | None:\n+    \"\"\"Try to convert a string to float, returning None on failure.\"\"\"\n+    try:\n+        return float(s)\n+    except ValueError:\n+        return None\n+\n suffixes = {\n     \"decimal\": (\n         \"kB\",\n@@ -103,7 +111,7 @@ def naturalsize(\n     # mantissa afterward; rounding can push it up to `base` (e.g. 999999 is\n     # 999.999 kB, which formats to \"1000.0 kB\"). When that happens and a larger\n     # suffix is available, step up one suffix so the result reads \"1.0 MB\".\n-    if exp < len(suffix) and abs(float(format % (abs_bytes / (base**exp)))) >= base:\n+    if exp < len(suffix) and _try_float(format % (abs_bytes / (base**exp))) is not None and abs(_try_float(format % (abs_bytes / (base**exp)))) >= base:\n         exp += 1\n     space = \"\" if gnu else \" \"\n     ret: str = format % (bytes_ / (base**exp)) + space + _(suffix[exp - 1])\n",
+     "regressions": false
+    },
+    {
+     "id": "0.0.0.2",
+     "stop": "submitted",
+     "steps": 19,
+     "judge": 9.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_filesize.py: 0/0 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/humanize/filesize.py b/src/humanize/filesize.py\nindex 063affe..6c54afd 100644\n--- a/src/humanize/filesize.py\n+++ b/src/humanize/filesize.py\n@@ -103,7 +103,9 @@ def naturalsize(\n     # mantissa afterward; rounding can push it up to `base` (e.g. 999999 is\n     # 999.999 kB, which formats to \"1000.0 kB\"). When that happens and a larger\n     # suffix is available, step up one suffix so the result reads \"1.0 MB\".\n-    if exp < len(suffix) and abs(float(format % (abs_bytes / (base**exp)))) >= base:\n+    # Apply rollover only when the formatted mantissa is purely numeric to avoid ValueError\n+    formatted = format % (abs_bytes / (base**exp))\n+    if exp < len(suffix) and (formatted.replace('.', '', 1).isdigit() or (formatted.startswith('-') and formatted[1:].replace('.', '', 1).isdigit())) and abs(float(formatted)) >= base:\n         exp += 1\n     space = \"\" if gnu else \" \"\n     ret: str = format % (bytes_ / (base**exp)) + space + _(suffix[exp - 1])\n",
+     "regressions": false
+    },
+    {
+     "id": "0.0.0.0",
+     "stop": "submitted",
+     "steps": 42,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_filesize.py: 0/0 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/humanize/filesize.py b/src/humanize/filesize.py\nindex 063affe..c48cc0a 100644\n--- a/src/humanize/filesize.py\n+++ b/src/humanize/filesize.py\n@@ -6,6 +6,15 @@ __lazy_modules__ = {\"humanize.i18n\"}\n \n from humanize.i18n import _gettext as _\n \n+\n+def _is_numeric_string(s: str) -> bool:\n+    \"\"\"Return True if string can be converted to float, else False.\"\"\"\n+    try:\n+        float(s)\n+        return True\n+    except ValueError:\n+        return False\n+\n suffixes = {\n     \"decimal\": (\n         \"kB\",\n@@ -103,7 +112,9 @@ def naturalsize(\n     # mantissa afterward; rounding can push it up to `base` (e.g. 999999 is\n     # 999.999 kB, which formats to \"1000.0 kB\"). When that happens and a larger\n     # suffix is available, step up one suffix so the result reads \"1.0 MB\".\n-    if exp < len(suffix) and abs(float(format % (abs_bytes / (base**exp)))) >= base:\n+    formatted = format % (abs_bytes / (base**exp))\n+    # Only apply rollover when the formatted result is purely numeric\n+    if exp < len(suffix) and _is_numeric_string(formatted) and abs(float(formatted)) >= base:\n         exp += 1\n     space = \"\" if gnu else \" \"\n     ret: str = format % (bytes_ / (base**exp)) + space + _(suffix[exp - 1])\n",
+     "regressions": false
+    }
+   ],
+   "review": null,
+   "clean": true,
+   "note": "Run on 2026-10-04 (5 of 5 branches proved their fix, 1.2M tokens). The existing-test check ran 0 tests because pytest coloured its output, a harness bug since fixed (pytest is now run with --color=no). Reviewed by hand with a sandbox probe (python -m feasibility.patch_probe, probe feasibility/probes_humanize_366.py): the issue's own call now returns the pre-4.16 result, all 396 numeric-format calls are byte-identical before and after, the 235 text-format calls that raised ValueError now raise none, and the project's suite passes (744 passed, 112 skipped). Limitation: with a text format and non-GNU units, 999,999 gives 'Size: 1000.0 kB' rather than rolling up to MB, which is the pre-4.16 behaviour the issue asks to keep. We count this as a fix for a test case; an open pull request from someone else already exists, so nothing was submitted."
   }
  ]
 }

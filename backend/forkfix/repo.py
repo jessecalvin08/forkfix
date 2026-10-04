@@ -128,8 +128,12 @@ class SetupResult:
         return f"Setup ok at {self.commit[:10]}; pytest collected {self.collected} tests."
 
 
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
 def parse_setup(output: str) -> SetupResult:
     """Read the markers a setup run prints. Anything without the OK marker is a failure."""
+    output = ANSI_ESCAPE.sub("", output)  # some projects (humanize) make pytest colour its summary line
     failed = re.search(rf"{FAILED}: (.*)", output)
     if failed:
         return SetupResult(False, message=failed.group(1).strip())
