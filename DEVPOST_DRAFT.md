@@ -41,7 +41,7 @@ hidden-test grade.
 
 The full run used about 185M model tokens across both cohorts and all three modes. Estimated total
 model cost was about $20.84 before tax using Token Factory list prices; this is an estimate because
-reports record token splits by mode, not by model. The benchmark recorded 11,551 sandbox runs, which
+reports record token splits by mode, not by model. The benchmark recorded 11,017 sandbox runs, which
 were not billed during the Sandboxes beta at the time of the run.
 
 ## How it was built

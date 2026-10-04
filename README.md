@@ -46,7 +46,7 @@ cohorts are also reported individually in [`results/benchmark.json`](results/ben
 - Cost: 185M tokens across both runs and all three modes, about $20.84 before tax at Token Factory
   list prices; about $0.12 per task for branching, whose judge calls use the pricier Nemotron 3
   Super. These are estimates: reports keep input/output tokens per mode, not per model, so each model
-  is assumed to have its mode's split. 11,551 Sandbox runs reported about $108 of Sandbox cost, none
+  is assumed to have its mode's split. 11,017 Sandbox runs reported about $82 of Sandbox cost, none
   of which has been billed during the Sandboxes beta.
 - Not covered: 25 of 104 held-out pytest-based tasks could not be graded by our harness (mostly
   astropy and requests) and were excluded before sampling; django and sympy are out of scope.
