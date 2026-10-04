@@ -102,6 +102,11 @@ ANNOTATIONS = {
         "tests were run on it: the check picks tests by the changed file's name and found none for "
         "tabulate/__init__.py. Real-issue runs now fall back to the whole suite when it is small."
     ),
+    "https://github.com/jazzband/prettytable/issues/173": (
+        "Run on 2026-10-04: 12 branches, no patch. In one branch the agent sent the edit tool the repository root "
+        "(a directory) 34 times and never changed approach. Real-issue mode now gives a specific error for that "
+        "and warns after three identical failing calls; that change has not been run live."
+    ),
 }
 
 # Patches that passed the proof check and the existing tests but failed a manual review, so they do not count as fixes.

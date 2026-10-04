@@ -119,8 +119,8 @@ function IssueRow({ row }: { row: RealIssue }) {
             {row.note && <p className="issue-note">{row.note}</p>}
             {row.candidates.length === 0 ? (
               <p className="dim">
-                No branch finished with a change to the project's source. The agent used its {row.max_steps}-step
-                budget reading a large file.
+                No branch finished with a change to the project's source. Branches ran out of their {row.max_steps}-step
+                budget or were pruned.
               </p>
             ) : (
               <ul className="cand-list">

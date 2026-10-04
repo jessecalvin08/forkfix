@@ -75,6 +75,7 @@ REPRO_SYSTEM_PROMPT = SYSTEM_PROMPT.replace(
 ).replace("re-run your script to confirm, then submit.",
           "re-run forkfix_repro_test.py until it passes, then submit. Keep that file in place: it is the proof of your fix.")
 
+REPEAT_WARNING = 3  # real-issue mode: identical failing calls in a row before the agent is told to change approach
 INSTALL_COMMAND = re.compile(r"\b(?:pip3?|uv\s+pip|conda|apt(?:-get)?)\s+install\b|\bpython3?\s+-m\s+pip\s+install\b")
 INSTALL_REFUSED = ("Error: installing packages is not allowed. Use only the project and the packages already "
                    "installed; write the test with the standard library (for example a small custom class).")
@@ -273,6 +274,11 @@ async def execute(action: Action, workspace: Workspace, meter: Meter,
     if target is None:
         return workspace, f"Error: path must be inside {REPO_ROOT}."
 
+    if strict and target == REPO_ROOT and action.tool in ("view", "edit"):
+        # One prettytable branch sent edit on the repository root 34 times and never changed approach.
+        return workspace, (f"Error: {action.path!r} is the repository root, a directory. Give the path of one "
+                           f"file, for example {REPO_ROOT}/<package>/<module>.py (find it with: grep -rn 'text' .).")
+
     if action.tool == "create":
         if problem := _syntax_error(target, action.content):
             return workspace, f"Error: file not created; {problem}"
@@ -315,6 +321,14 @@ async def apply(trajectory: Trajectory, action: Action, meter: Meter) -> Traject
     except Exception as error:  # noqa: BLE001 - a sandbox fault is shown to the agent, not fatal
         workspace, observation = trajectory.workspace, f"Sandbox error ({type(error).__name__}); try again or change approach."
     trajectory.workspace = workspace
+    if trajectory.strict and observation.startswith("Error"):
+        repeats = 1
+        for event in reversed(trajectory.events):
+            if event.summary != action.summary() or not event.observation.startswith("Error"):
+                break
+            repeats += 1
+        if repeats >= REPEAT_WARNING:
+            observation += f"\nNote: you have made this exact call {repeats} times and got an error each time. Change your approach."
     trajectory.messages.append({"role": "assistant", "content": action.model_dump_json()})
     trajectory.messages.append({"role": "user", "content": f"Observation:\n{observation}"})
     trajectory.events.append(Event(trajectory.steps, action.tool, action.summary(), observation[:400], workspace.snapshot_id))

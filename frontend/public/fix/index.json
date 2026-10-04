@@ -3,7 +3,7 @@
  "proven": 3,
  "clean": 0,
  "patched": 5,
- "tokens": 17774746,
+ "tokens": 19585725,
  "rows": [
   {
    "issue": "pallets/itsdangerous#389",
@@ -131,17 +131,17 @@
    "issue": "jazzband/prettytable#173",
    "url": "https://github.com/jazzband/prettytable/issues/173",
    "title": "Usage of get_html_string() ends up with `TypeError: cannot pickle '_thread.lock' object`",
-   "run": "20260930",
+   "run": "20261004",
    "commit": "f1563ab4bdfaa6884b70d40f8e437e94bbbca604",
-   "max_steps": 30,
-   "tokens": 1531590,
+   "max_steps": 50,
+   "tokens": 3342569,
    "sandbox_runs": 100,
    "selected": null,
    "proven": false,
    "candidates": [],
    "review": null,
    "clean": false,
-   "note": null
+   "note": "Run on 2026-10-04: 12 branches, no patch. In one branch the agent sent the edit tool the repository root (a directory) 34 times and never changed approach. Real-issue mode now gives a specific error for that and warns after three identical failing calls; that change has not been run live."
   },
   {
    "issue": "mahmoud/boltons#301",

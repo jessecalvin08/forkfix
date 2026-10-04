@@ -130,8 +130,10 @@ issue's example and fails on multi-line signatures and nested functions
 patch passed its own test, but it rewrites every numeric-looking string (`0123` becomes `123`), and the
 existing-test check found no tests to run, because it picks tests by the changed file's name
 (`python -m feasibility.tabulate_71_probe`; real-issue runs now fall back to the whole suite when it is small).
-**We count no real-issue fix as proven or mergeable.** Three of the six issues have been re-run with the changed
-agent; the viewer shows the latest. Nothing has been submitted to any project. The results are in the viewer's
+prettytable #173 was re-run too (3.3M tokens, about $0.48) and produced no patch: in one branch the agent sent the
+edit tool the repository root 34 times in a row. Real-issue mode now gives a specific error for that and warns
+after three identical failing calls (not yet run live). **We count no real-issue fix as proven or mergeable.**
+Four of the six issues have been re-run with the changed agent; the viewer shows the latest. Nothing has been submitted to any project. The results are in the viewer's
 "Real issues" section, with each branch's patch available to download.
 
 ## Re-running the benchmark extension

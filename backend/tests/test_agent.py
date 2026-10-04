@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from forkfix.agent import Action, ActionError, TokenFactoryAgent, execute
+from forkfix.agent import Action, ActionError, Trajectory, TokenFactoryAgent, apply, execute
 from forkfix.workspace import BudgetExceeded, Meter
 
 from fakes import FakeWorkspace, fake_openai
@@ -128,3 +128,24 @@ def test_repro_first_tasks_get_the_repro_prompt_and_strict_mode():
     assert real.strict and "forkfix_repro_test.py" in real.messages[0]["content"]
     assert "installing packages is refused" in real.messages[0]["content"]
     assert not plain.strict and plain.messages[0]["content"] == SYSTEM_PROMPT  # benchmark prompt unchanged
+
+
+def test_strict_mode_names_the_problem_when_the_path_is_the_repository_root():
+    edit = Action(tool="edit", path="/testbed", old_str="a", new_str="b")
+    _, strict = run(execute(edit, workspace(), Meter(), strict=True))
+    assert "repository root" in strict and "<module>.py" in strict
+    _, plain = run(execute(edit, workspace(), Meter()))
+    assert "repository root" not in plain  # benchmark mode keeps its old message
+
+
+def test_strict_mode_tells_the_agent_to_change_approach_after_repeated_identical_errors():
+    edit = Action(tool="edit", path="/testbed", old_str="a", new_str="b")
+    traj = Trajectory(id="0", workspace=workspace(), messages=[], strict=True)
+    for _ in range(3):
+        run(apply(traj, edit, Meter()))
+    assert "Change your approach" not in traj.messages[1]["content"]
+    assert "exact call 3 times" in traj.messages[-1]["content"]
+    loose = Trajectory(id="1", workspace=workspace(), messages=[])
+    for _ in range(3):
+        run(apply(loose, edit, Meter()))
+    assert "Change your approach" not in loose.messages[-1]["content"]
