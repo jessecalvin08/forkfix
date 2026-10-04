@@ -71,7 +71,9 @@ REPRO_SYSTEM_PROMPT = SYSTEM_PROMPT.replace(
     "test that fails on the current code because of the bug in the issue (run it with `pytest forkfix_repro_test.py`\n"
     "and confirm it fails for the right reason). The test may import only the project and packages that are already\n"
     "installed: installing packages is refused, and a test that needs one cannot be checked. Use grep -n to find code\n"
-    "and view at most about 100 lines at a time: the step budget is limited. Then make",
+    "and view at most about 100 lines at a time: the step budget is limited. The test must also check at least two\n"
+    "closely related inputs that already work correctly (neighbouring values, the opposite case, or the documented\n"
+    "behaviour of the same function), so that a fix which breaks them makes the test fail. Then make",
 ).replace("re-run your script to confirm, then submit.",
           "re-run forkfix_repro_test.py until it passes, then submit. Keep that file in place: it is the proof of your fix.")
 
