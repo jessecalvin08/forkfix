@@ -107,6 +107,13 @@ ANNOTATIONS = {
         "(a directory) 34 times and never changed approach. Real-issue mode now gives a specific error for that "
         "and warns after three identical failing calls; that change has not been run live."
     ),
+    "https://github.com/astanin/python-tabulate/issues/315": (
+        "Run on 2026-10-04 (and on 2026-09-30): the agent's reproduction test did not fail on the unfixed "
+        "repository either time, so it never reproduced the bug, and the issue may already be fixed on the default "
+        "branch. The patch only skips text wrapping when there are no rows. The existing-test check found no "
+        "tests to run because the whole-suite fallback was capped at 6 test files and this repository has 7; the "
+        "cap is now 12 (not yet run live)."
+    ),
 }
 
 # Patches that passed the proof check and the existing tests but failed a manual review, so they do not count as fixes.

@@ -207,3 +207,13 @@ def test_real_issue_mode_runs_a_small_suite_whole_when_no_test_is_named_after_th
     assert swe.test_files == ()  # SWE-bench behaviour is unchanged
     real = run(Verifier(make_task(repro_first=True), fake()).check(patch, fake(), Meter()))
     assert real.test_files == ("tests/test_calc.py", "tests/test_x.py")
+
+
+def test_the_whole_suite_fallback_covers_a_seven_file_suite_but_not_a_large_one():
+    patch = "--- a/src/other_module.py" + chr(10) + "+++ b/src/other_module.py" + chr(10)
+    def checked(n):
+        files = [f"tests/test_{i}.py" for i in range(n)]
+        ws = lambda: FakeWorkspace({SRC: BUGGY}, repo_tests=files, checker=existing_tests)
+        return run(Verifier(make_task(repro_first=True), ws()).check(patch, ws(), Meter())).test_files
+    assert len(checked(7)) == 7
+    assert checked(40) == ()

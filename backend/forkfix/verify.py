@@ -24,6 +24,7 @@ from .tasks import ACTIVATE, PASSING, Task, parse_pytest_report, patched_files
 from .workspace import Meter, Workspace
 
 MAX_TEST_FILES = 6
+WHOLE_SUITE_MAX_FILES = 12  # real-issue mode: a suite this small is run whole when no test is named after the change
 CHECK_TIMEOUT = 600
 
 
@@ -131,7 +132,7 @@ class Verifier:
             self._test_files = asyncio.ensure_future(self._list_tests(meter))
         test_files = await self._test_files
         files = tuple(related_tests(patched_files(patch), test_files))
-        if not files and self.task.repro_first and 0 < len(test_files) <= MAX_TEST_FILES:
+        if not files and self.task.repro_first and 0 < len(test_files) <= WHOLE_SUITE_MAX_FILES:
             # Real issues: tests are often not named after the changed file (tabulate/__init__.py vs
             # test/test_output.py), so a small suite is run whole rather than not at all.
             files = tuple(test_files)

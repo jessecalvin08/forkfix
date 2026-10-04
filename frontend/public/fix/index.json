@@ -3,7 +3,7 @@
  "proven": 3,
  "clean": 0,
  "patched": 5,
- "tokens": 19585725,
+ "tokens": 19448419,
  "rows": [
   {
    "issue": "pallets/itsdangerous#389",
@@ -236,29 +236,40 @@
    "issue": "astanin/python-tabulate#315",
    "url": "https://github.com/astanin/python-tabulate/issues/315",
    "title": "[bug] Error if trying to render a table with no rows using maxcolwidths",
-   "run": "20260930",
+   "run": "20261004",
    "commit": "268615a5c27dc40e5c22454c07b44d5c50410da0",
-   "max_steps": 30,
-   "tokens": 2163410,
-   "sandbox_runs": 174,
-   "selected": "0.1.0.1",
+   "max_steps": 50,
+   "tokens": 2026104,
+   "sandbox_runs": 158,
+   "selected": "0.0.2.0",
    "proven": false,
    "candidates": [
     {
-     "id": "0.1.0.1",
+     "id": "0.0.2.0",
      "stop": "submitted",
-     "steps": 16,
-     "judge": 2.0,
+     "steps": 18,
+     "judge": 4.0,
      "proven": false,
      "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
-     "existing_tests": null,
-     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..c8a5f83 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -2250,7 +2250,7 @@ def tabulate(\n         else:\n             num_cols = 0\n         if isinstance(maxcolwidths, int):  # Expand scalar for all columns\n-            maxcolwidths = _expand_iterable(maxcolwidths, num_cols, maxcolwidths)\n+            maxcolwidths = _expand_iterable([maxcolwidths], num_cols, None)\n         else:  # Ignore col width for any 'trailing' columns\n             maxcolwidths = _expand_iterable(maxcolwidths, num_cols, None)\n \n",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..bac7971 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -2255,14 +2255,15 @@ def tabulate(\n             maxcolwidths = _expand_iterable(maxcolwidths, num_cols, None)\n \n         numparses = _expand_numparse(disable_numparse, num_cols)\n-        list_of_lists = _wrap_text_to_colwidths(\n-            list_of_lists,\n-            maxcolwidths,\n-            numparses=numparses,\n-            missingval=missingval,\n-            break_long_words=break_long_words,\n-            break_on_hyphens=break_on_hyphens,\n-        )\n+        if list_of_lists:\n+                list_of_lists = _wrap_text_to_colwidths(\n+                    list_of_lists,\n+                    maxcolwidths,\n+                    numparses=numparses,\n+                    missingval=missingval,\n+                    break_long_words=break_long_words,\n+                    break_on_hyphens=break_on_hyphens,\n+                )\n \n     if maxheadercolwidths is not None:\n         num_cols = len(list_of_lists[0]) if list_of_lists else len(headers)\n",
+     "regressions": false
+    },
+    {
+     "id": "0.0.0.0",
+     "stop": "submitted",
+     "steps": 40,
+     "judge": 4.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "No existing tests were found for the changed files.",
+     "patch": "diff --git a/tabulate/__init__.py b/tabulate/__init__.py\nindex 12a2950..f8533de 100644\n--- a/tabulate/__init__.py\n+++ b/tabulate/__init__.py\n@@ -2487,6 +2487,8 @@ def _expand_iterable(original, num_desired, default):\n     If `original` is not a list to begin with (i.e. scalar value) a list of\n     length `num_desired` completely populated with `default will be returned\n     \"\"\"\n+    if num_desired == 0:\n+        return []\n     if isinstance(original, Iterable) and not isinstance(original, str):\n         return original + [default] * (num_desired - len(original))\n     else:\n",
      "regressions": false
     }
    ],
    "review": null,
    "clean": false,
-   "note": null
+   "note": "Run on 2026-10-04 (and on 2026-09-30): the agent's reproduction test did not fail on the unfixed repository either time, so it never reproduced the bug, and the issue may already be fixed on the default branch. The patch only skips text wrapping when there are no rows. The existing-test check found no tests to run because the whole-suite fallback was capped at 6 test files and this repository has 7; the cap is now 12 (not yet run live)."
   }
  ]
 }

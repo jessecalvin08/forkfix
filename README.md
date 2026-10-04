@@ -133,7 +133,9 @@ existing-test check found no tests to run, because it picks tests by the changed
 prettytable #173 was re-run too (3.3M tokens, about $0.48) and produced no patch: in one branch the agent sent the
 edit tool the repository root 34 times in a row. Real-issue mode now gives a specific error for that and warns
 after three identical failing calls (not yet run live). **We count no real-issue fix as proven or mergeable.**
-Four of the six issues have been re-run with the changed agent; the viewer shows the latest. Nothing has been submitted to any project. The results are in the viewer's
+tabulate #315 was re-run (2.0M tokens, about $0.29): the agent's reproduction test did not fail on the unfixed
+repository, as on September 30, so nothing was proven and the issue may already be fixed upstream. Five of the six
+issues have been re-run with the changed agent (tabulate #230 has not); the viewer shows the latest. Nothing has been submitted to any project. The results are in the viewer's
 "Real issues" section, with each branch's patch available to download.
 
 ## Re-running the benchmark extension
