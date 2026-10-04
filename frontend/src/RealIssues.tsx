@@ -49,7 +49,7 @@ export default function RealIssues() {
           <p>
             {data.patched} of {data.issues} runs produced any patch. Together they used {fmtTokens(data.tokens)} model
             tokens. {rerun > 0
-              ? `${rerun} issue${rerun === 1 ? " was" : "s were"} re-run after the agent was changed (no package installs, more steps, a cap on unproven scores); the other ${data.issues - rerun} are from before those changes and have not been re-run.`
+              ? `${rerun} of the ${data.issues} runs used the agent after it was changed (no package installs, more steps, a cap on unproven scores, a fallback that runs a small test suite whole); the other ${data.issues - rerun} ${data.issues - rerun === 1 ? "is" : "are"} from before those changes.`
               : "The agent has been changed since these runs (no package installs, more steps, a cap on unproven scores); those changes have not been run against a live model."}
           </p>
         </div>
@@ -73,8 +73,9 @@ export default function RealIssues() {
           </table>
         </div>
         <p className="real-foot">
-          Issues were chosen by a person from open, unassigned bugs with no competing pull request; nothing has been
-          submitted to any project.
+          The first six issues were chosen by a person from open, unassigned bugs with no competing pull request. The
+          last four (dateutil and arrow) were chosen as clear bugs with exact examples, and each already has an open
+          pull request from someone else, so they are test cases only. Nothing has been submitted to any project.
         </p>
       </div>
     </section>

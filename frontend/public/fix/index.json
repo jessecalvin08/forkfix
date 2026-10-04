@@ -1,9 +1,9 @@
 {
- "issues": 6,
- "proven": 3,
+ "issues": 10,
+ "proven": 4,
  "clean": 0,
- "patched": 5,
- "tokens": 19448419,
+ "patched": 8,
+ "tokens": 31190892,
  "rows": [
   {
    "issue": "pallets/itsdangerous#389",
@@ -270,6 +270,150 @@
    "review": null,
    "clean": false,
    "note": "Run on 2026-10-04 (and on 2026-09-30): the agent's reproduction test did not fail on the unfixed repository either time, so it never reproduced the bug, and the issue may already be fixed on the default branch. The patch only skips text wrapping when there are no rows. The existing-test check found no tests to run because the whole-suite fallback was capped at 6 test files and this repository has 7; the cap is now 12 (not yet run live)."
+  },
+  {
+   "issue": "dateutil/dateutil#1156",
+   "url": "https://github.com/dateutil/dateutil/issues/1156",
+   "title": "Parser fails to parse leap years with year last format",
+   "run": "20261004",
+   "commit": "2642afacc33fb839c404b75b230fff58b79793f2",
+   "max_steps": 50,
+   "tokens": 3965770,
+   "sandbox_runs": 180,
+   "selected": "0.0.2.0",
+   "proven": false,
+   "candidates": [
+    {
+     "id": "0.0.2.0",
+     "stop": "step_limit",
+     "steps": 50,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed.",
+     "existing_tests": "Existing tests tests/test_parser.py: 66/212 pass. BROKEN: 163 of 225 previously passing tests now fail or cannot run, e.g. tests/test_parser.py::test_parser[Thu, tests/test_parser.py::test_parser[2003-09-25T10:49-expected_datetime3-iso, tests/test_parser.py::test_parser[2003-09-25T10-expected_datetime4-iso.",
+     "patch": "diff --git a/src/dateutil/parser/_parser.py b/src/dateutil/parser/_parser.py\nindex 37d1663..6b2ef79 100644\n--- a/src/dateutil/parser/_parser.py\n+++ b/src/dateutil/parser/_parser.py\n@@ -1232,7 +1232,7 @@ class parser(object):\n             if cday > monthrange(cyear, cmonth)[1]:\n                 repl['day'] = monthrange(cyear, cmonth)[1]\n \n-        naive = default.replace(**repl)\n+        naive = default.replace(year=repl.get('year'), month=repl.get('month'), day=repl.get('day'), hour=repl.get('hour'), minute=repl.get('minute'), second=repl.get('second'), microsecond=repl.get('microsecond'), tzinfo=repl.get('tzinfo'))\n \n         if res.weekday is not None and not res.day:\n             naive = naive + relativedelta.relativedelta(weekday=res.weekday)\n",
+     "regressions": true
+    },
+    {
+     "id": "0.0.2.1",
+     "stop": "step_limit",
+     "steps": 50,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed.",
+     "existing_tests": "Existing tests tests/test_parser.py: 224/224 pass. BROKEN: 3 of 225 previously passing tests now fail or cannot run, e.g. tests/test_parser.py::TestOutOfBounds::test_no_year_zero, tests/test_parser.py::TestOutOfBounds::test_out_of_bound_day, tests/te.",
+     "patch": "diff --git a/src/dateutil/parser/_parser.py b/src/dateutil/parser/_parser.py\nindex 37d1663..0cbba9b 100644\n--- a/src/dateutil/parser/_parser.py\n+++ b/src/dateutil/parser/_parser.py\n@@ -1232,7 +1232,21 @@ class parser(object):\n             if cday > monthrange(cyear, cmonth)[1]:\n                 repl['day'] = monthrange(cyear, cmonth)[1]\n \n-        naive = default.replace(**repl)\n+        try:\n+            naive = default.replace(**repl)\n+        except ValueError as e:\n+            if \"day is out of range for month\" in str(e) and 'day' in repl:\n+                # If we're trying to set an invalid day, use the last day of the month\n+                cyear = repl.get('year')\n+                cmonth = repl.get('month')\n+                if cyear and cmonth:\n+                    last_day = monthrange(cyear, cmonth)[1]\n+                    repl['day'] = last_day\n+                    naive = default.replace(**repl)\n+                else:\n+                    raise\n+            else:\n+                raise\n \n         if res.weekday is not None and not res.day:\n             naive = naive + relativedelta.relativedelta(weekday=res.weekday)\n",
+     "regressions": true
+    },
+    {
+     "id": "0.0.2.2",
+     "stop": "step_limit",
+     "steps": 50,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "The reproduction test does not fail on the unfixed repository, so it proves nothing.",
+     "existing_tests": "Existing tests tests/test_parser.py: 224/224 pass. BROKEN: 4 of 225 previously passing tests now fail or cannot run, e.g. tests/test_parser.py::ParserTest::testUnspecifiedDayFallback, tests/test_parser.py::ParserTest::testUnspecifiedDayFallbackFebLeapYear, tests/test_parser.py::ParserTest::testUnspecifiedDayFallbackFebNoLeapYear.",
+     "patch": "diff --git a/src/dateutil/parser/_parser.py b/src/dateutil/parser/_parser.py\nindex 37d1663..68867e3 100644\n--- a/src/dateutil/parser/_parser.py\n+++ b/src/dateutil/parser/_parser.py\n@@ -1222,15 +1222,6 @@ class parser(object):\n             if value is not None:\n                 repl[attr] = value\n \n-        if 'day' not in repl:\n-            # If the default day exceeds the last day of the month, fall back\n-            # to the end of the month.\n-            cyear = default.year if res.year is None else res.year\n-            cmonth = default.month if res.month is None else res.month\n-            cday = default.day if res.day is None else res.day\n-\n-            if cday > monthrange(cyear, cmonth)[1]:\n-                repl['day'] = monthrange(cyear, cmonth)[1]\n \n         naive = default.replace(**repl)\n \n",
+     "regressions": true
+    }
+   ],
+   "review": null,
+   "clean": false,
+   "note": "Run on 2026-10-04, chosen as a clear bug with an exact repro. No branch fixed it: all three hit the 50-step limit and the selected patch rewrites the datetime.replace call in a way that breaks 163 of 225 existing parser tests."
+  },
+  {
+   "issue": "dateutil/dateutil#1236",
+   "url": "https://github.com/dateutil/dateutil/issues/1236",
+   "title": "dateutil accepts none-existent week 53",
+   "run": "20261004",
+   "commit": "2642afacc33fb839c404b75b230fff58b79793f2",
+   "max_steps": 50,
+   "tokens": 1892393,
+   "sandbox_runs": 135,
+   "selected": "0.2.1.1",
+   "proven": true,
+   "candidates": [
+    {
+     "id": "0.2.1.1",
+     "stop": "submitted",
+     "steps": 18,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_isoparser.py: 255/255 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/dateutil/parser/isoparser.py b/src/dateutil/parser/isoparser.py\nindex 7060087..cee3ac7 100644\n--- a/src/dateutil/parser/isoparser.py\n+++ b/src/dateutil/parser/isoparser.py\n@@ -295,37 +295,40 @@ class isoparser(object):\n         return components, pos\n \n     def _calculate_weekdate(self, year, week, day):\n-        \"\"\"\n-        Calculate the day of corresponding to the ISO year-week-day calendar.\n+          \"\"\"\n+          Calculate the day of corresponding to the ISO year-week-day calendar.\n \n-        This function is effectively the inverse of\n-        :func:`datetime.date.isocalendar`.\n+          This function is effectively the inverse of\n+          :func:`datetime.date.isocalendar`.\n \n-        :param year:\n-            The year in the ISO calendar\n+          :param year:\n+              The year in the ISO calendar\n \n-        :param week:\n-            The week in the ISO calendar - range is [1, 53]\n+          :param week:\n+              The week in the ISO calendar - range is [1, 53]\n \n-        :param day:\n-            The day in the ISO calendar - range is [1 (MON), 7 (SUN)]\n+          :param day:\n+              The day in the ISO calendar - range is [1 (MON), 7 (SUN)]\n \n-        :return:\n-            Returns a :class:`datetime.date`\n-        \"\"\"\n-        if not 0 < week < 54:\n-            raise ValueError('Invalid week: {}'.format(week))\n+          :return:\n+              Returns a :class:`datetime.date`\n+          \"\"\"\n+          if not 0 < week < 54:\n+              raise ValueError('Invalid week: {}'.format(week))\n \n-        if not 0 < day < 8:     # Range is 1-7\n-            raise ValueError('Invalid weekday: {}'.format(day))\n+          if not 0 < day < 8:     # Range is 1-7\n+              raise ValueError('Invalid weekday: {}'.format(day))\n \n-        # Get week 1 for the specific year:\n-        jan_4 = date(year, 1, 4)   # Week 1 always has January 4th in it\n-        week_1 = jan_4 - timedelta(days=jan_4.isocalendar()[2] - 1)\n+          # Get week 1 for the specific year:\n+          jan_4 = date(year, 1, 4)   # Week 1 always has January 4th in it\n+          week_1 = jan_4 - timedelta(days=jan_4.isocalendar()[2] - 1)\n \n-        # Now add the specific number of weeks and days to get what we want\n-        week_offset = (week - 1) * 7 + (day - 1)\n-        return week_1 + timedelta(days=week_offset)\n+          # Now add the specific number of weeks and days to get what we want\n+          week_offset = (week - 1) * 7 + (day - 1)\n+          ret = week_1 + timedelta(days=week_offset)\n+          if ret.year != year:\n+              raise ValueError('Invalid week: {} for year {}'.format(week, year))\n+          return ret\n \n     def _parse_isotime(self, timestr):\n         len_str = len(timestr)\n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.2.0",
+     "stop": "submitted",
+     "steps": 21,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "No reproduction test (forkfix_repro_test.py) was written.",
+     "existing_tests": "Existing tests tests/test_isoparser.py: 255/255 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/dateutil/parser/isoparser.py b/src/dateutil/parser/isoparser.py\nindex 7060087..9773c70 100644\n--- a/src/dateutil/parser/isoparser.py\n+++ b/src/dateutil/parser/isoparser.py\n@@ -314,7 +314,7 @@ class isoparser(object):\n             Returns a :class:`datetime.date`\n         \"\"\"\n         if not 0 < week < 54:\n-            raise ValueError('Invalid week: {}'.format(week))\n+          raise ValueError('Invalid week: {}'.format(week))\n \n         if not 0 < day < 8:     # Range is 1-7\n             raise ValueError('Invalid weekday: {}'.format(day))\n@@ -325,7 +325,15 @@ class isoparser(object):\n \n         # Now add the specific number of weeks and days to get what we want\n         week_offset = (week - 1) * 7 + (day - 1)\n-        return week_1 + timedelta(days=week_offset)\n+        result_date = week_1 + timedelta(days=week_offset)\n+          \n+        # Validate that the resulting date actually belongs to the specified week\n+        # by checking its ISO calendar\n+        result_year, result_week, result_day = result_date.isocalendar()\n+        if result_week != week or result_day != day:\n+            raise ValueError('Invalid week: {}'.format(week))\n+\n+        return result_date\n \n     def _parse_isotime(self, timestr):\n         len_str = len(timestr)\n",
+     "regressions": false
+    },
+    {
+     "id": "0.2.1.0",
+     "stop": "submitted",
+     "steps": 28,
+     "judge": 10.0,
+     "proven": true,
+     "reproduction": "The reproduction test fails on the unfixed repository and passes here: the bug is fixed.",
+     "existing_tests": "Existing tests tests/test_isoparser.py: 255/255 pass. None that passed before fail now.",
+     "patch": "diff --git a/src/dateutil/parser/isoparser.py b/src/dateutil/parser/isoparser.py\nindex 7060087..5110534 100644\n--- a/src/dateutil/parser/isoparser.py\n+++ b/src/dateutil/parser/isoparser.py\n@@ -277,6 +277,9 @@ class isoparser(object):\n                 pos += 1\n \n             base_date = self._calculate_weekdate(year, weekno, dayno)\n+            # Validate that the calculated date is still in the same year\n+            if base_date.year != year:\n+                raise ValueError('Invalid week: {}'.format(weekno))\n         else:\n             # YYYYDDD or YYYY-DDD\n             if len(dt_str) - pos < 3:\n",
+     "regressions": false
+    }
+   ],
+   "review": "Rejects 49 valid ISO dates and accepts 27 invalid ones.",
+   "clean": false,
+   "note": "Run on 2026-10-04. Two branches passed their own test and the 255 existing isoparser tests, and the judge gave 10/10, but a hand check (python -m feasibility.dateutil_1236_probe) shows the patch raises for 49 valid ISO dates, such as 2003-W01-1 (week 1 can start in the previous December), and still accepts 27 invalid ones."
+  },
+  {
+   "issue": "arrow-py/arrow#1191",
+   "url": "https://github.com/arrow-py/arrow/issues/1191",
+   "title": "IndexError in DateTimeParser.parse",
+   "run": "20261004",
+   "commit": "2224255c4acc594d734cef0bbc83360452a67983",
+   "max_steps": 50,
+   "tokens": 4035456,
+   "sandbox_runs": 239,
+   "selected": "0.1.0.2",
+   "proven": false,
+   "candidates": [
+    {
+     "id": "0.1.0.2",
+     "stop": "submitted",
+     "steps": 45,
+     "judge": 2.0,
+     "proven": false,
+     "reproduction": "The reproduction test fails on the unfixed repository and still fails here: the bug is not fixed.",
+     "existing_tests": null,
+     "patch": "diff --git a/arrow/parser.py b/arrow/parser.py\nindex fc3774b..48a25ad 100644\n--- a/arrow/parser.py\n+++ b/arrow/parser.py\n@@ -427,7 +427,7 @@ class DateTimeParser:\n             elif token == \"W\":\n                 value = (match.group(\"year\"), match.group(\"week\"), match.group(\"day\"))\n             else:\n-                value = match.group(token)\n+                value = match.group(token) if token in match.groupdict() else None\n \n             if value is None:\n                 raise ParserMatchError(\n",
+     "regressions": false
+    }
+   ],
+   "review": null,
+   "clean": false,
+   "note": "Run on 2026-10-04 and stopped at the 4M-token cap. The agent's own test still failed on the selected patch, a one-line guard that does not fix the crash."
+  },
+  {
+   "issue": "dateutil/dateutil#1063",
+   "url": "https://github.com/dateutil/dateutil/issues/1063",
+   "title": "fuzzy_with_tokens does not return unused numerical tokens",
+   "run": "20261004",
+   "commit": "2642afacc33fb839c404b75b230fff58b79793f2",
+   "max_steps": 50,
+   "tokens": 1848854,
+   "sandbox_runs": 86,
+   "selected": null,
+   "proven": false,
+   "candidates": [],
+   "review": null,
+   "clean": false,
+   "note": "Run on 2026-10-04: 1.8M tokens and no patch."
   }
  ]
 }

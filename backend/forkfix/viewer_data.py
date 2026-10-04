@@ -114,12 +114,30 @@ ANNOTATIONS = {
         "tests to run because the whole-suite fallback was capped at 6 test files and this repository has 7; the "
         "cap is now 12 (not yet run live)."
     ),
+    "https://github.com/dateutil/dateutil/issues/1156": (
+        "Run on 2026-10-04, chosen as a clear bug with an exact repro. No branch fixed it: all three hit the 50-step "
+        "limit and the selected patch rewrites the datetime.replace call in a way that breaks 163 of 225 existing "
+        "parser tests."
+    ),
+    "https://github.com/dateutil/dateutil/issues/1236": (
+        "Run on 2026-10-04. Two branches passed their own test and the 255 existing isoparser tests, and the judge "
+        "gave 10/10, but a hand check (python -m feasibility.dateutil_1236_probe) shows the patch raises for 49 valid "
+        "ISO dates, such as 2003-W01-1 (week 1 can start in the previous December), and still accepts 27 invalid ones."
+    ),
+    "https://github.com/arrow-py/arrow/issues/1191": (
+        "Run on 2026-10-04 and stopped at the 4M-token cap. The agent's own test still failed on the selected patch, "
+        "a one-line guard that does not fix the crash."
+    ),
+    "https://github.com/dateutil/dateutil/issues/1063": (
+        "Run on 2026-10-04: 1.8M tokens and no patch."
+    ),
 }
 
 # Patches that passed the proof check and the existing tests but failed a manual review, so they do not count as fixes.
 REVIEWED_NOT_A_FIX = {
     "https://github.com/mahmoud/boltons/issues/301": "Fails on multi-line signatures and nested functions.",
     "https://github.com/astanin/python-tabulate/issues/71": "Rewrites numeric-looking text, e.g. 0123 -> 123.",
+    "https://github.com/dateutil/dateutil/issues/1236": "Rejects 49 valid ISO dates and accepts 27 invalid ones.",
 }
 
 REGRESSION_MARK = "previously passing tests now fail"

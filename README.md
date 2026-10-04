@@ -112,31 +112,32 @@ Runs that spend credits require `--approve` and stop at `--max-tokens`. Evidence
 git-ignored `backend/reports/`.
 
 
-## Real GitHub issues (first live run, not yet a result)
+## Real GitHub issues (live runs; no fix proven)
 
-`python -m forkfix.fix <issue-url>` runs the same search on a real open issue with no hidden tests.
-The agent writes its own reproduction test first; a branch counts as a fix only if that test fails on
-the unfixed repository and passes on the branch, and it should not break the project's existing tests.
-First live run (September 30; 6 issues from 6 public repositories): 4 runs produced a patch and none
-passed that check. The judge gave scores up to 10/10 to patches the check rejected. The agent was then
-changed (no package installs, more steps, a cap on unproven judge scores) and itsdangerous #389 was re-run
-on October 3 (2.9M model tokens, about $0.40 at list price): one patch passed the agent's own test, and the
-judge gave it 10/10, but it breaks the project's own `test_serializer_kwargs` (that test passes `skipkeys`,
-which `json.dumps` accepts and `json.loads` does not). The issue most likely asks for behaviour the project
-does not intend. boltons #301 was re-run too (4.2M tokens, about $0.60): three branches passed their own test
-with no existing test broken, but the patch copies a function body by parsing source lines, which works for the
-issue's example and fails on multi-line signatures and nested functions
-(`python -m feasibility.boltons_body_probe`). tabulate #71 was re-run as well (4.2M tokens, about $0.60): the
-patch passed its own test, but it rewrites every numeric-looking string (`0123` becomes `123`), and the
-existing-test check found no tests to run, because it picks tests by the changed file's name
-(`python -m feasibility.tabulate_71_probe`; real-issue runs now fall back to the whole suite when it is small).
-prettytable #173 was re-run too (3.3M tokens, about $0.48) and produced no patch: in one branch the agent sent the
-edit tool the repository root 34 times in a row. Real-issue mode now gives a specific error for that and warns
-after three identical failing calls (not yet run live). **We count no real-issue fix as proven or mergeable.**
-tabulate #315 was re-run (2.0M tokens, about $0.29): the agent's reproduction test did not fail on the unfixed
-repository, as on September 30, so nothing was proven and the issue may already be fixed upstream. Five of the six
-issues have been re-run with the changed agent (tabulate #230 has not); the viewer shows the latest. Nothing has been submitted to any project. The results are in the viewer's
-"Real issues" section, with each branch's patch available to download.
+`python -m forkfix.fix <issue-url>` runs the same search on a real open issue with no hidden tests. The agent
+writes its own reproduction test first; a branch counts as a fix only if that test fails on the unfixed
+repository and passes on the branch, and it should not break the project's existing tests. We then review any
+such patch by hand. **Across 10 issues from 6 public repositories, no patch is a fix we would sign.** The runs
+used 31.2M model tokens, about $4.50 at list price. Nothing has been submitted to any project.
+
+| Issue | What happened |
+| --- | --- |
+| itsdangerous #389 | Patch passes its own test but breaks the project's `test_serializer_kwargs`; the issue likely asks for behaviour the project does not intend |
+| boltons #301 | Three branches pass their own test and the existing ones, but the body extraction fails on multi-line signatures and nested functions (`python -m feasibility.boltons_body_probe`) |
+| tabulate #71 | Patch rewrites numeric-looking text (`0123` becomes `123`) (`feasibility.tabulate_71_probe`); the existing-test check found no tests to run |
+| dateutil #1236 | Two branches pass their own test and all 255 existing tests, with 10/10 judge scores, but the patch rejects 49 valid ISO dates, such as `2003-W01-1` (`feasibility.dateutil_1236_probe`) |
+| dateutil #1156 | No fix; the selected patch breaks 163 of 225 existing parser tests |
+| arrow #1191 | No fix; stopped at the token cap |
+| prettytable #173, dateutil #1063 | No patch; in one prettytable branch the agent sent the edit tool the repository root 34 times |
+| tabulate #315, #230 | Not proven; the agent's test never reproduced the bug on #315 |
+
+What this shows is that the proof check (the agent's own test fails before and passes after, with existing tests
+intact) is necessary but not sufficient: four patches passed it and a hand check rejected all four. The runs
+also found harness faults that are now fixed for real-issue mode and have not been run live: a repeated-edit guard,
+a specific error for a directory path, and a fallback that runs a small test suite whole when no test file is named
+after the changed one. The first six issues were picked from open, unassigned bugs with no competing pull request; the
+last four (dateutil, arrow) were picked as clear bugs with exact examples and each has an open pull request
+from someone else, so they are test cases only. The results are in the viewer's "Real issues" section.
 
 ## Re-running the benchmark extension
 
