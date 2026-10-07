@@ -16,8 +16,8 @@ The repository was RuleBranch (a permission-policy checker for coding agents) un
 2026, and was itself named `rulebranch` on GitHub until it was renamed to `forkfix` on September 28,
 2026, when `main` was pushed with the Forkfix content, replacing RuleBranch on the public Vercel
 site. RuleBranch is preserved on the local `archive/rulebranch` branch and in the git history before
-the switch. The Vercel project's own name and domain (as of the rename, still `rulebranch.vercel.app`)
-are not changed by a GitHub rename; only Jesse can rename the Vercel project itself.
+the switch. The Vercel project was renamed to `forkfix` on October 7, 2026 and is live at
+`forkfix.vercel.app`; the old `rulebranch.vercel.app` domain is still attached as an alias.
 
 ## Commands (Windows; `backend/.venv` exists)
 
