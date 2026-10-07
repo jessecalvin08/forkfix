@@ -1,6 +1,6 @@
 # Demo video script (target 2:45, hard limit 3:00)
 
-Record the live viewer (rulebranch.vercel.app) in a clean browser. Every number below comes from
+Record the live viewer (forkfix.vercel.app) in a clean browser. Every number below comes from
 `results/benchmark_all.json`, `results/forks_all.json` or `frontend/public/fix/index.json`; recheck them against
 those files before recording if anything has been re-run. At ~150 words per minute the voiceover is about 2:30.
 

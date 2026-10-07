@@ -112,7 +112,6 @@ also a real limitation: on several tasks a correct candidate existed but was not
 
 - Public repository: https://github.com/jessecalvin08/forkfix (renamed from `rulebranch` on
   September 28, 2026; GitHub redirects the old URL).
-- Working demo: the run viewer is now on `main`, so it will deploy to the existing Vercel site once
-  Vercel rebuilds. The URL is still `rulebranch.vercel.app` unless the Vercel project itself is
-  renamed (a separate step, not done here).
+- Working demo: the run viewer is live at https://forkfix.vercel.app (Vercel project renamed on
+  October 7, 2026; the old `rulebranch.vercel.app` alias still works).
 - Demo video: add after recording the saved-run viewer.
