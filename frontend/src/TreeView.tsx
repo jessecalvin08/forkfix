@@ -3,12 +3,10 @@ import type { KeyboardEvent } from "react";
 import { layout, shortStop, stopWords } from "./tree";
 import type { ModeName, ModeRun } from "./types";
 
-const STEP = 20;
 const ROW = 28;
 const PAD_X = 20;
 const PAD_TOP = 34;
 const LABEL_GAP = 18;
-const LABEL_W = 230;
 
 interface Props {
   mode: ModeName;
@@ -16,6 +14,8 @@ interface Props {
   upTo: number;
   selected: string;
   onSelect: (id: string) => void;
+  /** Tighter steps and labels, for the hero where the tree shares the row with the claim. */
+  compact?: boolean;
 }
 
 export function nodeName(mode: ModeName, id: string): string {
@@ -24,7 +24,9 @@ export function nodeName(mode: ModeName, id: string): string {
   return "Attempt";
 }
 
-export default function TreeView({ mode, run, upTo, selected, onSelect }: Props) {
+export default function TreeView({ mode, run, upTo, selected, onSelect, compact = false }: Props) {
+  const STEP = compact ? 14 : 20;
+  const LABEL_W = compact ? 196 : 230;
   const { placed, rows } = layout(run);
   const steps = run.config.max_steps;
   const x = (step: number) => PAD_X + step * STEP;

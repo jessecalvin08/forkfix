@@ -113,5 +113,5 @@ also a real limitation: on several tasks a correct candidate existed but was not
 - Public repository: https://github.com/jessecalvin08/forkfix (renamed from `rulebranch` on
   September 28, 2026; GitHub redirects the old URL).
 - Working demo: the run viewer is live at https://forkfix.vercel.app (Vercel project renamed on
-  October 7, 2026; the old `rulebranch.vercel.app` alias still works).
+  October 7, 2026; the old `rulebranch.vercel.app` alias was removed).
 - Demo video: add after recording the saved-run viewer.
