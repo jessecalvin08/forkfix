@@ -33,35 +33,42 @@ export default function RealIssues() {
   const rerun = sorted.filter((r) => r.run >= AGENT_CHANGED_ON).length;
 
   return (
-    <section className="real" id="real-issues" aria-labelledby="real-title">
+    <section className="section real" id="real-issues" aria-labelledby="real-title">
       <div className="wrap">
-        <p className="nameplate">Real issues · first live run · {sorted[0].run}</p>
-        <h2 id="real-title">{heading}</h2>
+        <header className="section-head">
+          <p className="stamp">Real issues · first live run · {fmtRunDate(sorted[0].run)}</p>
+          <h2 id="real-title">{heading}</h2>
+        </header>
 
-        <div className="real-intro">
+        <div className="real-lead">
           <p>
-            Real issues have no hidden tests to grade against, so Forkfix asks the agent to write its own reproduction
-            test first. A branch counts as a fix only if that test <strong>fails on the unfixed repository and passes
-            on the branch</strong>, and it should not break the project's existing tests. The judge model scores
-            patches too, but its score alone is not proof, and neither is the agent's own test: {data.clean > 0
-              ? `most of the patches that passed it either broke a test the project already had or failed on inputs the agent's test never tried; ${data.clean} held up under a hand-written check.`
+            Real issues have no hidden tests, so Forkfix makes the agent write its own reproduction test first. A branch
+            counts as a fix only if that test <strong>fails on the unfixed repository and passes on the branch</strong>,
+            and the project's existing tests still pass. The judge's score is not proof, and neither is the agent's own
+            test: {data.clean > 0
+              ? `most patches that passed it either broke a test the project already had or failed on inputs the agent's test never tried; ${data.clean} held up under a hand-written check.`
               : "the patches that passed it either broke a test the project already had or failed on inputs the agent's test never tried."}
           </p>
-          <p>
-            {data.patched} of {data.issues} runs produced any patch. Together they used {fmtTokens(data.tokens)} model
-            tokens. {rerun > 0
-              ? `${rerun} of the ${data.issues} runs used the agent after it was changed (no package installs, more steps, a cap on unproven scores, a fallback that runs a small test suite whole); the other ${data.issues - rerun} ${data.issues - rerun === 1 ? "is" : "are"} from before those changes.`
-              : "The agent has been changed since these runs (no package installs, more steps, a cap on unproven scores); those changes have not been run against a live model."}
-          </p>
+          <ol className="funnel real-funnel" aria-label="Real-issue outcomes">
+            <li><strong>{data.issues}</strong><span>issues run</span></li>
+            <li><strong>{data.patched}</strong><span>produced any patch</span></li>
+            <li><strong>{data.proven}</strong><span>passed their own proof test</span></li>
+            <li><strong>{data.clean}</strong><span>held up on review</span></li>
+          </ol>
         </div>
+        <p className="fine real-meta">
+          {fmtTokens(data.tokens)} model tokens in total. {rerun > 0
+            ? `${rerun} of the ${data.issues} runs used the agent after it was changed (no package installs, more steps, a cap on unproven scores, a fallback that runs a small test suite whole); the other ${data.issues - rerun} ${data.issues - rerun === 1 ? "is" : "are"} from before those changes.`
+            : "The agent has been changed since these runs (no package installs, more steps, a cap on unproven scores); those changes have not been run against a live model."}
+        </p>
 
-        <div className="table-scroll">
+        <div className="table-scroll" role="region" aria-label="Real issues, scrollable" tabIndex={0}>
           <table className="real-table">
             <thead>
               <tr>
                 <th scope="col">Issue</th>
                 <th scope="col" className="num">Patches</th>
-                <th scope="col" className="num">Best judge score</th>
+                <th scope="col" className="num">Best judge</th>
                 <th scope="col">Proof check</th>
                 <th scope="col" className="num">Tokens</th>
               </tr>
@@ -73,7 +80,7 @@ export default function RealIssues() {
             </tbody>
           </table>
         </div>
-        <p className="real-foot">
+        <p className="fine real-foot">
           The first six issues were chosen by a person from open, unassigned bugs with no competing pull request. The
           later ones (dateutil, arrow, sqlparse) were chosen as clear bugs with exact examples, and each already has an open
           pull request from someone else, so they are test cases only. Nothing has been submitted to any project.
@@ -82,6 +89,8 @@ export default function RealIssues() {
     </section>
   );
 }
+
+const fmtRunDate = (run: string): string => (/^\d{8}$/.test(run) ? `${run.slice(0, 4)}-${run.slice(4, 6)}-${run.slice(6)}` : run);
 
 function bestJudge(row: RealIssue): number | null {
   const scores = row.candidates.map((c) => c.judge).filter((s): s is number => s != null);
@@ -110,7 +119,7 @@ function IssueRow({ row }: { row: RealIssue }) {
         <td className="num">{row.candidates.length}</td>
         <td className="num">{best == null ? "–" : `${best} / 10`}</td>
         <td>
-          <span className={`verdict${row.clean ? " proven" : ""}`}>{proofLabel(row)}</span>
+          <span className={`proof${row.clean ? " proven" : ""}`}>{proofLabel(row)}</span>
         </td>
         <td className="num">{fmtTokens(row.tokens)}</td>
       </tr>
