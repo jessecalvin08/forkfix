@@ -88,10 +88,11 @@ From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + 
 - `forkfix/report.py` aggregates the newest report per benchmark task (written after
   `benchmark_tasks.json`) into tracked `results/benchmark.json`, with McNemar p-values and a list-price
   cost estimate; `forkfix/viewer_data.py` exports the same reports' trees for the viewer.
-- `frontend/`: Vite + React static run viewer (results, then a per-task tree over agent steps with
-  each branch's events, judge score, patch and hidden-test grade). Visual system carried over from
-  RuleBranch: graphite on bone paper, and `--fix` green is the only colour, reserved for patches that
-  passed the hidden tests and the route to them.
+- `frontend/`: Vite + React + Tailwind v4 static run viewer (results, method, a per-task branch replay with
+  each branch's events, judge score, patch and hidden-test grade, and the real-issue results). Rebuilt on
+  2026-10-11 from published templates only (jesse-1-ui rule: no hand-designed UI). The Refero "OpenAI Developers" style
+  supplies the tokens; shadcnui-blocks (MIT) and stock shadcn primitives supply the components. `frontend/TEMPLATES.md`
+  is the template trail, the rejected candidates and the open items; add to it, do not restyle the parts.
 
 ## Constraints to respect
 
