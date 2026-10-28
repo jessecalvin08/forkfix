@@ -3,9 +3,9 @@
 export type ModeName = "linear" | "matched" | "branching";
 export const MODES: ModeName[] = ["linear", "matched", "branching"];
 export const MODE_LABEL: Record<ModeName, string> = {
-  linear: "One attempt",
-  matched: "Matched attempts",
-  branching: "Branching",
+  linear: "One try",
+  matched: "Independent tries",
+  branching: "Forkfix",
 };
 
 export interface RunEvent {
@@ -142,9 +142,57 @@ export function patchFiles(patch: string): { path: string; meta: string }[] {
 }
 
 export const STOP_LABEL: Record<string, string> = {
-  branched: "forked",
-  pruned: "pruned",
-  submitted: "submitted",
-  step_limit: "step limit",
-  budget: "token budget",
+  branched: "split into more attempts",
+  pruned: "dropped",
+  submitted: "submitted as an answer",
+  step_limit: "ran out of steps",
+  budget: "ran out of budget",
 };
+
+export const TOOL_LABEL: Record<string, string> = {
+  view: "Read a file",
+  create: "Created a file",
+  edit: "Edited a file",
+  bash: "Ran a command",
+  submit: "Submitted",
+};
+
+/** "astropy__astropy-12907" -> "astropy #12907": a name and a number a person can say out loud. */
+export function bugLabel(task: string): string {
+  const tail = task.split("__")[1] ?? task;
+  const i = tail.lastIndexOf("-");
+  return i < 0 ? tail : `${tail.slice(0, i)} #${tail.slice(i + 1)}`;
+}
+
+/** The first line of the bug report, which is its title. */
+export function bugTitle(problem: string): string {
+  const line = problem.split("\n").find((l) => l.trim()) ?? problem;
+  const t = line.replace(/`/g, "").trim();
+  return t.length > 140 ? `${t.slice(0, 140)}…` : t;
+}
+
+export const ORDER: ModeName[] = ["branching", "matched", "linear"];
+export const taskName = (id: string) => id.replace("__", "/");
+
+/** Tasks branching solved first, then matched, then one attempt; ties by name. A column keeps one task. */
+export function sortRows(rows: IndexRow[]): IndexRow[] {
+  const key = (r: IndexRow) => ORDER.map((m) => (r.modes[m].solved ? 1 : 0));
+  return [...rows].sort((a, b) => {
+    const x = key(a);
+    const y = key(b);
+    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return y[i] - x[i];
+    return a.task.localeCompare(b.task);
+  });
+}
+
+/** Mirror one piece of viewer state into the address bar without adding history entries. */
+export function setParam(key: string, value: string | null) {
+  try {
+    const u = new URL(window.location.href);
+    if (value == null) u.searchParams.delete(key);
+    else u.searchParams.set(key, value);
+    window.history.replaceState(null, "", u);
+  } catch {
+    /* the address bar is a convenience, not state the page depends on */
+  }
+}

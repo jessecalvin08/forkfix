@@ -1,145 +1,142 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
 
-/* Source: Refero Styles, "OpenAI Developers" (https://styles.refero.design/style/5c94c49f-0612-4261-842c-e1d501f3e13d).
-   Colours, type scale, radii and shadow below are the style's published "Tailwind v4" tab. The style's
-   typeface, OpenAI Sans, is proprietary; the style publishes Inter as its substitute. Its spacing scale
-   is kept as plain variables in :root (see below). */
+/* Forkfix viewer: a lab ledger. Warm paper, one ink, one accent that means "branching".
+   Roles, not hues: paper/panel are surfaces, ink/muted are text, rule/rule-strong are borders,
+   accent marks the branching series and the selected state. Contrast on paper: ink 17:1,
+   muted 5.8:1, accent 5.4:1. Light only. */
 @theme {
-  /* Colors */
-  --color-obsidian: #000000;
-  --color-paper-white: #ffffff;
-  --color-carbon: #181818;
-  --color-fog-white: #f9f9f9;
-  --color-ash-gray: #5d5d5d;
-  --color-graphite: #282828;
-  --color-mist-gray: #ededed;
-  --color-linen: #f3f3f3;
-  --color-ink: #0d0d0d;
-  --color-smoke: #8f8f8f;
-  --color-slate-whisper: #64748b;
+  --color-paper: #f6f4ef;
+  --color-panel: #fbfaf6;
+  --color-ink: #16140f;
+  --color-muted: #675f52;
+  --color-rule: #dedacd;
+  --color-rule-strong: #b9b3a2;
+  --color-accent: #c2301a;
+  --color-accent-tint: #f4ddd6;
+  --color-add: #e1ecd9;
+  --color-mid: #8d8777;
 
-  /* Typography */
-  --font-openai-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
 
-  /* Typography, scale */
-  --text-caption: 12px;
-  --leading-caption: 1.5;
-  --text-body-sm: 14px;
-  --leading-body-sm: 1.5;
-  --text-body: 16px;
-  --leading-body: 1.5;
-  --text-subheading: 18px;
-  --leading-subheading: 1.4;
-  --text-heading: 20px;
-  --leading-heading: 1.4;
-  --text-display: 30px;
-  --leading-display: 1.2;
-
-  /* Border Radius */
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-full: 9999px;
-
-  /* Shadows */
-  --shadow-subtle: rgba(0, 0, 0, 0.08) 0px 1px 2px -1px;
-}
-
-/* Wiring only: the semantic names the shadcn and ssych components read, pointed at the style's
-   tokens. The style is light-only and forbids a chromatic accent on UI controls, so the chart
-   state colours are neutrals (failed and waiting are also written as words by the components). */
-:root {
-  color-scheme: light;
-
-  /* The style's spacing scale, from its published values. Kept out of @theme because Tailwind v4
-     would read `--spacing-4: 4px` as the key `4` and shrink every spacing utility. */
-  --spacing-4: 4px;
-  --spacing-8: 8px;
-  --spacing-12: 12px;
-  --spacing-16: 16px;
-  --spacing-20: 20px;
-  --spacing-24: 24px;
-  --spacing-32: 32px;
-  --spacing-40: 40px;
-  --spacing-48: 48px;
-  --spacing-56: 56px;
-  --spacing-64: 64px;
-  --spacing-80: 80px;
-
-  --background: var(--color-paper-white);
-  --foreground: var(--color-carbon);
-  --card: var(--color-fog-white);
-  --card-foreground: var(--color-carbon);
-  --popover: var(--color-paper-white);
-  --popover-foreground: var(--color-carbon);
-  --primary: var(--color-obsidian);
-  --primary-foreground: var(--color-paper-white);
-  --secondary: var(--color-linen);
-  --secondary-foreground: var(--color-carbon);
-  --muted: var(--color-linen);
-  --muted-foreground: var(--color-ash-gray);
-  --accent: var(--color-linen);
-  --accent-foreground: var(--color-carbon);
-  --destructive: var(--color-carbon);
-  --border: var(--color-mist-gray);
-  --input: var(--color-mist-gray);
-  --ring: var(--color-carbon);
-  --radius: 8px;
-
-  --surface: var(--color-fog-white);
-  --surface-soft: var(--color-paper-white);
-  --panel: var(--color-fog-white);
-  --card-raised: var(--color-fog-white);
-  --card-shadow: rgba(0, 0, 0, 0.08);
-
-  --chart-1: var(--color-carbon);
-  --chart-2: var(--color-ash-gray);
-  --chart-3: var(--color-smoke);
-  --chart-4: var(--color-mist-gray);
-  --chart-5: var(--color-linen);
-  --chart-up: var(--color-carbon);
-  --chart-down: var(--color-carbon);
-  --chart-amber: var(--color-smoke);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-surface: var(--surface);
-  --color-panel: var(--panel);
-  --font-sans: var(--font-openai-sans);
+  --radius-sm: 4px;
+  --radius-md: 8px;
 }
 
 @layer base {
-  * {
-    border-color: var(--border);
-  }
   html {
-    font-family: var(--font-openai-sans);
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px;
     -webkit-text-size-adjust: 100%;
   }
   body {
-    background: var(--background);
-    color: var(--foreground);
-    font-size: var(--text-body);
-    line-height: var(--leading-body);
-    letter-spacing: -0.008em;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--color-accent-tint);
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-rule-strong) transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    * {
+      transition: none !important;
+    }
+  }
+}
+
+@layer components {
+  /* The replay is the trace itself, so it turns into a dark workbench: the same roles, re-pointed.
+     Muted 8.6:1, accent 7:1 and ink 15:1 on this paper. */
+  .band {
+    --color-paper: #14120e;
+    --color-panel: #1d1b15;
+    --color-ink: #f3f0e8;
+    --color-muted: #b4ad9d;
+    --color-rule: #35312a;
+    --color-rule-strong: #5b5546;
+    --color-accent: #ff7258;
+    --color-accent-tint: #3a1d16;
+    --color-add: #1f3019;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    color-scheme: dark;
+  }
+  .draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .draw {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
+  /* "Solved by both" in the paired bars: hatched, so solid ink keeps one meaning in the matrix. */
+  .hatch {
+    background: repeating-linear-gradient(135deg, var(--color-ink) 0 2px, transparent 2px 5px);
+    box-shadow: inset 0 0 0 1px var(--color-ink);
+  }
+  .wrap {
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 4vw, 32px);
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  /* One cell per task. Column count steps down so a row never needs a horizontal scroll;
+     every mode block uses the same count, so a task keeps its place across the three rows. */
+  .strip {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(var(--c1), minmax(0, 1fr));
+  }
+  @media (min-width: 520px) {
+    .strip {
+      grid-template-columns: repeat(var(--c2), minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 960px) {
+    .strip {
+      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    }
   }
 }

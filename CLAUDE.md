@@ -89,10 +89,10 @@ From `frontend/`: `npm run dev` (viewer on :5173), `npm run build` (typecheck + 
   `benchmark_tasks.json`) into tracked `results/benchmark.json`, with McNemar p-values and a list-price
   cost estimate; `forkfix/viewer_data.py` exports the same reports' trees for the viewer.
 - `frontend/`: Vite + React + Tailwind v4 static run viewer (results, method, a per-task branch replay with
-  each branch's events, judge score, patch and hidden-test grade, and the real-issue results). Rebuilt on
-  2026-10-11 from published templates only (jesse-1-ui rule: no hand-designed UI). The Refero "OpenAI Developers" style
-  supplies the tokens; shadcnui-blocks (MIT) and stock shadcn primitives supply the components. `frontend/TEMPLATES.md`
-  is the template trail, the rejected candidates and the open items; add to it, do not restyle the parts.
+  each branch's events, judge score, patch and hidden-test grade, and the real-issue results). Redesigned from
+  scratch on 2026-10-23 at Jesse's request with the jesse-2-ui skill ("lab ledger": paper, ink, one accent for branching;
+  hero is a 79-task matrix). The 2026-10-11 template build (shadcnui-blocks, Refero style) was deleted. `frontend/TEMPLATES.md`
+  holds the direction, the research actually done and the open items.
 
 ## Constraints to respect
 

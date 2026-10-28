@@ -1,57 +1,46 @@
-# UI template trail
+# Viewer design notes
 
-The viewer was rebuilt on 2026-10-11 from published templates and components only, with none of the
-earlier frontend reused. Each part below is used as published; only placeholder content, the
-`next/link` dependency and token names were wired. Nothing here was designed from scratch.
+On 2026-10-23, at Jesse's request ("I don't like this UI", with the `jesse-2-ui` skill), the viewer was
+redesigned from scratch. It no longer uses the Refero "OpenAI Developers" style, shadcnui-blocks or stock
+shadcn primitives from the 2026-10-11 template build; those files are deleted. This supersedes the
+template-only rule for the frontend until Jesse says otherwise.
 
-## Direction and tokens
+## Direction
 
-| Part | Source | URL | Licence |
-| --- | --- | --- | --- |
-| Visual system: "OpenAI Developers, stark white laboratory" (colour, type scale, 8px cards, pill controls, hairline surfaces) | Refero Styles | https://styles.refero.design/style/5c94c49f-0612-4261-842c-e1d501f3e13d | Reference style; typeface is Inter (the style's published substitute for proprietary OpenAI Sans) via `@fontsource-variable/inter` (SIL OFL) |
+"A lab ledger": warm paper, one ink, one accent that means *branching*. Left-aligned, hairline rules,
+mono for IDs and numbers, no cards, no icon tiles. Tokens live in `src/styles.css` (roles: paper, panel,
+ink, muted, rule, accent). Inter is the only family; mono is the system stack.
 
-`src/styles.css` holds the style's published Tailwind v4 colour, type, radius and shadow tokens, its spacing
-scale as plain variables (Tailwind v4 would read `--spacing-4: 4px` as the key `4` and shrink every spacing
-utility), and the semantic names the components read pointed at those tokens. The style forbids a chromatic
-accent, so chart state colours are neutrals; failed and waiting are also written as words. An earlier build
-used the Refero "Vercel" style; it was replaced on 2026-10-11 at Jesse's request.
+The memorable move is the hero matrix in `sections/Results.tsx`: every one of the 79 tasks is a column,
+in the same place in the three rows (branching, matched attempts, one attempt), so the whole benchmark
+reads in one glance. Cells link to the replay.
 
-## Components
+## Research trail (what was actually consulted)
 
-All from shadcnui-blocks (https://github.com/shadcnui-blocks, MIT, Copyright 2025 Shadcn UI Blocks), installed
-as published. Their sample data became props; markup and classes are unchanged.
+Only the title/slug search of the indexable sources was run (`jesse-2-ui/scripts/search.py`, queries
+"dashboard results comparison" and "timeline trace"); no source page was opened and no reference was read
+in depth. The hits (21st.dev comparison and usage dashboards, shadcn trace, React Bits ThoughtLine and
+BranchedMenu, Aceternity timeline) informed only the choice to show the branch tree as an indented trace
+rather than a table. Neither Aura, Neuform, MotionSites, Dribbble nor Refero was consulted. The skill's
+20-reference minimum was not met.
 
-| Section | Block | URL | Slots filled |
-| --- | --- | --- | --- |
-| Nav | Navbar 02 | https://www.shadcnui-blocks.com/r/navbar-02.json | Logo, 4 links, 2 buttons; theme toggle removed; `aria-label` added to the icon-only menu button |
-| Result | Stats 04 | https://www.shadcnui-blocks.com/r/stats-04.json | Heading, subtitle, three cells |
-| What the numbers say | Features 01 | https://www.shadcnui-blocks.com/r/features-01.json | Heading, subtitle, three cards |
-| Method | Timeline 05 | https://www.shadcnui-blocks.com/r/timeline-05.json | Four steps |
-| Branch steps | Timeline 01 | https://www.shadcnui-blocks.com/r/timeline-01.json | Tool, summary, observation; icons swapped to Terminal and Hash |
-| Task, branch and issue lists, tabs, cards | shadcn `table`, `tabs`, `card`, `badge` | https://ui.shadcn.com | Stock primitives (MIT) |
-| Footer | Footer 01 | https://www.shadcnui-blocks.com/r/footer-01.json | Three link groups; `next/link` replaced by `a` |
+## Impeccable critique pass (2026-10-23)
 
-## Considered and rejected
-
-| Candidate | Why |
-| --- | --- |
-| ssych "Developer Tools Landing" (`simple-landing`) | Licence conflict: its README says "Bought once", the install page says landing pages are paid, the changelog says free |
-| T3Code cinematic SaaS landing (21st) | Paid ($45); fake testimonials |
-| ssych ui (all parts) | Dropped on 2026-10-11 at Jesse's request: it gave the page the same look as the first design |
-| ssych Model Comparison | Needs latency, $/1M and context per model; Forkfix has none |
-| ssych Tool Call Card | Requires a duration per call; events record none |
-| ssych Stacked Bars | Time-series chart whose headline sums its rows; summing solved counts across modes is meaningless |
-| ssych Trade Journal Table, Request Log, Release Feed | Trade, HTTP and release-note shaped data |
-| hero-14 (21st, felipemenezes098) | AGPL-3.0; centred H1 over a photo with a logo strip |
-| hero-06, hero-07 (shadcnui-blocks) | Centred, announcement badge, animated dot-grid wallpaper |
-| hero-17, hero-with-mockup (21st) | Centred, gradient text and cursor glow |
+`/impeccable critique` scored the first redesign 27/40 (snapshot in `.impeccable/critique/`). Fixed in response:
+both p-values and the full matrix now fit the first 800px of the page; the matrix is one tab stop per task
+with arrow keys, and a touch tap pins a column; the replay has a task filter, branching-wins-first order,
+previous/next, `?task=` and `?mode=` in the URL, a tabpanel, and retry buttons; red means branching and
+selection only (failures are an ink-outlined tag; matched is ink, one attempt is mid grey, "both" is hatched);
+kickers and section numbers were removed along with all coloured side borders (craft-floor bans); the replay
+is a dark band; a glossary and a "rebuild these numbers" block were added. The detector reports no findings.
+The page was not re-scored after these changes.
 
 ## Open items
 
-1. **Hero.** No published hero passed the slop checklist, so the page opens on Stats 04's centred heading.
-2. **Branch tree and trace.** AI Conversation Tree (https://21st.dev/@elements-/components/conversation-tree, MIT)
-   and Agent Trace (https://21st.dev/@n1m4mz/components/agent-trace, MIT) fit the data but their source needs a
-   21st sign-in. Branches are a table until they are fetched.
-3. **Type size.** The blocks set headings at 36px and stat numbers at 48px; the style caps type at 30px. Not
-   restyled, per the template-only rule.
-4. **Patch view.** The patch is a plain `<pre>`; a published code or diff block needs the 21st sign-in too.
+1. No light/dark switch: the page is light with one dark band.
+2. Hero cells are narrower than 24px on phones; the task list in the replay is the equivalent control.
+3. Unused dependencies remain in `package.json` (radix-ui packages, `motion`, `cva`, `cn`); not pruned.
+
+## Plain-language pass (2026-10-23)
+
+A judge-with-no-context review found the page unreadable. Rewrote it as a story: what it is, how it works in four everyday steps, one real bug walked through (`sections/Walkthrough.tsx`, numbers read from the saved run), the evidence, then the explorable replay. Bugs are labelled "astropy #12907" with the report title instead of raw ids; attempts are numbered; tools, stop reasons and test counts are in words; technical detail lives in collapsed boxes.
