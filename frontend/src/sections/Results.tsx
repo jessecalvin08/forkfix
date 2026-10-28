@@ -21,7 +21,8 @@ const WHAT: Record<ModeName, string> = {
   linear: "a single attempt",
 };
 
-const FILL: Record<ModeName, string> = { branching: "bg-accent", matched: "bg-ink", linear: "bg-mid" };
+const FILL: Record<ModeName, string> = { branching: "text-accent", matched: "text-cool", linear: "text-mid" };
+const TONE: Record<ModeName, string> = { branching: "bg-accent", matched: "bg-cool", linear: "bg-mid" };
 
 export function Hero({ index }: { index: RunIndex }) {
   const { totals: t, tasks } = index;
@@ -74,7 +75,7 @@ export function Evidence({ index, onPick }: { index: RunIndex; onPick: (task: st
   const [hover, setHover] = useState<IndexRow | null>(null);
   const [col, setCol] = useState(0);
   const cells = useRef<(HTMLButtonElement | null)[]>([]);
-  const cost = (m: ModeName) => (t[m].estimated_usd == null ? "" : `costs about ${usd(t[m].estimated_usd)} to run`);
+  const cost = (m: ModeName) => (t[m].estimated_usd == null ? "" : `${usd(t[m].estimated_usd)} to run`);
 
   // A mouse click opens the replay; a touch or pen tap pins the column so its name can be read first.
   const activate = (r: IndexRow, e: React.MouseEvent) => {
@@ -103,8 +104,8 @@ export function Evidence({ index, onPick }: { index: RunIndex; onPick: (task: st
             How well does it work?
           </h2>
           <p className="mt-3 max-w-[64ch] text-muted">
-            We gave the same AI model {tasks} real bugs and let it work three ways. Each square below is one bug. A
-            square is lit when the fix passed the project&rsquo;s own tests, which the agent never sees.
+            We gave the same AI model {tasks} real bugs and let it work three ways. Each dot below is one bug. A
+            dot is lit when the fix passed the project&rsquo;s own tests, which the agent never sees.
           </p>
 
           <figure className="mt-8" aria-label={`Each column is one of ${tasks} bugs`}>
@@ -120,15 +121,13 @@ export function Evidence({ index, onPick }: { index: RunIndex; onPick: (task: st
                       <span className="font-medium">{MODE_LABEL[m]}</span>
                       <span className="text-sm text-muted">{WHAT[m]}</span>
                     </p>
-                    <p className="num font-mono text-sm text-muted">
-                      {cost(m)}
-                    </p>
+                    <p className="num whitespace-nowrap font-mono text-sm text-muted">{cost(m)}</p>
                   </div>
                   {/* Only the first row is focusable: one stop per bug, and its label carries all three results. */}
                   <div className="strip" style={vars} aria-hidden={mi === 0 ? undefined : true} onMouseLeave={() => setHover(null)}>
                     {rows.map((r, i) => {
                       const on = r.modes[m].solved;
-                      const look = `h-[22px] rounded-[2px] transition-colors md:h-6 ${on ? FILL[m] : "bg-rule"} ${outline(r)}`;
+                      const look = `dot ${on ? `dot-on ${FILL[m]}` : ""} ${outline(r)}`;
                       return mi === 0 ? (
                         <button
                           key={r.task}
@@ -158,8 +157,8 @@ export function Evidence({ index, onPick }: { index: RunIndex; onPick: (task: st
 
             <figcaption className="mt-4 space-y-1.5 text-sm text-muted">
               <p>
-                The same bug sits in the same column in every row, and bugs Forkfix fixed come first. Click a square to
-                replay that bug; arrow keys move between squares.
+                The same bug sits in the same column in every row, and bugs Forkfix fixed come first. Click a dot to
+                replay that bug; arrow keys move between dots.
               </p>
               <p className="min-h-6 text-ink" aria-live="polite">
                 {hover ? (
@@ -189,33 +188,27 @@ function Paired({ a, b, rows }: { a: ModeName; b: ModeName; rows: IndexRow[] }) 
   const onlyA = rows.filter((r) => r.modes[a].solved && !r.modes[b].solved).length;
   const onlyB = rows.filter((r) => !r.modes[a].solved && r.modes[b].solved).length;
   const both = rows.filter((r) => r.modes[a].solved && r.modes[b].solved).length;
-  const total = onlyA + both + onlyB || 1;
-  const seg = (n: number) => ({ width: `${(n / total) * 100}%` });
-  return (
-    <div>
-      <div
-        className="flex h-3 w-full gap-[2px]"
-        role="img"
-        aria-label={`${onlyA} only ${MODE_LABEL[a]}, ${both} both, ${onlyB} only ${MODE_LABEL[b]}`}
-      >
-        <span className="bg-accent" style={seg(onlyA)} />
-        <span className="hatch" style={seg(both)} />
-        <span className="bg-mid" style={seg(onlyB)} />
+  const group = (n: number, label: string, tone: string, big: string) => (
+    <div className="min-w-0">
+      <p className="num text-sm text-muted">{label}</p>
+      <p className={`num text-3xl font-semibold leading-none tracking-[-0.03em] ${big}`}>{n}</p>
+      <div className="mt-2.5 flex flex-wrap gap-1.5" aria-hidden>
+        {Array.from({ length: n }, (_, i) => (
+          <span key={i} className={`h-3.5 w-3.5 rounded-full ${tone}`} />
+        ))}
+        {n === 0 ? <span className="h-3.5" /> : null}
       </div>
-      <dl className="num mt-2 flex flex-wrap gap-x-6 gap-y-1 font-mono text-sm">
-        <div className="flex gap-1.5">
-          <dt className="text-muted">only {MODE_LABEL[a]}</dt>
-          <dd className="font-medium text-accent">{onlyA}</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt className="text-muted">both</dt>
-          <dd className="font-medium">{both}</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt className="text-muted">only {MODE_LABEL[b]}</dt>
-          <dd className="font-medium">{onlyB}</dd>
-        </div>
-      </dl>
+    </div>
+  );
+  return (
+    <div
+      role="img"
+      aria-label={`${onlyA} only ${MODE_LABEL[a]}, ${both} both, ${onlyB} only ${MODE_LABEL[b]}`}
+      className="flex flex-wrap items-end gap-x-7 gap-y-5"
+    >
+      {group(onlyA, `only ${MODE_LABEL[a]}`, TONE[a], "text-accent")}
+      {group(both, "both", "bg-ink", "")}
+      {group(onlyB, `only ${MODE_LABEL[b]}`, TONE[b], "")}
     </div>
   );
 }

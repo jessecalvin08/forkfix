@@ -2,58 +2,32 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Section } from "@/components/chrome";
 import { eventFailed, getJSON, patchFiles, type RunNode, type TaskRun } from "@/data";
-import { Diff, layout } from "@/sections/Replay";
+import { TreeView, type TreeNode } from "@/components/ui/animated-tree-view";
+import { Diff } from "@/sections/Replay";
 
 const FEATURED = "astropy__astropy-12907";
-const GAP = 22;
-const COL = 24;
+const SHORT: Record<string, string> = { branched: "split into more attempts", pruned: "dropped", submitted: "answer", step_limit: "out of steps", budget: "out of budget" };
 
-/** Every attempt Forkfix grew on one bug, drawn as the tree it is. */
+/** Every attempt Forkfix grew on one bug, as a collapsible tree (21st.dev Animated Tree View). */
 function BranchTree({ nodes, selected }: { nodes: RunNode[]; selected: string | null }) {
-  const rows = useMemo(() => layout(nodes), [nodes]);
-  const at = new Map(rows.map((r, i) => [r.node.id, i]));
-  const depth = Math.max(...rows.map((r) => r.depth));
-  const w = (depth + 1) * COL + 16;
-  const h = rows.length * GAP + 12;
-  const x = (d: number) => d * COL + 10;
-  const y = (i: number) => i * GAP + 11;
+  const { data, open } = useMemo(() => {
+    const num = new Map(nodes.map((n, i) => [n.id, i + 1]));
+    const kids = new Map<string | null, RunNode[]>();
+    for (const n of nodes) kids.set(n.parent, [...(kids.get(n.parent) ?? []), n]);
+    const build = (n: RunNode): TreeNode => ({
+      id: n.id,
+      name: `Attempt ${num.get(n.id)} · ${n.id === selected ? "chosen" : (SHORT[n.stop] ?? n.stop)}${n.score != null ? ` · ${n.score}/10` : ""}`,
+      children: (kids.get(n.id) ?? []).map(build),
+    });
+    return { data: (kids.get(null) ?? []).map(build), open: nodes.filter((n) => kids.has(n.id)).map((n) => n.id) };
+  }, [nodes, selected]);
 
   return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      width={w}
-      height={h}
-      role="img"
-      aria-label={`${rows.length} attempts Forkfix grew on this bug, drawn as a tree. One was chosen as the answer.`}
-      className="h-auto max-w-full text-ink"
-    >
-      <g fill="none" stroke="var(--color-rule-strong)" strokeWidth="1.5">
-        {rows.map(({ node: n, depth: d }, i) => {
-          const pi = n.parent == null ? undefined : at.get(n.parent);
-          return pi == null ? null : <path key={n.id} d={`M${x(d - 1)} ${y(pi)} V${y(i)} H${x(d)}`} />;
-        })}
-      </g>
-      {rows.map(({ node: n, depth: d }, i) => {
-        const cx = x(d);
-        const cy = y(i);
-        if (n.id === selected) return <circle key={n.id} cx={cx} cy={cy} r="6.5" fill="var(--color-accent)" />;
-        if (n.stop === "submitted") return <circle key={n.id} cx={cx} cy={cy} r="5" fill="currentColor" />;
-        if (n.stop === "branched") return <circle key={n.id} cx={cx} cy={cy} r="4.5" fill="var(--color-paper)" stroke="currentColor" strokeWidth="1.8" />;
-        if (n.stop === "step_limit")
-          return <circle key={n.id} cx={cx} cy={cy} r="4.5" fill="var(--color-paper)" stroke="var(--color-mid)" strokeWidth="1.8" strokeDasharray="2 2" />;
-        return <circle key={n.id} cx={cx} cy={cy} r="3.5" fill="var(--color-rule-strong)" />;
-      })}
-    </svg>
+    <div className="max-h-[32rem] overflow-y-auto rounded-md border border-rule bg-panel p-2">
+      <TreeView data={data} defaultExpandedIds={open} indent={16} />
+    </div>
   );
 }
-
-const KEY = [
-  ["bg-accent", "The attempt Forkfix chose"],
-  ["bg-ink", "Another finished answer"],
-  ["border-2 border-ink bg-paper", "Split into more attempts"],
-  ["border-2 border-dashed border-mid bg-paper", "Ran out of steps"],
-  ["bg-rule-strong", "Dropped"],
-] as const;
 
 export function Walkthrough() {
   const [run, setRun] = useState<TaskRun | null>(null);
@@ -86,7 +60,7 @@ export function Walkthrough() {
       title="One real bug, start to finish"
       lede="This is a real bug report from astropy, a Python library used by astronomers. Here is what happened when the same AI model worked on it two ways."
     >
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
         <ol className="space-y-8">
           <li>
             <h3 className="font-semibold">1. The bug report</h3>
@@ -131,15 +105,7 @@ export function Walkthrough() {
         <figure className="lg:sticky lg:top-24 lg:self-start">
           <BranchTree nodes={f.nodes} selected={f.selected} />
           <figcaption className="mt-3 text-sm text-muted">
-            <p>Each dot is one attempt Forkfix tried on this bug.</p>
-            <ul className="mt-2 space-y-1">
-              {KEY.map(([cls, label]) => (
-                <li key={label} className="flex items-center gap-2">
-                  <span aria-hidden className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${cls}`} />
-                  {label}
-                </li>
-              ))}
-            </ul>
+            <p>Each row is one attempt. Open or close a split to follow the branches; the score is the AI reviewer&rsquo;s, where one was given.</p>
           </figcaption>
         </figure>
       </div>
