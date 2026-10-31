@@ -14,7 +14,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-rule bg-paper/95 backdrop-blur-sm">
       <div className="wrap flex h-14 items-center justify-between gap-4">
         <a href="#top" className="flex min-h-11 min-w-9 items-center gap-2 font-semibold tracking-tight">
-          <img src="/forkfix-mark.svg" alt="" width={20} height={20} />
+          <img src="/forkfix-mark.svg" alt="" width={24} height={24} />
           <span className="max-sm:sr-only">Forkfix</span>
         </a>
         <nav aria-label="Sections" className="flex items-center text-sm sm:gap-1">
@@ -100,7 +100,7 @@ export function Footer() {
       <div className="wrap grid gap-10 py-12 text-sm md:grid-cols-[260px_minmax(0,1fr)] md:gap-12">
         <div>
           <p className="flex items-center gap-2 font-semibold">
-            <img src="/forkfix-mark.svg" alt="" width={20} height={20} />
+            <img src="/forkfix-mark.svg" alt="" width={24} height={24} />
             Forkfix
           </p>
           <p className="mt-3 max-w-[34ch] text-muted">
